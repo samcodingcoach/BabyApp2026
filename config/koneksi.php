@@ -2,7 +2,7 @@
 $host     = "localhost";
 $username = "matos";
 $password = "1234";
-$database = "klinik-bayi";
+$database = "terapis-bayi";
 
 // Matikan report error default mysqli agar tidak mengganggu output JSON
 mysqli_report(MYSQLI_REPORT_OFF);
