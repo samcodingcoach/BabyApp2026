@@ -56,12 +56,12 @@ $baseQuery = "
         layanan.picture1,
         layanan.picture2,
         layanan.picture3,
-        layanan.video3
+        layanan.video1
     FROM
         layanan
         INNER JOIN kategori_layanan 
             ON layanan.id_kategori_layanan = kategori_layanan.id_kategori_layanan
-        INNER JOIN layanan_harga 
+        LEFT JOIN layanan_harga 
             ON layanan.id_harga_layanan = layanan_harga.id_harga_layanan
     WHERE 1=1
 ";
