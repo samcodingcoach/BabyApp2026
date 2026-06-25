@@ -14,12 +14,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit();
 }
 
-// Cek apakah user sudah login dengan mengecek session
-if (!isset($_SESSION['user_id'])) {
+require_once '../../config/koneksi.php';
+require_once '../../config/auth_helper.php';
+
+// Cek apakah user sudah login (Mendukung via Session Browser ATAU via Bearer Token Header)
+$auth_user_id = check_auth($koneksi);
+if (!$auth_user_id) {
     http_response_code(401); // Unauthorized
     echo json_encode([
         'status' => 'error',
-        'message' => 'Unauthorized: Anda belum login atau sesi telah berakhir.',
+        'message' => 'Unauthorized: Anda belum login atau token otorisasi tidak valid/kadaluarsa.',
         'data' => [],
         'count' => 0
     ]);

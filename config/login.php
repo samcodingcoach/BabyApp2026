@@ -2,6 +2,7 @@
 session_start();
 header('Content-Type: application/json');
 require_once 'koneksi.php';
+require_once 'auth_helper.php';
 
 // Mendapatkan data dari POST form-data atau JSON payload
 $inputJSON = file_get_contents('php://input');
@@ -66,8 +67,12 @@ if ($result->num_rows > 0) {
         $_SESSION['role_id'] = $user['role_id'];
         $_SESSION['full_name'] = $user['full_name'];
         
-        // Hapus password dari response untuk keamanan
+        // Gunakan password hash yang ada di database sebagai Bearer Token
+        $token = $user['password'];
+        
+        // Hapus password dari response utama, pindahkan ke field token
         unset($user['password']);
+        $user['token'] = $token;
         
         http_response_code(200);
         echo json_encode([
