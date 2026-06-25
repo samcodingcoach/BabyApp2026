@@ -34,10 +34,7 @@ if (!isset($_SESSION['user_id'])) {
 
 <div class="container">
     <h2>Manajemen Layanan Induk</h2>
-    <a href="../users/users.php" class="back-link">Users</a> |
-    <a href="../role/role.php" class="back-link">Role</a> |
-    <a href="../kategori-layanan/kategori-layanan.php" class="back-link">Kategori Layanan</a> |
-    <a href="../harga-layanan/harga-layanan.php" class="back-link">Histori Harga</a>
+
     <a href="../../logout-admin.php" style="float: right; color: red; text-decoration: none;">Logout</a>
     <br><br>
     
