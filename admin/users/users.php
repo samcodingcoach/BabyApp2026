@@ -97,7 +97,7 @@ if (!isset($_SESSION['user_id'])) {
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <th>No.</th>
                 <th>Photo</th>
                 <th>Username</th>
                 <th>Full Name</th>
@@ -154,7 +154,7 @@ async function fetchUsers() {
                 return;
             }
             
-            usersData.forEach(user => {
+            usersData.forEach((user, index) => {
                 // Tampilkan foto jika ada
                 const photoSrc = user.photo ? `../../images/${user.photo}` : '';
                 const photoHtml = photoSrc ? `<img src="${photoSrc}" width="50" style="border-radius:4px;">` : '-';
@@ -162,7 +162,7 @@ async function fetchUsers() {
                 
                 tbody.innerHTML += `
                     <tr>
-                        <td>${user.user_id}</td>
+                        <td>${index + 1}</td>
                         <td>${photoHtml}</td>
                         <td>${user.username}</td>
                         <td>${user.full_name}</td>
