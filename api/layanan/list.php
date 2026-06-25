@@ -34,6 +34,7 @@ if (!$auth_user_id) {
 $id_layanan = $_GET['id_layanan'] ?? null;
 $kode_layanan = $_GET['kode_layanan'] ?? null;
 $kode_kategori = $_GET['kode_kategori'] ?? null;
+$nama_layanan = $_GET['nama_layanan'] ?? null;
 
 // Query Dasar sesuai dengan skema
 $baseQuery = "
@@ -86,6 +87,12 @@ if (!empty($kode_kategori)) {
     $baseQuery .= " AND kategori_layanan.kode_kategori = ?";
     $types .= "s";
     $params[] = $kode_kategori;
+}
+
+if (!empty($nama_layanan)) {
+    $baseQuery .= " AND layanan.nama_layanan LIKE ?";
+    $types .= "s";
+    $params[] = "%" . $nama_layanan . "%";
 }
 
 // Urutkan ID terbaru di atas
