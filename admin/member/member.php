@@ -121,7 +121,7 @@ if (!isset($_SESSION['user_id'])) {
                 <th>Kecamatan</th>
                 <th>Whatsapp</th>
                 <th>Status</th>
-                <th style="width: 15%;">Aksi</th>
+                <th style="width: 22%;">Aksi</th>
             </tr>
         </thead>
         <tbody id="tableBody">
@@ -222,6 +222,7 @@ async function fetchList(page = 1) {
                         <td>${statusHtml}</td>
                         <td>
                             <button onclick="editData(${index})">Edit Data</button>
+                            <a href="../bayi/bayi.php?id_member=${item.id_member}" style="background:#ff9800; color:white; padding:6px 12px; text-decoration:none; border-radius:3px; font-size:0.9em; margin-left:5px;">Data Anak</a>
                         </td>
                     </tr>
                 `;
