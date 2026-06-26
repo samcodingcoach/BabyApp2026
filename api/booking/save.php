@@ -38,6 +38,15 @@ try {
         throw new Exception("Layanan belum dipilih (Booking Detail kosong)");
     }
 
+    // 0. Cek batas minimal pemesanan (Harus H+30 Menit dari Waktu Sekarang)
+    $now = time();
+    $min_booking_time = $now + (30 * 60);
+    $req_start_time = strtotime($tanggal_booking);
+
+    if ($req_start_time < $min_booking_time) {
+        throw new Exception("Waktu booking minimal adalah 30 menit dari jam sekarang (" . date('d M Y, H:i') . ").");
+    }
+
     // 1. Validasi Jam Operasional Usaha
     $stmtUsaha = $koneksi->prepare("SELECT jam_buka, jam_tutup, sedang_buka FROM profile_usaha LIMIT 1");
     $stmtUsaha->execute();

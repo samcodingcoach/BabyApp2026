@@ -200,6 +200,13 @@ if (!isset($_SESSION['user_id'])) {
                 <input type="hidden" id="update_id_booking">
                 <button onclick="eksekusiUpdateStatus()" style="background:#007bff; color:white; border:none; padding:6px 12px; border-radius:3px;">Update Status</button>
             </div>
+
+            <!-- RESCHEDULE SECTION -->
+            <div style="margin-top: 10px; padding: 15px; background: #fff3cd; border: 1px solid #ffeeba;">
+                <strong>Reschedule Jadwal:</strong><br>
+                <input type="datetime-local" id="reschedule_tgl" style="padding:5px; margin-top:5px;">
+                <button onclick="eksekusiReschedule()" style="background:#ffc107; color:#000; border:none; padding:6px 12px; border-radius:3px; font-weight:bold;">Simpan Perubahan Jadwal</button>
+            </div>
         </div>
     </div>
 
@@ -210,6 +217,7 @@ if (!isset($_SESSION['user_id'])) {
                 <th>No.</th>
                 <th>Kode</th>
                 <th>Tgl Jadwal</th>
+                <th>Avail. At (Terapis Free)</th>
                 <th>Klien (Member)</th>
                 <th>Terapis</th>
                 <th>Total Rp</th>
@@ -268,12 +276,16 @@ async function fetchList() {
             result.data.forEach((item, index) => {
                 const dateObj = new Date(item.tanggal_booking);
                 const tgl = dateObj.toLocaleString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+                
+                const dateEndObj = new Date(item.waktu_selesai);
+                const tglEnd = dateEndObj.toLocaleString('id-ID', {hour:'2-digit', minute:'2-digit'});
 
                 tbody.innerHTML += `
                     <tr>
                         <td>${index + 1}</td>
                         <td><strong>${item.kode_booking}</strong></td>
                         <td>${tgl}</td>
+                        <td style="color:#28a745; font-weight:bold;">${tglEnd}</td>
                         <td>${item.nama_member}</td>
                         <td>${item.nama_terapis}</td>
                         <td>Rp ${formatRp(item.grand_total)}</td>
@@ -551,6 +563,40 @@ async function eksekusiUpdateStatus() {
             alert('Gagal: ' + json.message);
         }
     } catch(e) {}
+}
+
+async function eksekusiReschedule() {
+    const id = document.getElementById('update_id_booking').value;
+    const tgl = document.getElementById('reschedule_tgl').value;
+    
+    if(!tgl) {
+        alert("Pilih tanggal & jam reschedule!");
+        return;
+    }
+    
+    if(!confirm("Yakin ingin memindahkan jadwal pesanan ini ke " + tgl + "? Status akan otomatis diubah menjadi DIJADWALKAN.")) return;
+
+    const params = new URLSearchParams();
+    params.append('id_booking', id);
+    params.append('tanggal_booking', tgl);
+    
+    try {
+        const res = await fetch('../../api/booking/reschedule.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: params.toString()
+        });
+        const json = await res.json();
+        if(json.status === 'success') {
+            alert(json.message);
+            lihatDetail(id); // Reload Nota
+            fetchList(); // Reload Tabel Background
+        } else {
+            alert('Gagal Reschedule:\n' + json.message);
+        }
+    } catch(e) {
+        alert("Gagal koneksi ke server.");
+    }
 }
 
 function showForm() {
