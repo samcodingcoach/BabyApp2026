@@ -36,126 +36,6 @@ include '../includes/sidebar.php';
                     </button>
                 </div>
 
-                <!-- FORM LAYANAN (SAVE & UPDATE) -->
-                <div id="formLayanan" style="display: none; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px; padding: 20px; margin-bottom: 30px;">
-                    <h5 class="text-success mb-4" id="formTitle">Form Layanan</h5>
-                    <form id="layananForm" onsubmit="saveLayanan(event)">
-                        <!-- Digunakan untuk trigger update -->
-                        <input type="hidden" name="id_layanan" id="id_layanan">
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Kategori *</label>
-                                    <div class="col-sm-8">
-                                        <select class="form-control" name="id_kategori_layanan" id="id_kategori_layanan" required></select>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Kode Layanan *</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="kode_layanan" id="kode_layanan" placeholder="Misal: LYN-01" required>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Nama Layanan *</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="nama_layanan" id="nama_layanan" required>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Durasi (Menit) *</label>
-                                    <div class="col-sm-8">
-                                        <input type="number" class="form-control" name="durasi_menit" id="durasi_menit" required>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Deskripsi</label>
-                                    <div class="col-sm-8">
-                                        <textarea class="form-control" name="deskripsi" id="deskripsi" rows="3"></textarea>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Status</label>
-                                    <div class="col-sm-8">
-                                        <select class="form-control font-weight-bold" name="is_active" id="is_active">
-                                            <option value="1">Aktif</option>
-                                            <option value="0" class="text-danger">Non-Aktif</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Gambar 1 (Utama)</label>
-                                    <div class="col-sm-8">
-                                        <input type="file" class="form-control-file mt-1" name="picture1" accept="image/*">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Gambar 2</label>
-                                    <div class="col-sm-8">
-                                        <input type="file" class="form-control-file mt-1" name="picture2" accept="image/*">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Gambar 3</label>
-                                    <div class="col-sm-8">
-                                        <input type="file" class="form-control-file mt-1" name="picture3" accept="image/*">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">URL Video 1</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="video1" id="video1" placeholder="https://youtube.com/...">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4 text-right">
-                            <button type="button" onclick="hideFormLayanan()" class="btn btn-secondary waves-effect waves-light mr-2 font-weight-bold">Batal</button>
-                            <button type="submit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Layanan</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- FORM UBAH HARGA (SELECT-PRICE API) -->
-                <div id="formHarga" style="display: none; background: #fffcf0; border: 1px solid #ffeeba; border-radius: 5px; padding: 20px; margin-bottom: 30px;">
-                    <h5 class="text-warning mb-4 text-dark"><i class="mdi mdi-cash-multiple mr-1"></i>Atur Harga Baru: <span id="labelNamaLayanan" class="font-weight-bold"></span></h5>
-                    <form id="hargaForm" onsubmit="saveHarga(event)">
-                        <input type="hidden" name="id_layanan" id="harga_id_layanan">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Tanggal Efektif</label>
-                                    <div class="col-sm-8">
-                                        <input type="date" class="form-control" name="tanggal_efektif" id="harga_tanggal" required>
-                                        <small class="form-text text-muted">Pilih hari ini agar sistem men-sync dan langsung menayangkannya!</small>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Harga (Rp)</label>
-                                    <div class="col-sm-8">
-                                        <input type="number" class="form-control" name="harga" required>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Komisi Terapis (%)</label>
-                                    <div class="col-sm-8">
-                                        <input type="number" step="0.01" class="form-control" name="komisi_persentase" required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-3">
-                            <button type="button" onclick="hideFormHarga()" class="btn btn-secondary waves-effect waves-light mr-2 font-weight-bold">Batal</button>
-                            <button type="submit" class="btn btn-warning waves-effect waves-light font-weight-bold px-4 text-dark">Catat & Sinkronisasi Harga</button>
-                        </div>
-                    </form>
-                </div>
-
                 <!-- FILTER & PENCARIAN -->
                 <div class="bg-light p-3 border rounded mb-4">
                     <div class="row align-items-center">
@@ -163,7 +43,7 @@ include '../includes/sidebar.php';
                             <strong class="text-primary"><i class="mdi mdi-filter mr-1"></i>Pencarian Data:</strong>
                         </div>
                         <div class="col-md-3">
-                            <select id="filter_kategori" class="custom-select" onchange="applyFilter()">
+                            <select id="filter_kategori" class="custom-select select2" onchange="applyFilter()" style="width: 100%;">
                                 <option value="">-- Semua Kategori --</option>
                             </select>
                         </div>
@@ -175,8 +55,8 @@ include '../includes/sidebar.php';
 
                 <!-- TABEL DATA -->
                 <div class="table-responsive">
-                    <table class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                        <thead class="thead-dark">
+                    <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead>
                             <tr>
                                 <th style="width: 5%; text-align: center;">No.</th>
                                 <th style="text-align: center;">Gambar</th>
@@ -190,7 +70,6 @@ include '../includes/sidebar.php';
                             </tr>
                         </thead>
                         <tbody id="tableBody">
-                            <tr><td colspan="9" class="text-center">Loading data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -200,15 +79,161 @@ include '../includes/sidebar.php';
     </div>
 </div>
 
+<!-- Modal Form Layanan -->
+<div class="modal fade" id="modalLayanan" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-success" id="formTitle">Form Layanan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="layananForm" onsubmit="saveLayanan(event)">
+                <div class="modal-body">
+                    <!-- Digunakan untuk trigger update -->
+                    <input type="hidden" name="id_layanan" id="id_layanan">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Kategori *</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control select2" name="id_kategori_layanan" id="id_kategori_layanan" required style="width: 100%;"></select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Kode Layanan *</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="kode_layanan" id="kode_layanan" placeholder="Misal: LYN-01" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Nama Layanan *</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="nama_layanan" id="nama_layanan" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Durasi (Menit) *</label>
+                                <div class="col-sm-8">
+                                    <input type="number" class="form-control" name="durasi_menit" id="durasi_menit" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Deskripsi</label>
+                                    <input type="hidden" name="deskripsi" id="deskripsi_hidden">
+                                    <div id="deskripsi_editor" style="height: 100px;"></div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Status</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control font-weight-bold select2" name="is_active" id="is_active" style="width: 100%;">
+                                        <option value="1">Aktif</option>
+                                        <option value="0" class="text-danger">Non-Aktif</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Gambar 1 (Utama)</label>
+                                <div class="col-sm-8">
+                                    <input type="file" class="dropify" name="picture1" accept="image/*">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Gambar 2</label>
+                                <div class="col-sm-8">
+                                    <input type="file" class="dropify" name="picture2" accept="image/*">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Gambar 3</label>
+                                <div class="col-sm-8">
+                                    <input type="file" class="dropify" name="picture3" accept="image/*">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">URL Video 1</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="video1" id="video1" placeholder="https://youtube.com/...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary waves-effect waves-light font-weight-bold" data-dismiss="modal">Batal</button>
+                    <button type="submit" id="btnSubmitLayanan" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Layanan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ubah Harga -->
+<div class="modal fade" id="modalHarga" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content border-warning">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark"><i class="mdi mdi-cash-multiple mr-1"></i>Atur Harga Baru</h5>
+                <button type="button" class="close text-dark" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="hargaForm" onsubmit="saveHarga(event)">
+                <div class="modal-body">
+                    <div class="alert alert-warning text-dark font-weight-bold" role="alert">
+                        Layanan: <span id="labelNamaLayanan"></span>
+                    </div>
+                    <input type="hidden" name="id_layanan" id="harga_id_layanan">
+                    
+                    <div class="form-group">
+                        <label>Tanggal Efektif</label>
+                        <input type="date" class="form-control" name="tanggal_efektif" id="harga_tanggal" required>
+                        <small class="form-text text-muted">Pilih hari ini agar sistem men-sync dan langsung menayangkannya!</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga (Rp)</label>
+                        <input type="text" class="form-control" id="harga_input" data-toggle="input-mask" data-mask-format="000.000.000" data-reverse="true" required>
+                        <input type="hidden" name="harga" id="harga_hidden">
+                    </div>
+                    <div class="form-group">
+                        <label>Komisi Terapis (%)</label>
+                        <input type="number" step="0.01" class="form-control" name="komisi_persentase" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary waves-effect waves-light font-weight-bold" data-dismiss="modal">Batal</button>
+                    <button type="submit" id="btnSubmitHarga" class="btn btn-warning waves-effect waves-light font-weight-bold px-4 text-dark">Catat & Sinkronisasi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?php include '../includes/footer.php'; ?>
 
 <script>
+let dataTable = null;
+let currentLayananList = [];
+let quillDeskripsi;
+
 window.onload = () => {
+    if($().select2) {
+        $('.select2').select2();
+        $('#id_kategori_layanan').select2({ dropdownParent: $('#modalLayanan') });
+        $('#is_active').select2({ dropdownParent: $('#modalLayanan') });
+    }
+    
+    $('.dropify').dropify();
+    quillDeskripsi = new Quill('#deskripsi_editor', { theme: 'snow' });
+    
+    
     fetchKategoriList();
     fetchLayananList();
 };
-
-let currentLayananList = [];
 
 async function fetchKategoriList() {
     try {
@@ -225,6 +250,11 @@ async function fetchKategoriList() {
                 select.innerHTML += `<option value="${item.id_kategori_layanan}">${item.nama_kategori}</option>`;
                 selectFilter.innerHTML += `<option value="${item.kode_kategori}">${item.nama_kategori}</option>`;
             });
+            
+            // Re-init select2 after populate
+            if($().select2) {
+                $('#filter_kategori').trigger('change.select2');
+            }
         }
     } catch (error) { console.error('Gagal meload dropdown kategori'); }
 }
@@ -246,6 +276,10 @@ async function fetchLayananList() {
         if (filterKategori) url += '&kode_kategori=' + encodeURIComponent(filterKategori);
         if (filterNama) url += '&nama_layanan=' + encodeURIComponent(filterNama);
         
+        if (dataTable) {
+            dataTable.destroy();
+        }
+        
         const response = await fetch(url);
         const result = await response.json();
         
@@ -254,10 +288,6 @@ async function fetchLayananList() {
         
         if (result.status === 'success') {
             currentLayananList = result.data;
-            if (result.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center">Belum ada master layanan.</td></tr>';
-                return;
-            }
             
             result.data.forEach((item, index) => {
                 const hargaTxt = item.harga ? 'Rp ' + parseFloat(item.harga).toLocaleString('id-ID') : '<i class="text-danger">Belum Diset</i>';
@@ -284,48 +314,78 @@ async function fetchLayananList() {
                 `;
             });
         } else {
-            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Error: ${result.message}</td></tr>`;
+            Swal.fire('Error', result.message, 'error');
         }
+        
+        dataTable = $('#datatable').DataTable({
+            language: {
+                emptyTable: "Belum ada master layanan."
+            }
+        });
+        
     } catch (error) {
-        tbody.innerHTML = '<tr><td colspan="9" class="text-center">Terjadi gangguan jaringan atau API tidak merespons.</td></tr>';
+        Swal.fire('Error', 'Terjadi gangguan jaringan atau API tidak merespons.', 'error');
     }
 }
 
 // ================= LAYANAN CORE LOGIC =================
 function showFormLayanan() {
-    hideFormHarga();
-    $('#formLayanan').fadeIn();
     document.getElementById('layananForm').reset();
     document.getElementById('id_layanan').value = '';
     document.getElementById('formTitle').innerText = 'Tambah Layanan Induk Baru';
-}
-
-function hideFormLayanan() {
-    $('#formLayanan').fadeOut();
+    
+    if($().select2) {
+        $('#id_kategori_layanan').val('').trigger('change');
+        $('#is_active').val('1').trigger('change');
+    }
+    
+    if (quillDeskripsi) quillDeskripsi.setContents([]);
+    $('.dropify-clear').click();
+    
+    $('#modalLayanan').modal('show');
 }
 
 function editLayanan(index) {
-    showFormLayanan();
-    document.getElementById('formTitle').innerText = 'Edit Master Layanan';
     const item = currentLayananList[index];
+    document.getElementById('formTitle').innerText = 'Edit Master Layanan';
     
     document.getElementById('id_layanan').value = item.id_layanan;
     document.getElementById('id_kategori_layanan').value = item.id_kategori_layanan;
     document.getElementById('kode_layanan').value = item.kode_layanan;
     document.getElementById('nama_layanan').value = item.nama_layanan;
     document.getElementById('durasi_menit').value = item.durasi_menit;
-    document.getElementById('deskripsi').value = item.deskripsi || '';
+    
+    if (quillDeskripsi) {
+        quillDeskripsi.clipboard.dangerouslyPasteHTML(item.deskripsi || '');
+    }
+    
     document.getElementById('is_active').value = item.is_active;
     document.getElementById('video1').value = item.video1 || '';
+    
+    if($().select2) {
+        $('#id_kategori_layanan').val(item.id_kategori_layanan).trigger('change');
+        $('#is_active').val(item.is_active).trigger('change');
+    }
+    
+    $('#modalLayanan').modal('show');
 }
 
 async function saveLayanan(e) {
     e.preventDefault();
+    
+    const deskripsiText = quillDeskripsi.root.innerHTML === '<p><br></p>' ? '' : quillDeskripsi.root.innerHTML;
+    document.getElementById('deskripsi_hidden').value = deskripsiText;
+    
     const form = document.getElementById('layananForm');
     const formData = new FormData(form);
     
     const idLayanan = document.getElementById('id_layanan').value;
     const url = idLayanan ? '../../api/layanan/update.php' : '../../api/layanan/save.php';
+    
+    const btn = document.getElementById('btnSubmitLayanan');
+    const oriText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="mdi mdi-spin mdi-loading"></i> Menyimpan...';
     
     try {
         const response = await fetch(url, {
@@ -335,55 +395,75 @@ async function saveLayanan(e) {
         const result = await response.json();
         
         if (result.status === 'success') {
-            alert(result.message);
-            hideFormLayanan();
+            Swal.fire('Sukses', result.message, 'success');
+            $('#modalLayanan').modal('hide');
             fetchLayananList();
         } else {
-            alert('Gagal: ' + result.message);
+            Swal.fire('Gagal', result.message, 'error');
         }
     } catch (error) {
-        alert('Terjadi kesalahan sistem pengiriman data!');
+        Swal.fire('Error', 'Terjadi kesalahan sistem pengiriman data!', 'error');
     }
+    btn.disabled = false;
+    btn.innerHTML = oriText;
 }
 
-async function nonactiveLayanan(id) {
-    if (!confirm('Yakin ingin membekukan/menonaktifkan layanan ini dari tayangan publik?')) return;
-    
-    const formData = new FormData();
-    formData.append('id_layanan', id);
-    
-    try {
-        const response = await fetch('../../api/layanan/nonactive.php', { method: 'POST', body: formData });
-        const result = await response.json();
-        if (result.status === 'success') {
-            alert(result.message);
-            fetchLayananList();
-        } else {
-            alert('Gagal: ' + result.message);
+function nonactiveLayanan(id) {
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: "Yakin ingin membekukan/menonaktifkan layanan ini dari tayangan publik?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Nonaktifkan'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const formData = new FormData();
+            formData.append('id_layanan', id);
+            
+            try {
+                const response = await fetch('../../api/layanan/nonactive.php', { method: 'POST', body: formData });
+                const res = await response.json();
+                if (res.status === 'success') {
+                    Swal.fire('Sukses', res.message, 'success');
+                    fetchLayananList();
+                } else {
+                    Swal.fire('Gagal', res.message, 'error');
+                }
+            } catch (error) { Swal.fire('Error', 'Error sistem', 'error'); }
         }
-    } catch (error) { alert('Error sistem'); }
+    });
 }
 
 // ================= SMART SELECT-PRICE LOGIC =================
 function openFormHarga(id_layanan, namaLayanan) {
-    hideFormLayanan();
-    $('#formHarga').fadeIn();
     document.getElementById('hargaForm').reset();
     document.getElementById('harga_id_layanan').value = id_layanan;
     document.getElementById('labelNamaLayanan').innerText = namaLayanan;
     
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('harga_tanggal').value = today;
-}
-
-function hideFormHarga() {
-    $('#formHarga').fadeOut();
+    document.getElementById('harga_input').value = '';
+    document.getElementById('harga_hidden').value = '';
+    
+    
+    $('#modalHarga').modal('show');
 }
 
 async function saveHarga(e) {
     e.preventDefault();
+    
+    const hargaClean = $('#harga_input').cleanVal() ? $('#harga_input').cleanVal() : $('#harga_input').val().replace(/\D/g,'');
+    document.getElementById('harga_hidden').value = hargaClean;
+
     const form = document.getElementById('hargaForm');
     const formData = new FormData(form);
+    
+    const btn = document.getElementById('btnSubmitHarga');
+    const oriText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="mdi mdi-spin mdi-loading"></i> Memproses...';
     
     try {
         const response = await fetch('../../api/layanan/select-price.php', {
@@ -393,14 +473,16 @@ async function saveHarga(e) {
         const result = await response.json();
         
         if (result.status === 'success') {
-            alert(result.message); 
-            hideFormHarga();
+            Swal.fire('Sukses', result.message, 'success');
+            $('#modalHarga').modal('hide');
             fetchLayananList(); 
         } else {
-            alert('Gagal: ' + result.message);
+            Swal.fire('Gagal', result.message, 'error');
         }
     } catch (error) {
-        alert('Error sistem!');
+        Swal.fire('Error', 'Error sistem!', 'error');
     }
+    btn.disabled = false;
+    btn.innerHTML = oriText;
 }
 </script>

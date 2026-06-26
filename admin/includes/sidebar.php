@@ -38,7 +38,7 @@
                             <a href="javascript: void(0);" class="has-arrow waves-effect"><i class="feather-list"></i><span>Manajemen Layanan</span></a>
                             <ul class="sub-menu" aria-expanded="false">
                                 <li><a href="<?= $base_url ?>/layanan/layanan.php">Daftar Layanan</a></li>
-                                <li><a href="<?= $base_url ?>/kategori_layanan/kategori_layanan.php">Kategori Layanan</a></li>
+                                <li><a href="<?= $base_url ?>/kategori-layanan/kategori-layanan.php">Kategori Layanan</a></li>
                             </ul>
                         </li>
                         

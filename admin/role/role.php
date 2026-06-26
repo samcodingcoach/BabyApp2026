@@ -38,8 +38,8 @@ include '../includes/sidebar.php';
 
                 <!-- TABEL DATA ROLE -->
                 <div class="table-responsive">
-                    <table class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                        <thead class="thead-dark">
+                    <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead>
                             <tr>
                                 <th style="width: 10%; text-align: center;">ID Role</th>
                                 <th style="width: 30%;">Nama Role</th>
@@ -47,7 +47,6 @@ include '../includes/sidebar.php';
                             </tr>
                         </thead>
                         <tbody id="roleTableBody">
-                            <tr><td colspan="3" class="text-center">Loading data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -60,6 +59,8 @@ include '../includes/sidebar.php';
 <?php include '../includes/footer.php'; ?>
 
 <script>
+let dataTable = null;
+
 window.onload = () => {
     fetchRolesList();
 };
@@ -69,15 +70,14 @@ async function fetchRolesList() {
         const response = await fetch('../../api/role/list.php');
         const result = await response.json();
         
+        if (dataTable) {
+            dataTable.destroy();
+        }
+        
         const tbody = document.getElementById('roleTableBody');
         tbody.innerHTML = '';
         
         if (result.status === 'success') {
-            if (result.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center">Belum ada data Role di dalam database.</td></tr>';
-                return;
-            }
-            
             result.data.forEach(role => {
                 tbody.innerHTML += `
                     <tr>
@@ -88,10 +88,17 @@ async function fetchRolesList() {
                 `;
             });
         } else {
-            tbody.innerHTML = `<tr><td colspan="3" class="text-center text-danger">Error: ${result.message}</td></tr>`;
+            Swal.fire('Error', result.message, 'error');
         }
+        
+        dataTable = $('#datatable').DataTable({
+            language: {
+                emptyTable: "Belum ada data Role di dalam database."
+            }
+        });
+        
     } catch (error) {
-        document.getElementById('roleTableBody').innerHTML = '<tr><td colspan="3" class="text-center">Terjadi gangguan jaringan atau API tidak merespons.</td></tr>';
+        Swal.fire('Error', 'Terjadi gangguan jaringan atau API tidak merespons.', 'error');
     }
 }
 </script>

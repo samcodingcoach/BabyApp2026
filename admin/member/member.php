@@ -36,95 +36,7 @@ include '../includes/sidebar.php';
                     </button>
                 </div>
 
-                <!-- FORM (SAVE & UPDATE) -->
-                <div id="formMember" style="display: none; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px; padding: 20px; margin-bottom: 30px;">
-                    <h5 class="text-success mb-4" id="formTitle">Form Member</h5>
-                    <form id="memberForm" onsubmit="saveData(event)">
-                        <input type="hidden" name="id_member" id="id_member">
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Nomor Induk (NIK) *</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="nik" id="nik" placeholder="No KTP / ID" required>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Nama Lengkap *</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="nama" id="nama" required>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Jenis Kelamin</label>
-                                    <div class="col-sm-8">
-                                        <select class="form-control" name="jenis_kelamin" id="jenis_kelamin">
-                                            <option value="">-- Pilih --</option>
-                                            <option value="1">Laki-Laki</option>
-                                            <option value="0">Perempuan</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Alamat Domisili</label>
-                                    <div class="col-sm-8">
-                                        <textarea class="form-control" name="alamat" id="alamat" rows="2"></textarea>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Kecamatan</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="kecamatan" id="kecamatan">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Alamat (Titik GPS)</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="alamat_gps" id="alamat_gps" placeholder="Cth: Paste URL Maps">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">No. Whatsapp</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="whatsapp" id="whatsapp" placeholder="08123...">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Password Akun</label>
-                                    <div class="col-sm-8">
-                                        <input type="password" class="form-control" name="password" id="password" placeholder="(Kosongi jika tidak ingin diubah)">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Status Member</label>
-                                    <div class="col-sm-8">
-                                        <select class="form-control font-weight-bold" name="is_active" id="is_active">
-                                            <option value="1">Aktif (Approved)</option>
-                                            <option value="0" class="text-danger">Belum Aktif / Blokir</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Foto Profile</label>
-                                    <div class="col-sm-8">
-                                        <input type="file" class="form-control-file mt-1" name="photo" accept="image/jpeg, image/png, image/webp">
-                                        <small class="form-text text-muted">Akan direname otomatis sesuai NIK pendaftar.</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 text-right">
-                            <button type="button" onclick="hideForm()" class="btn btn-secondary waves-effect waves-light mr-2 font-weight-bold">Batal</button>
-                            <button type="submit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Profil Member</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- PENCARIAN & FILTER -->
+                <!-- PENCARIAN & FILTER (Server Side) -->
                 <div class="bg-light p-3 border rounded mb-4">
                     <div class="row align-items-center">
                         <div class="col-md-auto">
@@ -133,7 +45,7 @@ include '../includes/sidebar.php';
                         <div class="col-md-3">
                             <input type="text" class="form-control" id="filter_nik" placeholder="Ketik NIK eksak..." oninput="applyFilter()">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 mt-2 mt-md-0">
                             <input type="text" class="form-control" id="filter_nama" placeholder="Ketik bagian Nama Member..." oninput="applyFilter()">
                         </div>
                     </div>
@@ -141,8 +53,8 @@ include '../includes/sidebar.php';
 
                 <!-- TABEL DATA -->
                 <div class="table-responsive">
-                    <table class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                        <thead class="thead-dark">
+                    <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead>
                             <tr>
                                 <th style="width: 5%; text-align: center;">No.</th>
                                 <th style="text-align: center;">Foto</th>
@@ -156,12 +68,11 @@ include '../includes/sidebar.php';
                             </tr>
                         </thead>
                         <tbody id="tableBody">
-                            <tr><td colspan="9" class="text-center">Memuat database member...</td></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- PAGINATION -->
+                <!-- PAGINATION (Server Side) -->
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <span class="text-muted font-weight-bold" id="pageInfo">Halaman 1 dari 1 (Total: 0 Data)</span>
                     <div class="btn-group">
@@ -175,23 +86,129 @@ include '../includes/sidebar.php';
     </div>
 </div>
 
+<!-- Modal Form Member -->
+<div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formTitle">Form Member</h5>
+                <button type="button" class="close waves-effect waves-light" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="memberForm" onsubmit="saveData(event)">
+                <div class="modal-body">
+                    <input type="hidden" name="id_member" id="id_member">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Nomor Induk (NIK) *</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="nik" id="nik" placeholder="No KTP / ID" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Nama Lengkap *</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="nama" id="nama" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Jenis Kelamin</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control select2" name="jenis_kelamin" id="jenis_kelamin" style="width: 100%;">
+                                        <option value="">-- Pilih --</option>
+                                        <option value="1">Laki-Laki</option>
+                                        <option value="0">Perempuan</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Alamat Domisili</label>
+                                <div class="col-sm-8">
+                                    <input type="hidden" name="alamat" id="alamat_hidden">
+                                    <div id="alamat_editor" style="height: 80px;"></div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Kecamatan</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="kecamatan" id="kecamatan">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Alamat (Titik GPS)</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="alamat_gps" id="alamat_gps" placeholder="Cth: Paste URL Maps">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">No. Whatsapp</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="whatsapp_input" placeholder="08123..." data-toggle="input-mask" data-mask-format="0000-0000-00000">
+                                    <input type="hidden" name="whatsapp" id="whatsapp">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Password Akun</label>
+                                <div class="col-sm-8">
+                                    <input type="password" class="form-control" name="password" id="password" placeholder="(Kosongi jika tidak ingin diubah)">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Status Member</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control font-weight-bold select2" name="is_active" id="is_active" style="width: 100%;">
+                                        <option value="1">Aktif (Approved)</option>
+                                        <option value="0" class="text-danger">Belum Aktif / Blokir</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Foto Profile</label>
+                                <div class="col-sm-8">
+                                    <input type="file" class="dropify" name="photo" accept="image/jpeg, image/png, image/webp">
+                                    <small class="form-text text-muted">Akan direname otomatis sesuai NIK pendaftar.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary waves-effect waves-light font-weight-bold" data-dismiss="modal">Batal</button>
+                    <button type="submit" id="btnSubmit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Profil Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?php include '../includes/footer.php'; ?>
 
 <script>
 let currentPage = 1;
 let totalPages = 1;
 let currentList = [];
+let dataTable = null;
 let filterTimer;
+let quillAlamat;
 
 window.onload = () => {
+    if($().select2) {
+        $('.select2').select2({ dropdownParent: $('#formModal') });
+    }
+    $('.dropify').dropify();
+    quillAlamat = new Quill('#alamat_editor', { theme: 'snow' });
     fetchList(currentPage);
 };
 
-// Mencegah tembakan API bertubi-tubi saat admin mengetik (Delay 500ms)
 function applyFilter() {
     clearTimeout(filterTimer);
     filterTimer = setTimeout(() => {
-        currentPage = 1; // Kembali ke hal 1 setiap kali query filter berubah
+        currentPage = 1; 
         fetchList(currentPage);
     }, 500);
 }
@@ -221,6 +238,10 @@ async function fetchList(page = 1) {
         if (filterNik) url += '&nik=' + encodeURIComponent(filterNik);
         if (filterNama) url += '&nama=' + encodeURIComponent(filterNama);
         
+        if (dataTable) {
+            dataTable.destroy();
+        }
+        
         const response = await fetch(url);
         const result = await response.json();
         
@@ -235,11 +256,6 @@ async function fetchList(page = 1) {
             document.getElementById('pageInfo').innerText = `Halaman ${currentPage} dari ${totalPages} (Total: ${result.total_rows} Member)`;
             document.getElementById('btnPrev').disabled = (currentPage <= 1);
             document.getElementById('btnNext').disabled = (currentPage >= totalPages);
-            
-            if (result.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center">Data Member tidak ditemukan atau database kosong.</td></tr>';
-                return;
-            }
             
             let startIndex = (currentPage - 1) * result.per_page;
             
@@ -265,26 +281,47 @@ async function fetchList(page = 1) {
                 `;
             });
         } else {
-            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Error: ${result.message}</td></tr>`;
+            Swal.fire('Error', result.message, 'error');
         }
+        
+        // Disable internal pagination/searching of DataTables because we use server-side manual
+        dataTable = $('#datatable').DataTable({
+            paging: false,
+            searching: false,
+            info: false,
+            language: {
+                emptyTable: "Data Member tidak ditemukan atau database kosong."
+            }
+        });
+        
     } catch (error) {
-        document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" class="text-center">Terjadi gangguan koneksi ke sistem API.</td></tr>';
+        Swal.fire('Error', 'Terjadi gangguan koneksi ke sistem API.', 'error');
     }
 }
 
 function showForm() {
-    $('#formMember').fadeIn();
     document.getElementById('memberForm').reset();
     document.getElementById('id_member').value = '';
     document.getElementById('formTitle').innerText = 'Daftarkan Member Baru';
+    
+    if($().select2) {
+        $('#jenis_kelamin').val('').trigger('change');
+        $('#is_active').val('1').trigger('change');
+    }
+    
+    if (quillAlamat) quillAlamat.setContents([]);
+    document.getElementById('whatsapp_input').value = '';
+    document.getElementById('whatsapp').value = '';
+    $('.dropify-clear').click();
+    
+    $('#formModal').modal('show');
 }
 
 function hideForm() {
-    $('#formMember').fadeOut();
+    $('#formModal').modal('hide');
 }
 
 function editData(index) {
-    showForm();
     document.getElementById('formTitle').innerText = 'Edit Profil Member';
     const item = currentList[index];
     
@@ -292,23 +329,45 @@ function editData(index) {
     document.getElementById('nik').value = item.nik;
     document.getElementById('nama').value = item.nama;
     document.getElementById('jenis_kelamin').value = item.jenis_kelamin !== null ? item.jenis_kelamin : '';
-    document.getElementById('alamat').value = item.alamat || '';
+    
+    if (quillAlamat) quillAlamat.clipboard.dangerouslyPasteHTML(item.alamat || '');
+    
     document.getElementById('kecamatan').value = item.kecamatan || '';
     document.getElementById('alamat_gps').value = item.alamat_gps || '';
-    document.getElementById('whatsapp').value = item.whatsapp || '';
+    document.getElementById('whatsapp_input').value = item.whatsapp || '';
+    $('#whatsapp_input').trigger('input');
     document.getElementById('is_active').value = item.is_active;
     
-    // Kosongkan password field di form edit, admin harus ngetik ulang bila ingin merubah
+    if($().select2) {
+        $('#jenis_kelamin').val(item.jenis_kelamin !== null ? item.jenis_kelamin : '').trigger('change');
+        $('#is_active').val(item.is_active).trigger('change');
+    }
+    
+    // Kosongkan password field di form edit
     document.getElementById('password').value = '';
+    
+    $('#formModal').modal('show');
 }
 
 async function saveData(e) {
     e.preventDefault();
+    
+    const alamatText = quillAlamat.root.innerHTML === '<p><br></p>' ? '' : quillAlamat.root.innerHTML;
+    document.getElementById('alamat_hidden').value = alamatText;
+
+    const waClean = $('#whatsapp_input').cleanVal() ? $('#whatsapp_input').cleanVal() : $('#whatsapp_input').val().replace(/\D/g,'');
+    document.getElementById('whatsapp').value = waClean;
+    
     const form = document.getElementById('memberForm');
     const formData = new FormData(form);
     
     const idMember = document.getElementById('id_member').value;
     const url = idMember ? '../../api/member/update.php' : '../../api/member/save.php';
+    
+    const btn = document.getElementById('btnSubmit');
+    const oriText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="mdi mdi-spin mdi-loading"></i> Menyimpan...';
     
     try {
         const response = await fetch(url, {
@@ -318,15 +377,17 @@ async function saveData(e) {
         const result = await response.json();
         
         if (result.status === 'success') {
-            alert(result.message);
+            Swal.fire('Sukses', result.message, 'success');
             hideForm();
-            // Refresh tanpa pindah halaman
             fetchList(currentPage); 
         } else {
-            alert('Gagal: ' + result.message);
+            Swal.fire('Gagal', result.message, 'error');
         }
     } catch (error) {
-        alert('Terjadi kesalahan pengiriman data gambar/form ke server!');
+        Swal.fire('Error', 'Terjadi kesalahan pengiriman data ke server!', 'error');
     }
+    
+    btn.disabled = false;
+    btn.innerHTML = oriText;
 }
 </script>

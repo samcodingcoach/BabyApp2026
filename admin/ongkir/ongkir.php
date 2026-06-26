@@ -35,57 +35,10 @@ include '../includes/sidebar.php';
                     </button>
                 </div>
 
-                <!-- FORM TAMBAH / EDIT -->
-                <div id="formContainer" style="display: none; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px; padding: 20px; margin-bottom: 30px;">
-                    <h5 class="text-success mb-4" id="formTitle">Tambah Ongkir Baru</h5>
-                    <form id="ongkirForm" onsubmit="saveData(event)">
-                        <input type="hidden" id="id_ongkir">
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Dari Kecamatan *</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" id="dari_kecamatan" required placeholder="Contoh: Lowokwaru">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Ke Kecamatan *</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" id="ke_kecamatan" required placeholder="Contoh: Klojen">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Harga (Tarif) *</label>
-                                    <div class="col-sm-8">
-                                        <input type="number" class="form-control" id="harga" required placeholder="Contoh: 15000">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Status Aktif</label>
-                                    <div class="col-sm-8">
-                                        <select class="form-control font-weight-bold" id="is_active">
-                                            <option value="1">Aktif</option>
-                                            <option value="0" class="text-danger">Tidak Aktif</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 text-right">
-                            <button type="button" onclick="hideForm()" class="btn btn-secondary waves-effect waves-light mr-2 font-weight-bold">Batal</button>
-                            <button type="submit" id="btnSubmit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Data</button>
-                        </div>
-                    </form>
-                </div>
-
                 <!-- TABEL DATA -->
                 <div class="table-responsive">
-                    <table class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                        <thead class="thead-dark">
+                    <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead>
                             <tr>
                                 <th style="width: 5%; text-align: center;">No.</th>
                                 <th>Rute Pengiriman (Dari <i class="mdi mdi-arrow-right"></i> Ke)</th>
@@ -96,7 +49,6 @@ include '../includes/sidebar.php';
                             </tr>
                         </thead>
                         <tbody id="tableBody">
-                            <tr><td colspan="6" class="text-center">Memuat data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -106,19 +58,88 @@ include '../includes/sidebar.php';
     </div>
 </div>
 
+<!-- Modal Form Ongkir -->
+<div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formTitle">Tambah Ongkir Baru</h5>
+                <button type="button" class="close waves-effect waves-light" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="ongkirForm" onsubmit="saveData(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="id_ongkir">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Dari Kecamatan *</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="dari_kecamatan" required placeholder="Contoh: Lowokwaru">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Ke Kecamatan *</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="ke_kecamatan" required placeholder="Contoh: Klojen">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Harga (Tarif) *</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="harga_input" required placeholder="Contoh: 15.000" data-toggle="input-mask" data-mask-format="000.000.000" data-reverse="true">
+                                    <input type="hidden" id="harga">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Status Aktif</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control font-weight-bold select2" id="is_active" style="width: 100%;">
+                                        <option value="1">Aktif</option>
+                                        <option value="0" class="text-danger">Tidak Aktif</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary waves-effect waves-light font-weight-bold" data-dismiss="modal">Batal</button>
+                    <button type="submit" id="btnSubmit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?php include '../includes/footer.php'; ?>
 
 <script>
-window.onload = fetchList;
+let dataTable = null;
+
+window.onload = () => {
+    if($().select2) {
+        $('.select2').select2({ dropdownParent: $('#formModal') });
+    }
+    fetchList();
+};
 
 function formatRp(angka) {
     return new Intl.NumberFormat('id-ID').format(angka || 0);
 }
 
-let onEditData = {};
+let currentList = [];
 
 async function fetchList() {
     try {
+        if (dataTable) {
+            dataTable.destroy();
+        }
+        
         const response = await fetch('../../api/ongkir/list.php');
         const result = await response.json();
         
@@ -126,10 +147,7 @@ async function fetchList() {
         tbody.innerHTML = '';
         
         if (result.status === 'success') {
-            if (result.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Belum ada data ongkir.</td></tr>';
-                return;
-            }
+            currentList = result.data;
             
             result.data.forEach((item, index) => {
                 const tr = document.createElement('tr');
@@ -139,6 +157,7 @@ async function fetchList() {
                 const d = new Date(item.update_at || item.created_at);
                 const tgl = d.toLocaleString('id-ID');
                 
+                // Save JSON index instead of the full item directly
                 tr.innerHTML = `
                     <td class="text-center align-middle">${index + 1}</td>
                     <td class="align-middle">${rute}</td>
@@ -146,42 +165,60 @@ async function fetchList() {
                     <td class="align-middle">${status}</td>
                     <td class="align-middle">${tgl}</td>
                     <td class="text-center align-middle">
-                        <button onclick='editData(${JSON.stringify(item)})' class="btn btn-sm btn-info waves-effect waves-light"><i class="mdi mdi-pencil"></i> Edit</button>
+                        <button onclick='editData(${index})' class="btn btn-sm btn-info waves-effect waves-light"><i class="mdi mdi-pencil"></i> Edit</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         } else {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${result.message}</td></tr>`;
+            Swal.fire('Error', result.message, 'error');
         }
+        
+        dataTable = $('#datatable').DataTable({
+            language: {
+                emptyTable: "Belum ada data ongkir."
+            }
+        });
+        
     } catch (error) {
-        document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" class="text-center text-danger">Gagal memuat data dari server.</td></tr>';
+        Swal.fire('Error', 'Gagal memuat data dari server.', 'error');
     }
 }
 
 function showAddForm() {
-    $('#formContainer').fadeIn();
     document.getElementById('formTitle').innerText = 'Tambah Ongkir Baru';
     document.getElementById('ongkirForm').reset();
     document.getElementById('id_ongkir').value = '';
-    onEditData = {};
+    document.getElementById('harga_input').value = '';
+    document.getElementById('harga').value = '';
+    
+    if($().select2) {
+        $('#is_active').val('1').trigger('change');
+    }
+    
+    $('#formModal').modal('show');
 }
 
-function editData(item) {
-    $('#formContainer').fadeIn();
+function editData(index) {
+    const item = currentList[index];
     document.getElementById('formTitle').innerText = 'Edit Data Ongkir';
     
     document.getElementById('id_ongkir').value = item.id_ongkir;
     document.getElementById('dari_kecamatan').value = item.dari_kecamatan;
     document.getElementById('ke_kecamatan').value = item.ke_kecamatan;
-    document.getElementById('harga').value = item.harga;
+    document.getElementById('harga_input').value = item.harga;
+    $('#harga_input').trigger('input');
     document.getElementById('is_active').value = item.is_active;
     
-    onEditData = item;
+    if($().select2) {
+        $('#is_active').val(item.is_active).trigger('change');
+    }
+    
+    $('#formModal').modal('show');
 }
 
 function hideForm() {
-    $('#formContainer').fadeOut();
+    $('#formModal').modal('hide');
 }
 
 async function saveData(e) {
@@ -192,6 +229,9 @@ async function saveData(e) {
     
     const params = new URLSearchParams();
     if (isEdit) params.append('id_ongkir', id_ongkir);
+    const hargaVal = $('#harga_input').cleanVal() ? $('#harga_input').cleanVal() : $('#harga_input').val().replace(/\D/g,'');
+    document.getElementById('harga').value = hargaVal;
+    
     params.append('dari_kecamatan', document.getElementById('dari_kecamatan').value);
     params.append('ke_kecamatan', document.getElementById('ke_kecamatan').value);
     params.append('harga', document.getElementById('harga').value);
@@ -213,14 +253,14 @@ async function saveData(e) {
         const result = await response.json();
         
         if (result.status === 'success') {
-            alert(result.message);
+            Swal.fire('Sukses', result.message, 'success');
             hideForm();
             fetchList();
         } else {
-            alert('Gagal: ' + result.message);
+            Swal.fire('Gagal', result.message, 'error');
         }
     } catch (error) {
-        alert('Terjadi kesalahan jaringan.');
+        Swal.fire('Error', 'Terjadi kesalahan jaringan.', 'error');
     }
     
     btn.disabled = false;

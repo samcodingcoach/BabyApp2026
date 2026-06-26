@@ -36,57 +36,10 @@ include '../includes/sidebar.php';
                     </button>
                 </div>
 
-                <!-- FORM TAMBAH / EDIT -->
-                <div id="formContainer" style="display: none; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px; padding: 20px; margin-bottom: 30px;">
-                    <h5 class="text-success mb-4" id="formTitle">Tambah Kategori</h5>
-                    <form id="kategoriForm" onsubmit="saveKategori(event)">
-                        <input type="hidden" name="id_kategori_layanan" id="id_kategori_layanan">
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Kode Kategori</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="kode_kategori" id="kode_kategori" required>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Nama Kategori</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="nama_kategori" id="nama_kategori" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Deskripsi</label>
-                                    <div class="col-sm-8">
-                                        <textarea class="form-control" name="deskripsi" id="deskripsi" rows="2"></textarea>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-4 col-form-label">Status</label>
-                                    <div class="col-sm-8">
-                                        <select class="form-control font-weight-bold" name="is_active" id="is_active">
-                                            <option value="1">Aktif</option>
-                                            <option value="0" class="text-danger">Nonaktif</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4 text-right">
-                            <button type="button" onclick="hideForm()" class="btn btn-secondary waves-effect waves-light mr-2 font-weight-bold">Batal</button>
-                            <button type="submit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Kategori</button>
-                        </div>
-                    </form>
-                </div>
-
                 <!-- TABEL DATA -->
                 <div class="table-responsive">
-                    <table class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                        <thead class="thead-dark">
+                    <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead>
                             <tr>
                                 <th style="width: 5%; text-align: center;">No.</th>
                                 <th style="width: 15%;">Kode</th>
@@ -97,7 +50,6 @@ include '../includes/sidebar.php';
                             </tr>
                         </thead>
                         <tbody id="tableBody">
-                            <tr><td colspan="6" class="text-center">Loading data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -107,12 +59,76 @@ include '../includes/sidebar.php';
     </div>
 </div>
 
+<!-- Modal Form -->
+<div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formTitle">Tambah Kategori</h5>
+                <button type="button" class="close waves-effect waves-light" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="kategoriForm" onsubmit="saveKategori(event)">
+                <div class="modal-body">
+                    <input type="hidden" name="id_kategori_layanan" id="id_kategori_layanan">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Kode Kategori</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="kode_kategori" id="kode_kategori" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Nama Kategori</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="nama_kategori" id="nama_kategori" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Deskripsi</label>
+                                <div class="col-sm-8">
+                                    <input type="hidden" name="deskripsi" id="deskripsi_hidden">
+                                    <div id="deskripsi_editor" style="height: 100px;"></div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Status</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control font-weight-bold select2" name="is_active" id="is_active" style="width: 100%;">
+                                        <option value="1">Aktif</option>
+                                        <option value="0" class="text-danger">Nonaktif</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary waves-effect waves-light font-weight-bold" data-dismiss="modal">Batal</button>
+                    <button type="submit" id="btnSubmit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Kategori</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?php include '../includes/footer.php'; ?>
 
 <script>
 let kategoriData = [];
+let dataTable = null;
+let quillDeskripsi;
 
 window.onload = () => {
+    if($().select2) {
+        $('.select2').select2({ dropdownParent: $('#formModal') });
+    }
+    quillDeskripsi = new Quill('#deskripsi_editor', { theme: 'snow' });
     fetchData();
 };
 
@@ -121,15 +137,15 @@ async function fetchData() {
         const response = await fetch('../../api/kategori-layanan/list.php');
         const result = await response.json();
         
+        if (dataTable) {
+            dataTable.destroy();
+        }
+        
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
         
         if (result.status === 'success') {
             kategoriData = result.data;
-            if (kategoriData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Belum ada data kategori layanan.</td></tr>';
-                return;
-            }
             
             kategoriData.forEach((item, index) => {
                 const statusHtml = item.is_active == 1 ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-danger">Nonaktif</span>';
@@ -149,22 +165,36 @@ async function fetchData() {
                 `;
             });
         } else {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${result.message}</td></tr>`;
+            Swal.fire('Error', result.message, 'error');
         }
+        
+        dataTable = $('#datatable').DataTable({
+            language: {
+                emptyTable: "Belum ada data kategori layanan."
+            }
+        });
+        
     } catch (error) {
-        document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" class="text-center">Terjadi gangguan jaringan atau API tidak merespons.</td></tr>';
+        Swal.fire('Error', 'Terjadi gangguan jaringan atau API tidak merespons.', 'error');
     }
 }
 
 function showFormAdd() {
-    $('#formContainer').fadeIn();
-    document.getElementById('formTitle').innerText = 'Tambah Kategori Baru';
     document.getElementById('kategoriForm').reset();
+    document.getElementById('formTitle').innerText = 'Tambah Kategori Baru';
     document.getElementById('id_kategori_layanan').value = '';
+    
+    if($().select2) {
+        $('#is_active').val('1').trigger('change');
+    }
+    
+    if (quillDeskripsi) quillDeskripsi.setContents([]);
+    
+    $('#formModal').modal('show');
 }
 
 function hideForm() {
-    $('#formContainer').fadeOut();
+    $('#formModal').modal('hide');
     document.getElementById('kategoriForm').reset();
 }
 
@@ -172,23 +202,41 @@ function editData(id) {
     const item = kategoriData.find(k => k.id_kategori_layanan == id);
     if (!item) return;
     
-    $('#formContainer').fadeIn();
     document.getElementById('formTitle').innerText = 'Edit Kategori Layanan';
     
     document.getElementById('id_kategori_layanan').value = item.id_kategori_layanan;
     document.getElementById('kode_kategori').value = item.kode_kategori;
     document.getElementById('nama_kategori').value = item.nama_kategori;
-    document.getElementById('deskripsi').value = item.deskripsi || '';
+    
+    if (quillDeskripsi) {
+        quillDeskripsi.clipboard.dangerouslyPasteHTML(item.deskripsi || '');
+    }
+    
     document.getElementById('is_active').value = item.is_active;
+    
+    if($().select2) {
+        $('#is_active').val(item.is_active).trigger('change');
+    }
+    
+    $('#formModal').modal('show');
 }
 
 async function saveKategori(e) {
     e.preventDefault();
+    
+    const deskripsiText = quillDeskripsi.root.innerHTML === '<p><br></p>' ? '' : quillDeskripsi.root.innerHTML;
+    document.getElementById('deskripsi_hidden').value = deskripsiText;
+
     const form = document.getElementById('kategoriForm');
     const formData = new FormData(form);
     
     const id = formData.get('id_kategori_layanan');
     const url = id ? '../../api/kategori-layanan/update.php' : '../../api/kategori-layanan/save.php';
+    
+    const btn = document.getElementById('btnSubmit');
+    const oriText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="mdi mdi-spin mdi-loading"></i> Menyimpan...';
     
     try {
         const response = await fetch(url, {
@@ -198,38 +246,50 @@ async function saveKategori(e) {
         const result = await response.json();
         
         if (result.status === 'success') {
-            alert(result.message);
+            Swal.fire('Sukses', result.message, 'success');
             hideForm();
             fetchData();
         } else {
-            alert('Gagal: ' + result.message);
+            Swal.fire('Gagal', result.message, 'error');
         }
     } catch (error) {
-        alert('Terjadi kesalahan sistem: ' + error);
+        Swal.fire('Error', 'Terjadi kesalahan sistem: ' + error, 'error');
     }
+    btn.disabled = false;
+    btn.innerHTML = oriText;
 }
 
-async function nonactiveData(id) {
-    if(!confirm('Apakah Anda yakin ingin menonaktifkan kategori layanan ini?')) return;
-    
-    const formData = new FormData();
-    formData.append('id_kategori_layanan', id);
-    
-    try {
-        const response = await fetch('../../api/kategori-layanan/nonactive.php', {
-            method: 'POST',
-            body: formData
-        });
-        const result = await response.json();
-        
-        if(result.status === 'success') {
-            alert('Kategori berhasil dinonaktifkan.');
-            fetchData();
-        } else {
-            alert('Gagal: ' + result.message);
+function nonactiveData(id) {
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: "Kategori layanan ini akan dinonaktifkan!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Nonaktifkan'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const formData = new FormData();
+            formData.append('id_kategori_layanan', id);
+            
+            try {
+                const response = await fetch('../../api/kategori-layanan/nonactive.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const res = await response.json();
+                
+                if(res.status === 'success') {
+                    Swal.fire('Berhasil', 'Kategori berhasil dinonaktifkan.', 'success');
+                    fetchData();
+                } else {
+                    Swal.fire('Gagal', res.message, 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Terjadi kesalahan sistem: ' + error, 'error');
+            }
         }
-    } catch (error) {
-        alert('Terjadi kesalahan sistem: ' + error);
-    }
+    });
 }
 </script>

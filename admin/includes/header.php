@@ -1,6 +1,31 @@
 <?php
 // Tentukan Base URL
 $base_url = "/terapi/admin";
+
+// Ambil data user yang sedang login
+$user_photo_path = $base_url . "/assets/images/users/avatar-3.jpg"; // Default
+$user_fullname = "Administrator";
+
+if (isset($_SESSION['user_id'])) {
+    $header_user_id = $_SESSION['user_id'];
+    require_once __DIR__ . '/../../config/koneksi.php';
+    $header_stmt = $koneksi->prepare("SELECT full_name, photo FROM users WHERE user_id = ?");
+    if ($header_stmt) {
+        $header_stmt->bind_param("i", $header_user_id);
+        $header_stmt->execute();
+        $header_res = $header_stmt->get_result();
+        if ($header_res->num_rows > 0) {
+            $header_user = $header_res->fetch_assoc();
+            if (!empty($header_user['full_name'])) {
+                $user_fullname = $header_user['full_name'];
+            }
+            if (!empty($header_user['photo'])) {
+                $user_photo_path = "/terapi/images/" . $header_user['photo'];
+            }
+        }
+        $header_stmt->close();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -13,6 +38,16 @@ $base_url = "/terapi/admin";
     <!-- App favicon -->
     <link rel="shortcut icon" href="<?= $base_url ?>/assets/images/favicon.ico">
 
+    <!-- Plugins css -->
+    <link href="<?= $base_url ?>/plugins/datatables/dataTables.bootstrap4.css" rel="stylesheet" type="text/css" />
+    <link href="<?= $base_url ?>/plugins/datatables/responsive.bootstrap4.css" rel="stylesheet" type="text/css" />
+    <link href="<?= $base_url ?>/plugins/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+    <link href="<?= $base_url ?>/plugins/select2/select2.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Dropify & Quill CSS -->
+    <link href="<?= $base_url ?>/plugins/dropify/dropify.min.css" rel="stylesheet" type="text/css" />
+    <link href="<?= $base_url ?>/plugins/quill/quill.snow.css" rel="stylesheet" type="text/css" />
+
     <!-- App css -->
     <link href="<?= $base_url ?>/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="<?= $base_url ?>/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
@@ -20,7 +55,8 @@ $base_url = "/terapi/admin";
     
     <!-- Custom CSS (Opsional) -->
     <style>
-        .page-content { padding-top: 70px; }
+        .page-content { padding-top: 90px; }
+        .page-title-box { margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -37,8 +73,8 @@ $base_url = "/terapi/admin";
                     <div class="dropdown d-inline-block">
                         <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img class="rounded-circle header-profile-user" src="<?= $base_url ?>/assets/images/users/avatar-3.jpg" alt="Header Avatar">
-                            <span class="d-none d-sm-inline-block ml-1">Administrator</span>
+                            <img class="rounded-circle header-profile-user" src="<?= $user_photo_path ?>" alt="Header Avatar" style="object-fit: cover;">
+                            <span class="d-none d-sm-inline-block ml-1"><?= htmlspecialchars($user_fullname) ?></span>
                             <i class="mdi mdi-chevron-down d-none d-sm-inline-block"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
