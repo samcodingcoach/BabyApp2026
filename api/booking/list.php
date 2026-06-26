@@ -30,8 +30,8 @@ $query = "
         b.id_booking, b.kode_booking, b.id_member, m.nama as nama_member, m.whatsapp as whatsapp_member,
         b.id_member_or_id_bayi,
         b.tanggal_booking, b.id_terapis, t.nama_terapis, 
-        b.status_booking, b.alamat_baru, b.whatsapp_baru, b.prioritas, b.catatan, b.created_at,
-        (SELECT SUM(total) FROM booking_detail WHERE id_booking = b.id_booking) as grand_total,
+        b.status_booking, b.alamat_baru, b.whatsapp_baru, b.prioritas, b.catatan, b.created_at, b.tarif_ongkir,
+        (IFNULL((SELECT SUM(total) FROM booking_detail WHERE id_booking = b.id_booking), 0) + IFNULL(b.tarif_ongkir, 0)) as grand_total,
         (SELECT COUNT(*) FROM booking_detail WHERE id_booking = b.id_booking) as jumlah_layanan,
         DATE_ADD(b.tanggal_booking, INTERVAL ( IFNULL((SELECT SUM(l.durasi_menit) FROM booking_detail bd JOIN layanan l ON bd.id_layanan = l.id_layanan WHERE bd.id_booking = b.id_booking), 0) + 60 ) MINUTE) as waktu_selesai
     FROM booking b

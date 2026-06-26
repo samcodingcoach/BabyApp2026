@@ -106,6 +106,13 @@ if (!isset($_SESSION['user_id'])) {
                             <option value="1">Ya, Prioritaskan</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Ongkos Kirim</label>
+                        <select id="tarif_ongkir" onchange="kalkulasiGrandTotal()">
+                            <option value="0">-- Gratis Ongkir (Rp 0) --</option>
+                        </select>
+                        <small style="display:block; margin-left:180px; color:#666;">(Otomatis terdeteksi dari rute Terapis &#10142; Member)</small>
+                    </div>
                 </div>
             </div>
 
@@ -181,6 +188,10 @@ if (!isset($_SESSION['user_id'])) {
                 </tbody>
                 <tfoot>
                     <tr>
+                        <th colspan="3" style="text-align:right;">BIAYA ONGKOS KIRIM</th>
+                        <th style="text-align:right; font-size:1.1em; color:#333;">Rp <span id="inv_ongkir">0</span></th>
+                    </tr>
+                    <tr>
                         <th colspan="3" style="text-align:right;">TOTAL PEMBAYARAN</th>
                         <th style="text-align:right; font-size:1.2em; color:green;">Rp <span id="inv_grandtotal">0</span></th>
                     </tr>
@@ -235,6 +246,7 @@ if (!isset($_SESSION['user_id'])) {
 let masterLayanan = [];
 let masterMember = [];
 let masterTerapis = [];
+let masterOngkir = [];
 
 window.onload = async () => {
     await fetchList();
@@ -309,6 +321,19 @@ async function preloadData() {
     let jsonLayanan = await resLayanan.json();
     if(jsonLayanan.status === 'success') masterLayanan = jsonLayanan.data;
 
+    // Load Ongkir
+    let resOngkir = await fetch('../../api/ongkir/list.php');
+    let jsonOngkir = await resOngkir.json();
+    if(jsonOngkir.status === 'success') {
+        masterOngkir = jsonOngkir.data;
+        const selOngkir = document.getElementById('tarif_ongkir');
+        masterOngkir.forEach(o => {
+            if (o.is_active == 1) {
+                selOngkir.innerHTML += `<option value="${o.harga}">${o.dari_kecamatan} &#10142; ${o.ke_kecamatan} (Rp ${formatRp(o.harga)})</option>`;
+            }
+        });
+    }
+
     // Load Member
     let resMember = await fetch('../../api/member/list.php');
     let jsonMember = await resMember.json();
@@ -316,7 +341,7 @@ async function preloadData() {
         masterMember = jsonMember.data;
         const selMember = document.getElementById('id_member');
         masterMember.forEach(m => {
-            selMember.innerHTML += `<option value="${m.id_member}">${m.nama} (NIK: ${m.nik})</option>`;
+            selMember.innerHTML += `<option value="${m.id_member}" data-kecamatan="${m.kecamatan || ''}">${m.nama} (NIK: ${m.nik})</option>`;
         });
     }
 
@@ -327,8 +352,10 @@ async function preloadData() {
         masterTerapis = jsonTerapis.data;
         const selTerapis = document.getElementById('id_terapis');
         masterTerapis.forEach(t => {
-            selTerapis.innerHTML += `<option value="${t.id_terapis}">${t.nama_terapis}</option>`;
+            selTerapis.innerHTML += `<option value="${t.id_terapis}" data-kecamatan="${t.kecamatan || ''}">${t.nama_terapis}</option>`;
         });
+        // Tambahkan trigger onchange untuk autoSelectOngkir
+        selTerapis.addEventListener('change', autoSelectOngkir);
     }
 }
 
@@ -337,6 +364,9 @@ async function loadBabies() {
     const id_member = document.getElementById('id_member').value;
     const selBayi = document.getElementById('id_member_or_id_bayi');
     selBayi.innerHTML = '<option value="">-- Diri Sendiri (Bukan Bayi) --</option>'; // Default value is empty if self
+    
+    // Trigger deteksi ongkir otomatis
+    autoSelectOngkir();
     
     if(!id_member) return;
 
@@ -348,6 +378,41 @@ async function loadBabies() {
             selBayi.innerHTML += `<option value="${b.id_bayi}">ANAK: ${b.nama_bayi}</option>`;
         });
     }
+}
+
+function autoSelectOngkir() {
+    const selMember = document.getElementById('id_member');
+    const selTerapis = document.getElementById('id_terapis');
+    
+    const optMember = selMember.options[selMember.selectedIndex];
+    const optTerapis = selTerapis.options[selTerapis.selectedIndex];
+    
+    const kecMember = optMember ? (optMember.getAttribute('data-kecamatan') || '').toLowerCase() : '';
+    const kecTerapis = optTerapis ? (optTerapis.getAttribute('data-kecamatan') || '').toLowerCase() : '';
+    
+    const selOngkir = document.getElementById('tarif_ongkir');
+    let found = false;
+    
+    if (kecMember && kecTerapis) {
+        for (let i = 0; i < masterOngkir.length; i++) {
+            const o = masterOngkir[i];
+            if (o.is_active == 1 && 
+                (o.dari_kecamatan || '').toLowerCase() === kecTerapis && 
+                (o.ke_kecamatan || '').toLowerCase() === kecMember) {
+                
+                selOngkir.value = o.harga;
+                found = true;
+                break;
+            }
+        }
+    }
+    
+    // Jika tidak ditemukan rute, default ke 0
+    if (!found) {
+        selOngkir.value = "0";
+    }
+    
+    kalkulasiGrandTotal();
 }
 
 // ----------------------------------------------------
@@ -408,6 +473,11 @@ function kalkulasiGrandTotal() {
     subtotals.forEach(el => {
         grand += parseFloat(el.value) || 0;
     });
+    
+    // Tambah Ongkir
+    const ongkir = parseFloat(document.getElementById('tarif_ongkir').value) || 0;
+    grand += ongkir;
+    
     document.getElementById('lblGrandTotal').innerText = formatRp(grand);
 }
 
@@ -459,6 +529,7 @@ async function saveData(e) {
     params.append('whatsapp_baru', document.getElementById('whatsapp_baru').value);
     params.append('prioritas', document.getElementById('prioritas').value);
     params.append('catatan', document.getElementById('catatan').value);
+    params.append('tarif_ongkir', document.getElementById('tarif_ongkir').value);
     params.append('details', JSON.stringify(details));
     
     const btnSubmit = document.getElementById('btnSubmit');
@@ -533,6 +604,7 @@ async function lihatDetail(id_booking) {
                 `;
             });
             document.getElementById('inv_body_layanan').innerHTML = tbody;
+            document.getElementById('inv_ongkir').innerText = formatRp(b.tarif_ongkir);
             document.getElementById('inv_grandtotal').innerText = formatRp(b.grand_total);
         }
     } catch (e) {

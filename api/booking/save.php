@@ -27,6 +27,7 @@ try {
     $whatsapp_baru = $_POST['whatsapp_baru'] ?? null;
     $prioritas = isset($_POST['prioritas']) ? (int)$_POST['prioritas'] : 0;
     $catatan = $_POST['catatan'] ?? null;
+    $tarif_ongkir = isset($_POST['tarif_ongkir']) ? (double)$_POST['tarif_ongkir'] : 0;
 
     if (!$id_member || !$tanggal_booking || !$id_terapis) {
         throw new Exception("id_member, tanggal_booking, dan id_terapis wajib diisi");
@@ -128,8 +129,8 @@ try {
     
     $kode_booking = "B{$datePrefix}-{$seq}";
 
-    $stmtMaster = $koneksi->prepare("INSERT INTO booking (kode_booking, id_member, id_member_or_id_bayi, tanggal_booking, id_terapis, alamat_baru, whatsapp_baru, prioritas, catatan, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmtMaster->bind_param("siisisissi", $kode_booking, $id_member, $id_member_or_id_bayi, $tanggal_booking, $id_terapis, $alamat_baru, $whatsapp_baru, $prioritas, $catatan, $user_id);
+    $stmtMaster = $koneksi->prepare("INSERT INTO booking (kode_booking, id_member, id_member_or_id_bayi, tanggal_booking, id_terapis, alamat_baru, whatsapp_baru, prioritas, catatan, user_id, tarif_ongkir) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmtMaster->bind_param("siisisissid", $kode_booking, $id_member, $id_member_or_id_bayi, $tanggal_booking, $id_terapis, $alamat_baru, $whatsapp_baru, $prioritas, $catatan, $user_id, $tarif_ongkir);
     
     if (!$stmtMaster->execute()) {
         throw new Exception("Gagal menyimpan Master Booking: " . $stmtMaster->error);
