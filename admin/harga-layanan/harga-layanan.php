@@ -5,86 +5,111 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: ../../login-admin.php");
     exit();
 }
+include '../includes/header.php';
+include '../includes/sidebar.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Histori Harga Layanan</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
-        .container { background: #fff; padding: 20px; border-radius: 5px; border: 1px solid #ccc; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        table, th, td { border: 1px solid #ddd; }
-        th, td { padding: 10px; text-align: left; }
-        th { background: #eee; }
-        button { padding: 6px 12px; cursor: pointer; }
-        .form-container { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; background: #fafafa; display: none; }
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: inline-block; width: 150px; vertical-align: top; }
-        .form-group input, .form-group select { padding: 5px; width: 250px; }
-        .back-link { text-decoration: none; color: #0056b3; font-weight: bold; margin-right: 20px; }
-        .note { font-size: 0.85em; color: #666; margin-left: 155px; display: block; }
-    </style>
-</head>
-<body>
 
-<div class="container">
-    <h2>Riwayat & Pengaturan Harga Layanan</h2>
-    <a href="../users/users.php" class="back-link">&larr; Kembali ke Users</a>
-    <a href="../../logout-admin.php" style="float: right; color: red; text-decoration: none;">Logout</a>
-    <br><br>
-    
-    <button onclick="showFormAdd()">+ Catat Harga Baru</button>
-
-    <!-- FORM TAMBAH -->
-    <div class="form-container" id="formContainer">
-        <h3 id="formTitle">Catat / Perbarui Harga</h3>
-        <form id="hargaForm" onsubmit="saveData(event)">
-            <div class="form-group">
-                <label>Layanan (Opsional)</label>
-                <input type="text" id="input_kode_layanan" placeholder="Contoh: LYN-01" oninput="checkKodeLayanan()">
-                <input type="hidden" name="id_layanan" id="id_layanan">
-                <div id="layanan_label" style="margin-left: 155px; font-weight: bold; margin-top: 5px; font-size: 0.9em;"></div>
-                <span class="note">Jika diisi (valid) dan Tgl Efektif = Hari ini, harga langsung aktif.</span>
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 font-size-18">Riwayat & Pengaturan Harga Layanan</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="../layanan/layanan.php">Layanan</a></li>
+                    <li class="breadcrumb-item active">Harga Layanan</li>
+                </ol>
             </div>
-            <div class="form-group">
-                <label>Tanggal Efektif</label>
-                <input type="date" name="tanggal_efektif" id="tanggal_efektif" required>
-            </div>
-            <div class="form-group">
-                <label>Harga (Rp)</label>
-                <input type="number" name="harga" id="harga" required>
-            </div>
-            <div class="form-group">
-                <label>Komisi Persentase (%)</label>
-                <input type="number" step="0.01" name="komisi_persentase" id="komisi_persentase" required>
-            </div>
-            
-            <button type="submit">Simpan</button>
-            <button type="button" onclick="hideForm()">Batal</button>
-        </form>
+        </div>
     </div>
-
-    <!-- TABEL DATA -->
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 5%; text-align: center;">No.</th>
-                <th>Tgl Efektif</th>
-                <th>Kode Layanan</th>
-                <th>Nama Layanan</th>
-                <th>Kategori</th>
-                <th style="text-align: right;">Harga (Rp)</th>
-                <th style="text-align: center;">Komisi (%)</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <tr><td colspan="7" style="text-align: center;">Loading data...</td></tr>
-        </tbody>
-    </table>
 </div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title">Histori Harga Layanan</h4>
+                    <div>
+                        <a href="../layanan/layanan.php" class="btn btn-secondary waves-effect waves-light font-weight-bold mr-2"><i class="mdi mdi-arrow-left mr-1"></i> Kembali ke Layanan</a>
+                        <button onclick="showFormAdd()" class="btn btn-success waves-effect waves-light font-weight-bold">
+                            <i class="mdi mdi-plus mr-1"></i> Catat Harga Baru
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FORM TAMBAH -->
+                <div id="formContainer" style="display: none; background: #fffcf0; border: 1px solid #ffeeba; border-radius: 5px; padding: 20px; margin-bottom: 30px;">
+                    <h5 class="text-warning mb-4 text-dark" id="formTitle"><i class="mdi mdi-cash-multiple mr-1"></i>Catat / Perbarui Harga</h5>
+                    <form id="hargaForm" onsubmit="saveData(event)">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Kode Layanan</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="input_kode_layanan" placeholder="Contoh: LYN-01" oninput="checkKodeLayanan()">
+                                        <input type="hidden" name="id_layanan" id="id_layanan">
+                                        <div id="layanan_label" class="mt-1 font-weight-bold font-size-13"></div>
+                                        <small class="form-text text-muted">Jika diisi (valid) dan Tgl Efektif = Hari ini, harga langsung aktif.</small>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Tanggal Efektif</label>
+                                    <div class="col-sm-8">
+                                        <input type="date" class="form-control" name="tanggal_efektif" id="tanggal_efektif" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Harga Baru (Rp)</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" class="form-control" name="harga" id="harga" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Komisi Persentase (%)</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" step="0.01" class="form-control" name="komisi_persentase" id="komisi_persentase" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-right">
+                            <button type="button" onclick="hideForm()" class="btn btn-secondary waves-effect waves-light mr-2 font-weight-bold">Batal</button>
+                            <button type="submit" class="btn btn-warning waves-effect waves-light font-weight-bold px-4 text-dark">Simpan Harga</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- TABEL DATA -->
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th style="width: 5%; text-align: center;">No.</th>
+                                <th>Tgl Efektif</th>
+                                <th>Kode Layanan</th>
+                                <th>Nama Layanan</th>
+                                <th>Kategori</th>
+                                <th style="text-align: right;">Harga (Rp)</th>
+                                <th style="text-align: center;">Komisi (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr><td colspan="7" class="text-center">Loading data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php include '../includes/footer.php'; ?>
 
 <script>
 window.onload = () => {
@@ -104,7 +129,7 @@ async function checkKodeLayanan() {
         return;
     }
     
-    label.innerHTML = '<span style="color:blue;">Mencari...</span>';
+    label.innerHTML = '<span class="text-primary"><i class="mdi mdi-spin mdi-loading mr-1"></i>Mencari...</span>';
     
     typingTimer = setTimeout(async () => {
         try {
@@ -113,17 +138,17 @@ async function checkKodeLayanan() {
             
             if (result.status === 'success' && result.data.length > 0) {
                 const item = result.data[0];
-                label.innerHTML = `Terdeteksi: <span style="color:green;">${item.nama_layanan}</span>`;
+                label.innerHTML = `Terdeteksi: <span class="text-success">${item.nama_layanan}</span>`;
                 idInput.value = item.id_layanan;
             } else {
-                label.innerHTML = '<span style="color:red;">Kode tidak ditemukan!</span>';
+                label.innerHTML = '<span class="text-danger">Kode tidak ditemukan!</span>';
                 idInput.value = '';
             }
         } catch (error) {
-            label.innerHTML = '<span style="color:red;">Gagal mengecek layanan</span>';
+            label.innerHTML = '<span class="text-danger">Gagal mengecek layanan</span>';
             idInput.value = '';
         }
-    }, 500); // 500ms debounce
+    }, 500);
 }
 
 async function fetchHargaList() {
@@ -136,48 +161,45 @@ async function fetchHargaList() {
         
         if (result.status === 'success') {
             if (result.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Belum ada riwayat harga tercatat.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">Belum ada riwayat harga tercatat.</td></tr>';
                 return;
             }
             
             result.data.forEach((item, index) => {
-                // Memformat angka harga agar menjadi 150.000 bukan 150000
                 const hargaFormatted = parseFloat(item.harga).toLocaleString('id-ID');
                 
                 tbody.innerHTML += `
                     <tr>
-                        <td style="text-align: center;">${index + 1}</td>
-                        <td><strong>${item.tanggal_efektif}</strong></td>
-                        <td>${item.kode_layanan || '-'}</td>
-                        <td>${item.nama_layanan || '-'}</td>
-                        <td>${item.nama_kategori || '-'}</td>
-                        <td style="text-align: right;">${hargaFormatted}</td>
-                        <td style="text-align: center;">${item.komisi_persentase}</td>
+                        <td class="text-center align-middle">${index + 1}</td>
+                        <td class="align-middle"><strong>${item.tanggal_efektif}</strong></td>
+                        <td class="align-middle">${item.kode_layanan || '-'}</td>
+                        <td class="align-middle">${item.nama_layanan || '-'}</td>
+                        <td class="align-middle">${item.nama_kategori || '-'}</td>
+                        <td class="text-right align-middle text-warning font-weight-bold">Rp ${hargaFormatted}</td>
+                        <td class="text-center align-middle">${item.komisi_persentase}%</td>
                     </tr>
                 `;
             });
         } else {
-            tbody.innerHTML = `<tr><td colspan="7" style="color:red; text-align: center;">Error: ${result.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${result.message}</td></tr>`;
         }
     } catch (error) {
-        console.error('Gagal mengambil data harga:', error);
-        document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" style="text-align: center;">Terjadi gangguan jaringan atau API tidak merespons.</td></tr>';
+        document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" class="text-center">Terjadi gangguan jaringan atau API tidak merespons.</td></tr>';
     }
 }
 
 function showFormAdd() {
-    document.getElementById('formContainer').style.display = 'block';
+    $('#formContainer').fadeIn();
     document.getElementById('hargaForm').reset();
     document.getElementById('layanan_label').innerHTML = '';
     document.getElementById('id_layanan').value = '';
     
-    // Secara otomatis mengisi input date dengan tanggal hari ini saat form dibuka
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('tanggal_efektif').value = today;
 }
 
 function hideForm() {
-    document.getElementById('formContainer').style.display = 'none';
+    $('#formContainer').fadeOut();
     document.getElementById('hargaForm').reset();
     document.getElementById('layanan_label').innerHTML = '';
     document.getElementById('id_layanan').value = '';
@@ -196,9 +218,9 @@ async function saveData(e) {
         const result = await response.json();
         
         if (result.status === 'success') {
-            alert(result.message); // Notifikasi detail apakah di-sync atau tidak
+            alert(result.message); 
             hideForm();
-            fetchHargaList(); // Render ulang tabel agar data baru muncul
+            fetchHargaList(); 
         } else {
             alert('Gagal: ' + result.message);
         }
@@ -207,6 +229,3 @@ async function saveData(e) {
     }
 }
 </script>
-
-</body>
-</html>

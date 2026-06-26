@@ -5,137 +5,177 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: ../../login-admin.php");
     exit();
 }
+include '../includes/header.php';
+include '../includes/sidebar.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Member</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
-        .container { background: #fff; padding: 20px; border-radius: 5px; border: 1px solid #ccc; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        table, th, td { border: 1px solid #ddd; }
-        th, td { padding: 10px; text-align: left; }
-        th { background: #eee; }
-        button { padding: 6px 12px; cursor: pointer; margin-right: 5px; margin-bottom: 5px;}
-        .form-container { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; background: #fafafa; display: none; }
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: inline-block; width: 180px; vertical-align: top; font-weight: bold;}
-        .form-group input, .form-group select, .form-group textarea { padding: 5px; width: 250px; }
-        img.thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #ccc; }
-        .badge-active { color: green; font-weight: bold; }
-        .badge-inactive { color: red; font-weight: bold; }
-        .pagination { margin-top: 15px; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
-        .pagination button { padding: 5px 15px; font-weight: bold; background: #0056b3; color: white; border: none; border-radius: 3px; cursor: pointer; }
-        .pagination button:disabled { background: #ccc; cursor: not-allowed; }
-        .pagination-info { font-size: 0.9em; color: #555; }
-    </style>
-</head>
-<body>
 
-<div class="container">
-    <h2>Manajemen Pendaftaran Member</h2>
-    <a href="../../logout-admin.php" style="float: right; color: red; text-decoration: none;">Logout</a>
-    <br><br>
-    
-    <button onclick="showForm()">+ Daftarkan Member Baru</button>
-
-    <!-- FORM (SAVE & UPDATE) -->
-    <div class="form-container" id="formMember">
-        <h3 id="formTitle">Form Member</h3>
-        <form id="memberForm" onsubmit="saveData(event)">
-            <input type="hidden" name="id_member" id="id_member">
-            
-            <div class="form-group">
-                <label>Nomor Induk (NIK) *</label>
-                <input type="text" name="nik" id="nik" placeholder="No KTP / ID" required>
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 font-size-18">Manajemen Member</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Master Data</a></li>
+                    <li class="breadcrumb-item active">Member</li>
+                </ol>
             </div>
-            <div class="form-group">
-                <label>Nama Lengkap *</label>
-                <input type="text" name="nama" id="nama" required>
-            </div>
-            <div class="form-group">
-                <label>Jenis Kelamin</label>
-                <select name="jenis_kelamin" id="jenis_kelamin">
-                    <option value="">-- Pilih --</option>
-                    <option value="1">Laki-Laki</option>
-                    <option value="0">Perempuan</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Alamat Domisili</label>
-                <textarea name="alamat" id="alamat" rows="3"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Kecamatan</label>
-                <input type="text" name="kecamatan" id="kecamatan">
-            </div>
-            <div class="form-group">
-                <label>Alamat (Titik GPS)</label>
-                <input type="text" name="alamat_gps" id="alamat_gps" placeholder="Cth: Paste URL Maps">
-            </div>
-            <div class="form-group">
-                <label>No. Whatsapp</label>
-                <input type="text" name="whatsapp" id="whatsapp" placeholder="08123...">
-            </div>
-            <div class="form-group">
-                <label>Password Akun</label>
-                <input type="password" name="password" id="password" placeholder="(Kosongi jika tidak ingin diubah)">
-            </div>
-            <div class="form-group">
-                <label>Status Member</label>
-                <select name="is_active" id="is_active">
-                    <option value="1">Aktif (Approved)</option>
-                    <option value="0">Belum Aktif / Blokir</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Foto Profile (JPG/PNG)</label>
-                <input type="file" name="photo" accept="image/jpeg, image/png, image/webp">
-                <br><small style="margin-left: 185px; color:#666;">(Otomatis ter-rename sesuai NIK pendaftar)</small>
-            </div>
-            
-            <button type="submit" style="background: blue; color: white; border-radius:3px; padding:8px 15px; border:none; font-weight:bold;">Simpan Profil Member</button>
-            <button type="button" onclick="hideForm()" style="border-radius:3px; padding:8px 15px; border:1px solid #ccc;">Batal</button>
-        </form>
-    </div>
-
-    <!-- PENCARIAN & FILTER -->
-    <div style="margin-bottom: 15px; background: #eef5ff; padding: 15px; border-radius: 5px; border: 1px solid #cce0ff;">
-        <strong style="margin-right: 10px; color: #0056b3;">Pencarian Pintar:</strong>
-        <input type="text" id="filter_nik" placeholder="Ketik NIK eksak..." oninput="applyFilter()" style="padding: 7px; width: 180px; border-radius: 3px; border: 1px solid #ccc;">
-        <input type="text" id="filter_nama" placeholder="Ketik bagian Nama Member..." oninput="applyFilter()" style="padding: 7px; margin-left: 10px; width: 250px; border-radius: 3px; border: 1px solid #ccc;">
-    </div>
-
-    <!-- TABEL DATA -->
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 5%; text-align: center;">No.</th>
-                <th style="text-align: center;">Foto</th>
-                <th>NIK</th>
-                <th>Nama Lengkap</th>
-                <th>L/P</th>
-                <th>Kecamatan</th>
-                <th>Whatsapp</th>
-                <th>Status</th>
-                <th style="width: 22%;">Aksi</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <tr><td colspan="9" style="text-align: center;">Memuat database member...</td></tr>
-        </tbody>
-    </table>
-
-    <!-- PAGINATION -->
-    <div class="pagination">
-        <span class="pagination-info" id="pageInfo">Halaman 1 dari 1 (Total: 0 Data)</span>
-        <button id="btnPrev" onclick="changePage(-1)" disabled>&laquo; Prev</button>
-        <button id="btnNext" onclick="changePage(1)" disabled>Next &raquo;</button>
+        </div>
     </div>
 </div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title">Daftar Pendaftaran Member</h4>
+                    <button onclick="showForm()" class="btn btn-success waves-effect waves-light font-weight-bold">
+                        <i class="mdi mdi-plus mr-1"></i> Daftarkan Member Baru
+                    </button>
+                </div>
+
+                <!-- FORM (SAVE & UPDATE) -->
+                <div id="formMember" style="display: none; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px; padding: 20px; margin-bottom: 30px;">
+                    <h5 class="text-success mb-4" id="formTitle">Form Member</h5>
+                    <form id="memberForm" onsubmit="saveData(event)">
+                        <input type="hidden" name="id_member" id="id_member">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Nomor Induk (NIK) *</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="nik" id="nik" placeholder="No KTP / ID" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Nama Lengkap *</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="nama" id="nama" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Jenis Kelamin</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" name="jenis_kelamin" id="jenis_kelamin">
+                                            <option value="">-- Pilih --</option>
+                                            <option value="1">Laki-Laki</option>
+                                            <option value="0">Perempuan</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Alamat Domisili</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" name="alamat" id="alamat" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Kecamatan</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="kecamatan" id="kecamatan">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Alamat (Titik GPS)</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="alamat_gps" id="alamat_gps" placeholder="Cth: Paste URL Maps">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">No. Whatsapp</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="whatsapp" id="whatsapp" placeholder="08123...">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Password Akun</label>
+                                    <div class="col-sm-8">
+                                        <input type="password" class="form-control" name="password" id="password" placeholder="(Kosongi jika tidak ingin diubah)">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Status Member</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control font-weight-bold" name="is_active" id="is_active">
+                                            <option value="1">Aktif (Approved)</option>
+                                            <option value="0" class="text-danger">Belum Aktif / Blokir</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Foto Profile</label>
+                                    <div class="col-sm-8">
+                                        <input type="file" class="form-control-file mt-1" name="photo" accept="image/jpeg, image/png, image/webp">
+                                        <small class="form-text text-muted">Akan direname otomatis sesuai NIK pendaftar.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-right">
+                            <button type="button" onclick="hideForm()" class="btn btn-secondary waves-effect waves-light mr-2 font-weight-bold">Batal</button>
+                            <button type="submit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Profil Member</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- PENCARIAN & FILTER -->
+                <div class="bg-light p-3 border rounded mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-auto">
+                            <strong class="text-primary"><i class="mdi mdi-filter mr-1"></i>Pencarian Pintar:</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="filter_nik" placeholder="Ketik NIK eksak..." oninput="applyFilter()">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="filter_nama" placeholder="Ketik bagian Nama Member..." oninput="applyFilter()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABEL DATA -->
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th style="width: 5%; text-align: center;">No.</th>
+                                <th style="text-align: center;">Foto</th>
+                                <th>NIK</th>
+                                <th>Nama Lengkap</th>
+                                <th>L/P</th>
+                                <th>Kecamatan</th>
+                                <th>Whatsapp</th>
+                                <th>Status</th>
+                                <th style="width: 20%;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr><td colspan="9" class="text-center">Memuat database member...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <span class="text-muted font-weight-bold" id="pageInfo">Halaman 1 dari 1 (Total: 0 Data)</span>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-primary" id="btnPrev" onclick="changePage(-1)" disabled><i class="mdi mdi-chevron-left"></i> Prev</button>
+                        <button class="btn btn-sm btn-primary" id="btnNext" onclick="changePage(1)" disabled>Next <i class="mdi mdi-chevron-right"></i></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php include '../includes/footer.php'; ?>
 
 <script>
 let currentPage = 1;
@@ -177,7 +217,6 @@ async function fetchList(page = 1) {
         const filterNik = document.getElementById('filter_nik').value.trim();
         const filterNama = document.getElementById('filter_nama').value.trim();
         
-        // Membangun Query Parameter
         let url = '../../api/member/list.php?page=' + page;
         if (filterNik) url += '&nik=' + encodeURIComponent(filterNik);
         if (filterNama) url += '&nama=' + encodeURIComponent(filterNama);
@@ -193,61 +232,57 @@ async function fetchList(page = 1) {
             currentPage = result.current_page;
             totalPages = result.total_pages > 0 ? result.total_pages : 1;
             
-            // Render Pagination Info & Tombol
             document.getElementById('pageInfo').innerText = `Halaman ${currentPage} dari ${totalPages} (Total: ${result.total_rows} Member)`;
             document.getElementById('btnPrev').disabled = (currentPage <= 1);
             document.getElementById('btnNext').disabled = (currentPage >= totalPages);
             
             if (result.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Data Member tidak ditemukan atau database kosong.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">Data Member tidak ditemukan atau database kosong.</td></tr>';
                 return;
             }
             
-            // Logika Penomoran Tabel berkelanjutan antar halaman
             let startIndex = (currentPage - 1) * result.per_page;
             
             result.data.forEach((item, index) => {
-                const statusHtml = parseInt(item.is_active) === 1 ? '<span class="badge-active">Aktif</span>' : '<span class="badge-inactive">Non-Aktif</span>';
-                const imgTag = item.photo ? `<img src="../../images/${item.photo}" class="thumb">` : '<div class="thumb" style="background:#eee;text-align:center;font-size:10px;line-height:50px;">No Img</div>';
+                const statusHtml = parseInt(item.is_active) === 1 ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-danger">Non-Aktif</span>';
+                const imgTag = item.photo ? `<img src="../../images/${item.photo}" class="rounded avatar-sm object-cover" style="width: 40px; height: 40px; object-fit: cover;">` : '<div class="avatar-sm d-inline-block"><span class="avatar-title rounded bg-light text-dark font-size-12">No Img</span></div>';
 
                 tbody.innerHTML += `
                     <tr>
-                        <td style="text-align: center;">${startIndex + index + 1}</td>
-                        <td style="text-align: center;">${imgTag}</td>
-                        <td><strong>${item.nik}</strong></td>
-                        <td>${item.nama}</td>
-                        <td>${getKelaminText(item.jenis_kelamin)}</td>
-                        <td>${item.kecamatan || '-'}</td>
-                        <td>${item.whatsapp || '-'}</td>
-                        <td>${statusHtml}</td>
-                        <td>
-                            <button onclick="editData(${index})">Edit Data</button>
-                            <a href="../bayi/bayi.php?id_member=${item.id_member}" style="background:#ff9800; color:white; padding:6px 12px; text-decoration:none; border-radius:3px; font-size:0.9em; margin-left:5px;">Data Anak</a>
+                        <td class="text-center align-middle">${startIndex + index + 1}</td>
+                        <td class="text-center align-middle">${imgTag}</td>
+                        <td class="align-middle"><strong>${item.nik}</strong></td>
+                        <td class="align-middle">${item.nama}</td>
+                        <td class="align-middle">${getKelaminText(item.jenis_kelamin)}</td>
+                        <td class="align-middle">${item.kecamatan || '-'}</td>
+                        <td class="align-middle">${item.whatsapp || '-'}</td>
+                        <td class="align-middle">${statusHtml}</td>
+                        <td class="align-middle">
+                            <button onclick="editData(${index})" class="btn btn-sm btn-info waves-effect waves-light mb-1"><i class="mdi mdi-pencil"></i> Edit</button>
+                            <a href="../bayi/bayi.php?id_member=${item.id_member}" class="btn btn-sm btn-warning waves-effect waves-light mb-1 text-dark font-weight-bold"><i class="mdi mdi-account-child"></i> Data Anak</a>
                         </td>
                     </tr>
                 `;
             });
         } else {
-            tbody.innerHTML = `<tr><td colspan="9" style="color:red; text-align: center;">Error: ${result.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Error: ${result.message}</td></tr>`;
         }
     } catch (error) {
-        document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" style="text-align: center;">Terjadi gangguan koneksi ke sistem API.</td></tr>';
+        document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" class="text-center">Terjadi gangguan koneksi ke sistem API.</td></tr>';
     }
 }
 
-// Munculkan Form Kosong (Mode Tambah)
 function showForm() {
-    document.getElementById('formMember').style.display = 'block';
+    $('#formMember').fadeIn();
     document.getElementById('memberForm').reset();
     document.getElementById('id_member').value = '';
     document.getElementById('formTitle').innerText = 'Daftarkan Member Baru';
 }
 
 function hideForm() {
-    document.getElementById('formMember').style.display = 'none';
+    $('#formMember').fadeOut();
 }
 
-// Munculkan Form Terisi (Mode Edit)
 function editData(index) {
     showForm();
     document.getElementById('formTitle').innerText = 'Edit Profil Member';
@@ -267,7 +302,6 @@ function editData(index) {
     document.getElementById('password').value = '';
 }
 
-// Eksekusi API Save / Update
 async function saveData(e) {
     e.preventDefault();
     const form = document.getElementById('memberForm');
@@ -286,7 +320,7 @@ async function saveData(e) {
         if (result.status === 'success') {
             alert(result.message);
             hideForm();
-            // Refresh tanpa pindah halaman (tetap berada di halaman paging saat ini)
+            // Refresh tanpa pindah halaman
             fetchList(currentPage); 
         } else {
             alert('Gagal: ' + result.message);
@@ -296,6 +330,3 @@ async function saveData(e) {
     }
 }
 </script>
-
-</body>
-</html>

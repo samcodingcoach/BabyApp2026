@@ -5,86 +5,109 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: ../../login-admin.php");
     exit();
 }
+include '../includes/header.php';
+include '../includes/sidebar.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Kategori Layanan</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
-        .container { background: #fff; padding: 20px; border-radius: 5px; border: 1px solid #ccc; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        table, th, td { border: 1px solid #ddd; }
-        th, td { padding: 10px; text-align: left; }
-        th { background: #eee; }
-        button { padding: 6px 12px; cursor: pointer; }
-        .form-container { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; background: #fafafa; display: none; }
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: inline-block; width: 130px; vertical-align: top; }
-        .form-group input, .form-group select, .form-group textarea { padding: 5px; width: 250px; }
-        .form-group textarea { height: 60px; font-family: inherit; }
-        .back-link { text-decoration: none; color: #0056b3; font-weight: bold; margin-right: 20px; }
-    </style>
-</head>
-<body>
 
-<div class="container">
-    <h2>Manajemen Kategori Layanan</h2>
-    <a href="../users/users.php" class="back-link">&larr; Kembali ke Users</a>
-    <a href="../../logout-admin.php" style="float: right; color: red; text-decoration: none;">Logout</a>
-    <br><br>
-    <button onclick="showFormAdd()">+ Tambah Kategori</button>
-
-    <!-- FORM TAMBAH / EDIT -->
-    <div class="form-container" id="formContainer">
-        <h3 id="formTitle">Tambah Kategori</h3>
-        <form id="kategoriForm" onsubmit="saveKategori(event)">
-            <input type="hidden" name="id_kategori_layanan" id="id_kategori_layanan">
-            
-            <div class="form-group">
-                <label>Kode Kategori</label>
-                <input type="text" name="kode_kategori" id="kode_kategori" required>
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 font-size-18">Manajemen Kategori Layanan</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Master Data</a></li>
+                    <li class="breadcrumb-item active">Kategori</li>
+                </ol>
             </div>
-            <div class="form-group">
-                <label>Nama Kategori</label>
-                <input type="text" name="nama_kategori" id="nama_kategori" required>
-            </div>
-            <div class="form-group">
-                <label>Deskripsi</label>
-                <textarea name="deskripsi" id="deskripsi"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Status</label>
-                <select name="is_active" id="is_active">
-                    <option value="1">Aktif</option>
-                    <option value="0">Nonaktif</option>
-                </select>
-            </div>
-            
-            <button type="submit">Simpan</button>
-            <button type="button" onclick="hideForm()">Batal</button>
-        </form>
+        </div>
     </div>
-
-    <!-- TABEL DATA -->
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 5%; text-align: center;">No.</th>
-                <th style="width: 15%;">Kode</th>
-                <th style="width: 25%;">Nama Kategori</th>
-                <th style="width: 35%;">Deskripsi</th>
-                <th style="width: 10%; text-align: center;">Status</th>
-                <th style="width: 10%; text-align: center;">Aksi</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <tr><td colspan="6" style="text-align: center;">Loading data...</td></tr>
-        </tbody>
-    </table>
 </div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title">Daftar Kategori Layanan</h4>
+                    <button onclick="showFormAdd()" class="btn btn-success waves-effect waves-light font-weight-bold">
+                        <i class="mdi mdi-plus mr-1"></i> Tambah Kategori Baru
+                    </button>
+                </div>
+
+                <!-- FORM TAMBAH / EDIT -->
+                <div id="formContainer" style="display: none; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px; padding: 20px; margin-bottom: 30px;">
+                    <h5 class="text-success mb-4" id="formTitle">Tambah Kategori</h5>
+                    <form id="kategoriForm" onsubmit="saveKategori(event)">
+                        <input type="hidden" name="id_kategori_layanan" id="id_kategori_layanan">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Kode Kategori</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="kode_kategori" id="kode_kategori" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Nama Kategori</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="nama_kategori" id="nama_kategori" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Deskripsi</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" name="deskripsi" id="deskripsi" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Status</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control font-weight-bold" name="is_active" id="is_active">
+                                            <option value="1">Aktif</option>
+                                            <option value="0" class="text-danger">Nonaktif</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-right">
+                            <button type="button" onclick="hideForm()" class="btn btn-secondary waves-effect waves-light mr-2 font-weight-bold">Batal</button>
+                            <button type="submit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Kategori</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- TABEL DATA -->
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th style="width: 5%; text-align: center;">No.</th>
+                                <th style="width: 15%;">Kode</th>
+                                <th style="width: 25%;">Nama Kategori</th>
+                                <th style="width: 35%;">Deskripsi</th>
+                                <th style="width: 10%; text-align: center;">Status</th>
+                                <th style="width: 10%; text-align: center;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr><td colspan="6" class="text-center">Loading data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php include '../includes/footer.php'; ?>
 
 <script>
 let kategoriData = [];
@@ -104,45 +127,44 @@ async function fetchData() {
         if (result.status === 'success') {
             kategoriData = result.data;
             if (kategoriData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Belum ada data kategori layanan.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Belum ada data kategori layanan.</td></tr>';
                 return;
             }
             
             kategoriData.forEach((item, index) => {
-                const statusHtml = item.is_active == 1 ? '<span style="color:green; font-weight:bold;">Aktif</span>' : '<span style="color:red; font-weight:bold;">Nonaktif</span>';
+                const statusHtml = item.is_active == 1 ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-danger">Nonaktif</span>';
                 
                 tbody.innerHTML += `
                     <tr>
-                        <td style="text-align: center;">${index + 1}</td>
-                        <td>${item.kode_kategori}</td>
-                        <td>${item.nama_kategori}</td>
-                        <td>${item.deskripsi || '-'}</td>
-                        <td style="text-align: center;">${statusHtml}</td>
-                        <td style="text-align: center;">
-                            <button onclick="editData(${item.id_kategori_layanan})" style="margin-bottom: 5px;">Edit</button>
-                            ${item.is_active == 1 ? `<button onclick="nonactiveData(${item.id_kategori_layanan})">Nonaktif</button>` : ''}
+                        <td class="text-center align-middle">${index + 1}</td>
+                        <td class="align-middle">${item.kode_kategori}</td>
+                        <td class="align-middle"><strong>${item.nama_kategori}</strong></td>
+                        <td class="align-middle">${item.deskripsi || '-'}</td>
+                        <td class="text-center align-middle">${statusHtml}</td>
+                        <td class="text-center align-middle">
+                            <button onclick="editData(${item.id_kategori_layanan})" class="btn btn-sm btn-info waves-effect waves-light mb-1"><i class="mdi mdi-pencil"></i> Edit</button>
+                            ${item.is_active == 1 ? `<button onclick="nonactiveData(${item.id_kategori_layanan})" class="btn btn-sm btn-danger waves-effect waves-light mb-1"><i class="mdi mdi-block-helper"></i> Nonaktif</button>` : ''}
                         </td>
                     </tr>
                 `;
             });
         } else {
-            tbody.innerHTML = `<tr><td colspan="6" style="color:red; text-align: center;">Error: ${result.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${result.message}</td></tr>`;
         }
     } catch (error) {
-        console.error('Gagal mengambil data:', error);
-        document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" style="text-align: center;">Terjadi gangguan jaringan atau API tidak merespons.</td></tr>';
+        document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" class="text-center">Terjadi gangguan jaringan atau API tidak merespons.</td></tr>';
     }
 }
 
 function showFormAdd() {
-    document.getElementById('formContainer').style.display = 'block';
+    $('#formContainer').fadeIn();
     document.getElementById('formTitle').innerText = 'Tambah Kategori Baru';
     document.getElementById('kategoriForm').reset();
     document.getElementById('id_kategori_layanan').value = '';
 }
 
 function hideForm() {
-    document.getElementById('formContainer').style.display = 'none';
+    $('#formContainer').fadeOut();
     document.getElementById('kategoriForm').reset();
 }
 
@@ -150,7 +172,7 @@ function editData(id) {
     const item = kategoriData.find(k => k.id_kategori_layanan == id);
     if (!item) return;
     
-    document.getElementById('formContainer').style.display = 'block';
+    $('#formContainer').fadeIn();
     document.getElementById('formTitle').innerText = 'Edit Kategori Layanan';
     
     document.getElementById('id_kategori_layanan').value = item.id_kategori_layanan;
@@ -211,6 +233,3 @@ async function nonactiveData(id) {
     }
 }
 </script>
-
-</body>
-</html>

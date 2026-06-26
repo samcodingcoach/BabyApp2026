@@ -4,243 +4,291 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: ../../login-admin.php");
     exit();
 }
+include '../includes/header.php';
+include '../includes/sidebar.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Transaksi Booking</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
-        .container { background: #fff; padding: 20px; border-radius: 5px; border: 1px solid #ccc; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        table, th, td { border: 1px solid #ddd; }
-        th, td { padding: 10px; text-align: left; }
-        th { background: #eee; }
-        button { padding: 6px 12px; cursor: pointer; margin-right: 5px; margin-bottom: 5px;}
-        
-        .form-container, .detail-container { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; background: #fffcf0; display: none; }
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: inline-block; width: 180px; vertical-align: top; font-weight: bold;}
-        .form-group input, .form-group select, .form-group textarea { padding: 6px; width: 300px; border: 1px solid #ccc; border-radius:3px; }
-        
-        /* Dynamic Table untuk Layanan */
-        .table-layanan { margin-top: 10px; background: #fff; }
-        .table-layanan th { background: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
-        .table-layanan td { vertical-align: top; }
-        .table-layanan select, .table-layanan input { width: 90%; }
-        
-        .badge { padding: 4px 8px; border-radius: 3px; font-weight: bold; color: white; font-size: 0.85em; }
-        .bg-menunggu { background: #ffc107; color: black; }
-        .bg-dijadwalkan { background: #17a2b8; }
-        .bg-dikonfirmasi { background: #007bff; }
-        .bg-selesai { background: #28a745; }
-        .bg-batal { background: #dc3545; }
-        
-        .invoice-box { background: #fff; padding: 20px; border: 1px solid #ccc; max-width: 800px; margin: auto; }
-        .invoice-header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
-    </style>
-</head>
-<body>
 
-<div class="container">
-    <h2>Manajemen Transaksi Booking (Master-Detail)</h2>
-    <a href="../../logout-admin.php" style="float: right; color: red; text-decoration: none;">Logout</a>
-    <br><br>
-    
-    <button onclick="showForm()" style="background:#28a745; color:white; border:none; border-radius:3px; padding:10px 15px; font-weight:bold;">+ Buat Transaksi Baru</button>
-
-    <!-- FORM BOOKING (MASTER DETAIL) -->
-    <div class="form-container" id="formBooking">
-        <h3 id="formTitle" style="color: #28a745;">Form Tambah Transaksi Booking</h3>
-        <form id="bookingForm" onsubmit="saveData(event)">
-            
-            <div style="display:flex; gap: 40px;">
-                <!-- Kolom Kiri: Data Klien -->
-                <div style="flex: 1;">
-                    <h4>Informasi Pelanggan</h4>
-                    <div class="form-group">
-                        <label>Member (Orang Tua) *</label>
-                        <select id="id_member" required onchange="loadBabies()">
-                            <option value="">-- Pilih Member --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Target Pasien *</label>
-                        <select id="id_member_or_id_bayi" required>
-                            <option value="">-- Pilih Member Dulu --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Alamat Kunjungan Baru</label>
-                        <textarea id="alamat_baru" rows="2" placeholder="(Opsional) Isi jika alamat berbeda dengan profil"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Whatsapp Aktif</label>
-                        <input type="text" id="whatsapp_baru" placeholder="(Opsional) WA yg bisa dihubungi saat ini">
-                    </div>
-                </div>
-
-                <!-- Kolom Kanan: Jadwal & Terapis -->
-                <div style="flex: 1;">
-                    <h4>Jadwal & Terapis</h4>
-                    <div class="form-group">
-                        <label>Tanggal & Jam Booking *</label>
-                        <input type="datetime-local" id="tanggal_booking" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Pilih Terapis *</label>
-                        <select id="id_terapis" required>
-                            <option value="">-- Pilih Terapis --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Catatan Booking</label>
-                        <textarea id="catatan" rows="2" placeholder="Cth: Tolong bawakan mainan..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Prioritas (VIP)</label>
-                        <select id="prioritas">
-                            <option value="0">Tidak</option>
-                            <option value="1">Ya, Prioritaskan</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Ongkos Kirim</label>
-                        <select id="tarif_ongkir" onchange="kalkulasiGrandTotal()">
-                            <option value="0">-- Gratis Ongkir (Rp 0) --</option>
-                        </select>
-                        <small style="display:block; margin-left:180px; color:#666;">(Otomatis terdeteksi dari rute Terapis &#10142; Member)</small>
-                    </div>
-                </div>
-            </div>
-
-            <hr style="margin: 20px 0; border:0; border-top:1px solid #ccc;">
-            
-            <h4>Rincian Layanan yang Dipesan</h4>
-            <button type="button" onclick="addRowLayanan()" style="background:#007bff; color:white; border:none; padding:5px 10px; border-radius:3px;">+ Tambah Baris Layanan</button>
-            <table class="table-layanan" id="tableLayanan">
-                <thead>
-                    <tr>
-                        <th style="width: 35%;">Pilih Layanan</th>
-                        <th style="width: 20%;">Keluhan Spesifik</th>
-                        <th style="width: 15%;">Tarif Dasar (Rp)</th>
-                        <th style="width: 10%;">Diskon (Rp)</th>
-                        <th style="width: 15%;">Subtotal (Rp)</th>
-                        <th style="width: 5%;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="tbodyLayanan">
-                    <!-- Dynamic Rows Here -->
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="4" style="text-align: right; font-weight: bold; font-size: 1.1em;">GRAND TOTAL :</td>
-                        <td colspan="2" style="font-weight: bold; font-size: 1.1em; color: green;">Rp <span id="lblGrandTotal">0</span></td>
-                    </tr>
-                </tfoot>
-            </table>
-
-            <br>
-            <button type="submit" id="btnSubmit" style="background: green; color: white; border-radius:3px; padding:10px 20px; border:none; font-weight:bold; font-size:1.1em; cursor:pointer;">Simpan & Terbitkan Booking</button>
-            <button type="button" onclick="hideForm()" style="border-radius:3px; padding:10px 20px; border:1px solid #ccc; cursor:pointer;">Batal</button>
-        </form>
-    </div>
-
-    <!-- DETAIL / INVOICE VIEW -->
-    <div class="detail-container" id="detailBooking">
-        <div class="invoice-box">
-            <div class="invoice-header">
-                <h3 style="margin:0; color:#333;">INVOICE / STRUK BOOKING</h3>
-                <p style="margin:5px 0 0 0; color:#666;" id="inv_kode"></p>
-                <button onclick="document.getElementById('detailBooking').style.display='none'" style="float:right; margin-top:-30px;">Tutup Nota</button>
-            </div>
-            
-            <table style="border:none; margin-top:0;">
-                <tr style="border:none;">
-                    <td style="border:none; width:50%;">
-                        <strong>Member:</strong> <span id="inv_member"></span><br>
-                        <strong>Pasien (Anak):</strong> <span id="inv_bayi"></span><br>
-                        <strong>No. WA:</strong> <span id="inv_wa"></span><br>
-                        <strong>Alamat:</strong> <span id="inv_alamat"></span>
-                    </td>
-                    <td style="border:none; text-align:right;">
-                        <strong>Tgl Cetak Nota:</strong> <span id="inv_created_at"></span><br>
-                        <strong>Jadwal Kunjungan:</strong> <span id="inv_jadwal" style="color:#007bff;"></span><br>
-                        <strong>Terapis:</strong> <span id="inv_terapis"></span><br>
-                        <strong>Status:</strong> <span id="inv_status"></span><br>
-                        <strong>Prioritas:</strong> <span id="inv_prioritas"></span>
-                    </td>
-                </tr>
-            </table>
-
-            <table style="margin-top: 20px;">
-                <thead>
-                    <tr style="background:#eee;">
-                        <th>No</th>
-                        <th>Layanan</th>
-                        <th>Keluhan</th>
-                        <th style="text-align:right;">Harga</th>
-                    </tr>
-                </thead>
-                <tbody id="inv_body_layanan">
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="3" style="text-align:right;">BIAYA ONGKOS KIRIM</th>
-                        <th style="text-align:right; font-size:1.1em; color:#333;">Rp <span id="inv_ongkir">0</span></th>
-                    </tr>
-                    <tr>
-                        <th colspan="3" style="text-align:right;">TOTAL PEMBAYARAN</th>
-                        <th style="text-align:right; font-size:1.2em; color:green;">Rp <span id="inv_grandtotal">0</span></th>
-                    </tr>
-                </tfoot>
-            </table>
-            
-            <!-- UPDATE STATUS SECTION -->
-            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #ddd;">
-                <strong>Ubah Status Transaksi:</strong>
-                <select id="update_status_sel" style="padding:5px; margin-left:10px;">
-                    <option value="MENUNGGU">Menunggu</option>
-                    <option value="DIJADWALKAN">Dijadwalkan</option>
-                    <option value="DIKONFIRMASI">Dikonfirmasi</option>
-                    <option value="SELESAI">Selesai</option>
-                    <option value="BATAL">Batal</option>
-                </select>
-                <input type="hidden" id="update_id_booking">
-                <button onclick="eksekusiUpdateStatus()" style="background:#007bff; color:white; border:none; padding:6px 12px; border-radius:3px;">Update Status</button>
-            </div>
-
-            <!-- RESCHEDULE SECTION -->
-            <div style="margin-top: 10px; padding: 15px; background: #fff3cd; border: 1px solid #ffeeba;">
-                <strong>Reschedule Jadwal:</strong><br>
-                <input type="datetime-local" id="reschedule_tgl" style="padding:5px; margin-top:5px;">
-                <button onclick="eksekusiReschedule()" style="background:#ffc107; color:#000; border:none; padding:6px 12px; border-radius:3px; font-weight:bold;">Simpan Perubahan Jadwal</button>
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 font-size-18">Manajemen Booking</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Klinik</a></li>
+                    <li class="breadcrumb-item active">Booking</li>
+                </ol>
             </div>
         </div>
     </div>
-
-    <!-- TABEL DATA -->
-    <table>
-        <thead>
-            <tr>
-                <th>No.</th>
-                <th>Kode</th>
-                <th>Tgl Jadwal</th>
-                <th>Avail. At (Terapis Free)</th>
-                <th>Klien (Member)</th>
-                <th>Terapis</th>
-                <th>Total Rp</th>
-                <th>Status</th>
-                <th style="width: 15%;">Aksi</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <tr><td colspan="8" style="text-align: center;">Memuat database transaksi...</td></tr>
-        </tbody>
-    </table>
 </div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title">Daftar Transaksi Booking</h4>
+                    <button onclick="showForm()" class="btn btn-success waves-effect waves-light font-weight-bold">
+                        <i class="mdi mdi-plus mr-1"></i> Buat Transaksi Baru
+                    </button>
+                </div>
+
+                <!-- FORM BOOKING (MASTER DETAIL) -->
+                <div id="formBooking" style="display: none; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px; padding: 20px; margin-bottom: 30px;">
+                    <h5 class="text-success mb-4" id="formTitle">Form Tambah Transaksi Booking</h5>
+                    <form id="bookingForm" onsubmit="saveData(event)">
+                        <div class="row">
+                            <!-- Kolom Kiri: Data Klien -->
+                            <div class="col-md-6">
+                                <h5 class="font-size-14 mb-3"><i class="mdi mdi-account-circle mr-1 text-primary"></i> Informasi Pelanggan</h5>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Member (Orang Tua) *</label>
+                                    <div class="col-sm-8">
+                                        <select id="id_member" class="form-control" required onchange="loadBabies()">
+                                            <option value="">-- Pilih Member --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Target Pasien *</label>
+                                    <div class="col-sm-8">
+                                        <select id="id_member_or_id_bayi" class="form-control" required>
+                                            <option value="">-- Pilih Member Dulu --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Alamat Kunjungan</label>
+                                    <div class="col-sm-8">
+                                        <textarea id="alamat_baru" class="form-control" rows="2" placeholder="(Opsional) Isi jika alamat berbeda dengan profil"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Whatsapp Aktif</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" id="whatsapp_baru" class="form-control" placeholder="(Opsional) WA yg bisa dihubungi saat ini">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Kolom Kanan: Jadwal & Terapis -->
+                            <div class="col-md-6">
+                                <h5 class="font-size-14 mb-3"><i class="mdi mdi-calendar-clock mr-1 text-warning"></i> Jadwal & Terapis</h5>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Tanggal & Jam *</label>
+                                    <div class="col-sm-8">
+                                        <input type="datetime-local" id="tanggal_booking" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Pilih Terapis *</label>
+                                    <div class="col-sm-8">
+                                        <select id="id_terapis" class="form-control" required>
+                                            <option value="">-- Pilih Terapis --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Catatan Booking</label>
+                                    <div class="col-sm-8">
+                                        <textarea id="catatan" class="form-control" rows="2" placeholder="Cth: Tolong bawakan mainan..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Prioritas (VIP)</label>
+                                    <div class="col-sm-8">
+                                        <select id="prioritas" class="form-control bg-light">
+                                            <option value="0">Tidak</option>
+                                            <option value="1">Ya, Prioritaskan</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Ongkos Kirim</label>
+                                    <div class="col-sm-8">
+                                        <select id="tarif_ongkir" class="form-control font-weight-bold" onchange="kalkulasiGrandTotal()">
+                                            <option value="0">-- Gratis Ongkir (Rp 0) --</option>
+                                        </select>
+                                        <small class="form-text text-muted">(Otomatis terdeteksi dari rute Terapis &#10142; Member)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="font-size-15 m-0 text-info">Rincian Layanan yang Dipesan</h5>
+                            <button type="button" onclick="addRowLayanan()" class="btn btn-sm btn-info waves-effect waves-light">
+                                <i class="mdi mdi-plus"></i> Tambah Baris Layanan
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0" id="tableLayanan">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th style="width: 30%;">Pilih Layanan</th>
+                                        <th style="width: 25%;">Keluhan Spesifik</th>
+                                        <th style="width: 15%;">Tarif Dasar (Rp)</th>
+                                        <th style="width: 10%;">Diskon (Rp)</th>
+                                        <th style="width: 15%;">Subtotal (Rp)</th>
+                                        <th style="width: 5%;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyLayanan">
+                                    <!-- Dynamic Rows Here -->
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4" class="text-right font-weight-bold font-size-16 align-middle">GRAND TOTAL :</td>
+                                        <td colspan="2" class="font-weight-bold font-size-18 text-success align-middle">
+                                            Rp <span id="lblGrandTotal">0</span>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <div class="mt-4 text-right">
+                            <button type="button" onclick="hideForm()" class="btn btn-secondary waves-effect waves-light mr-2 font-weight-bold">Batal</button>
+                            <button type="submit" id="btnSubmit" class="btn btn-success waves-effect waves-light font-weight-bold px-4">Simpan & Terbitkan Booking</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- DETAIL / INVOICE VIEW -->
+                <div id="detailBooking" style="display: none; margin-bottom: 30px;">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-10">
+                            <div class="card border border-light shadow-sm">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between border-bottom pb-3 mb-4">
+                                        <div>
+                                            <h3 class="font-weight-bold mb-1 text-dark">INVOICE / STRUK</h3>
+                                            <p class="text-muted mb-0" id="inv_kode"></p>
+                                        </div>
+                                        <div>
+                                            <button onclick="document.getElementById('detailBooking').style.display='none'" class="btn btn-sm btn-outline-danger font-weight-bold">
+                                                <i class="mdi mdi-close"></i> Tutup Nota
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-sm-6">
+                                            <h6 class="text-muted font-size-14 text-uppercase mb-3">Ditujukan Kepada:</h6>
+                                            <div class="mb-1"><strong>Member:</strong> <span id="inv_member"></span></div>
+                                            <div class="mb-1"><strong>Pasien (Anak):</strong> <span id="inv_bayi"></span></div>
+                                            <div class="mb-1"><strong>No. WA:</strong> <span id="inv_wa"></span></div>
+                                            <div><strong>Alamat:</strong> <span id="inv_alamat"></span></div>
+                                        </div>
+                                        <div class="col-sm-6 text-sm-right mt-4 mt-sm-0">
+                                            <h6 class="text-muted font-size-14 text-uppercase mb-3">Detail Pemesanan:</h6>
+                                            <div class="mb-1"><strong>Tgl Cetak:</strong> <span id="inv_created_at"></span></div>
+                                            <div class="mb-1"><strong>Jadwal:</strong> <span id="inv_jadwal" class="text-primary font-weight-bold"></span></div>
+                                            <div class="mb-1"><strong>Terapis:</strong> <span id="inv_terapis"></span></div>
+                                            <div class="mb-1"><strong>Status:</strong> <span id="inv_status"></span></div>
+                                            <div><strong>Prioritas:</strong> <span id="inv_prioritas"></span></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="table-responsive mb-4">
+                                        <table class="table table-bordered table-centered mb-0">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>No</th>
+                                                    <th>Layanan</th>
+                                                    <th>Keluhan</th>
+                                                    <th class="text-right">Harga</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="inv_body_layanan">
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <th colspan="3" class="text-right">BIAYA ONGKOS KIRIM</th>
+                                                    <th class="text-right font-size-15">Rp <span id="inv_ongkir">0</span></th>
+                                                </tr>
+                                                <tr class="bg-light">
+                                                    <th colspan="3" class="text-right font-size-16">TOTAL PEMBAYARAN</th>
+                                                    <th class="text-right font-size-18 text-success font-weight-bold">Rp <span id="inv_grandtotal">0</span></th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <!-- UPDATE STATUS SECTION -->
+                                        <div class="col-md-6 mb-3">
+                                            <div class="bg-light p-3 border rounded">
+                                                <h6 class="font-weight-bold mb-3">Ubah Status Transaksi:</h6>
+                                                <div class="input-group">
+                                                    <select id="update_status_sel" class="custom-select font-weight-bold">
+                                                        <option value="MENUNGGU">Menunggu</option>
+                                                        <option value="DIJADWALKAN">Dijadwalkan</option>
+                                                        <option value="DIKONFIRMASI">Dikonfirmasi</option>
+                                                        <option value="SELESAI">Selesai</option>
+                                                        <option value="BATAL">Batal</option>
+                                                    </select>
+                                                    <div class="input-group-append">
+                                                        <input type="hidden" id="update_id_booking">
+                                                        <button onclick="eksekusiUpdateStatus()" class="btn btn-primary font-weight-bold" type="button">Update Status</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- RESCHEDULE SECTION -->
+                                        <div class="col-md-6 mb-3">
+                                            <div class="p-3 border border-warning rounded" style="background-color: #fff3cd;">
+                                                <h6 class="font-weight-bold mb-3 text-dark">Reschedule Jadwal:</h6>
+                                                <div class="input-group">
+                                                    <input type="datetime-local" id="reschedule_tgl" class="form-control">
+                                                    <div class="input-group-append">
+                                                        <button onclick="eksekusiReschedule()" class="btn btn-warning font-weight-bold text-dark" type="button">Simpan Jadwal</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABEL DATA -->
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>No.</th>
+                                <th>Kode</th>
+                                <th>Tgl Jadwal</th>
+                                <th>Avail. At</th>
+                                <th>Klien (Member)</th>
+                                <th>Terapis</th>
+                                <th>Total Rp</th>
+                                <th>Status</th>
+                                <th style="width: 10%;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr><td colspan="9" class="text-center">Memuat database transaksi...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php include '../includes/footer.php'; ?>
 
 <script>
 let masterLayanan = [];
@@ -259,11 +307,11 @@ function formatRp(angka) {
 
 function getBadge(status) {
     switch(status) {
-        case 'MENUNGGU': return '<span class="badge bg-menunggu">Menunggu</span>';
-        case 'DIJADWALKAN': return '<span class="badge bg-dijadwalkan">Dijadwalkan</span>';
-        case 'DIKONFIRMASI': return '<span class="badge bg-dikonfirmasi">Dikonfirmasi</span>';
-        case 'SELESAI': return '<span class="badge bg-selesai">Selesai</span>';
-        case 'BATAL': return '<span class="badge bg-batal">Dibatalkan</span>';
+        case 'MENUNGGU': return '<span class="badge badge-warning">Menunggu</span>';
+        case 'DIJADWALKAN': return '<span class="badge badge-info">Dijadwalkan</span>';
+        case 'DIKONFIRMASI': return '<span class="badge badge-primary">Dikonfirmasi</span>';
+        case 'SELESAI': return '<span class="badge badge-success">Selesai</span>';
+        case 'BATAL': return '<span class="badge badge-danger">Dibatalkan</span>';
         default: return status;
     }
 }
@@ -281,7 +329,7 @@ async function fetchList() {
         
         if (result.status === 'success') {
             if (result.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Belum ada riwayat booking.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">Belum ada riwayat booking.</td></tr>';
                 return;
             }
             
@@ -294,16 +342,16 @@ async function fetchList() {
 
                 tbody.innerHTML += `
                     <tr>
-                        <td>${index + 1}</td>
-                        <td><strong>${item.kode_booking}</strong></td>
-                        <td>${tgl}</td>
-                        <td style="color:#28a745; font-weight:bold;">${tglEnd}</td>
-                        <td>${item.nama_member}</td>
-                        <td>${item.nama_terapis}</td>
-                        <td>Rp ${formatRp(item.grand_total)}</td>
-                        <td>${getBadge(item.status_booking)}</td>
-                        <td>
-                            <button onclick="lihatDetail(${item.id_booking})" style="background:#17a2b8; color:white; border:none; padding:4px 8px; border-radius:3px;">Buka Nota</button>
+                        <td class="align-middle">${index + 1}</td>
+                        <td class="align-middle"><strong>${item.kode_booking}</strong></td>
+                        <td class="align-middle">${tgl}</td>
+                        <td class="align-middle" style="color:#28a745; font-weight:bold;">${tglEnd}</td>
+                        <td class="align-middle">${item.nama_member}</td>
+                        <td class="align-middle">${item.nama_terapis}</td>
+                        <td class="align-middle">Rp ${formatRp(item.grand_total)}</td>
+                        <td class="align-middle">${getBadge(item.status_booking)}</td>
+                        <td class="align-middle">
+                            <button onclick="lihatDetail(${item.id_booking})" class="btn btn-sm btn-info waves-effect waves-light font-weight-bold">Buka Nota</button>
                         </td>
                     </tr>
                 `;
@@ -354,7 +402,6 @@ async function preloadData() {
         masterTerapis.forEach(t => {
             selTerapis.innerHTML += `<option value="${t.id_terapis}" data-kecamatan="${t.kecamatan || ''}">${t.nama_terapis}</option>`;
         });
-        // Tambahkan trigger onchange untuk autoSelectOngkir
         selTerapis.addEventListener('change', autoSelectOngkir);
     }
 }
@@ -363,9 +410,8 @@ async function preloadData() {
 async function loadBabies() {
     const id_member = document.getElementById('id_member').value;
     const selBayi = document.getElementById('id_member_or_id_bayi');
-    selBayi.innerHTML = '<option value="">-- Diri Sendiri (Bukan Bayi) --</option>'; // Default value is empty if self
+    selBayi.innerHTML = '<option value="">-- Diri Sendiri (Bukan Bayi) --</option>'; 
     
-    // Trigger deteksi ongkir otomatis
     autoSelectOngkir();
     
     if(!id_member) return;
@@ -407,7 +453,6 @@ function autoSelectOngkir() {
         }
     }
     
-    // Jika tidak ditemukan rute, default ke 0
     if (!found) {
         selOngkir.value = "0";
     }
@@ -430,12 +475,12 @@ function addRowLayanan() {
     });
 
     tr.innerHTML = `
-        <td><select class="sel-layanan" onchange="kalkulasiRow(${rowCount})">${optionsLayanan}</select></td>
-        <td><input type="text" class="inp-keluhan" placeholder="Cth: Pegal bahu"></td>
-        <td><input type="number" class="inp-harga" readonly style="background:#eee;"></td>
-        <td><input type="number" class="inp-diskon" value="0" oninput="kalkulasiRow(${rowCount})"></td>
-        <td><input type="number" class="inp-subtotal" readonly style="background:#eee; font-weight:bold;"></td>
-        <td><button type="button" onclick="hapusRow(${rowCount})" style="background:red; color:white; border:none; padding:4px 8px;">X</button></td>
+        <td><select class="form-control sel-layanan" onchange="kalkulasiRow(${rowCount})">${optionsLayanan}</select></td>
+        <td><input type="text" class="form-control inp-keluhan" placeholder="Cth: Pegal bahu"></td>
+        <td><input type="number" class="form-control inp-harga" readonly style="background:#e9ecef;"></td>
+        <td><input type="number" class="form-control inp-diskon" value="0" oninput="kalkulasiRow(${rowCount})"></td>
+        <td><input type="number" class="form-control inp-subtotal text-success font-weight-bold" readonly style="background:#e9ecef;"></td>
+        <td class="text-center align-middle"><button type="button" onclick="hapusRow(${rowCount})" class="btn btn-sm btn-danger"><i class="mdi mdi-delete"></i></button></td>
     `;
     
     document.getElementById('tbodyLayanan').appendChild(tr);
@@ -474,7 +519,6 @@ function kalkulasiGrandTotal() {
         grand += parseFloat(el.value) || 0;
     });
     
-    // Tambah Ongkir
     const ongkir = parseFloat(document.getElementById('tarif_ongkir').value) || 0;
     grand += ongkir;
     
@@ -492,7 +536,6 @@ async function saveData(e) {
     const tanggal_booking = document.getElementById('tanggal_booking').value;
     const id_terapis = document.getElementById('id_terapis').value;
     
-    // Kumpulkan array Detail
     let details = [];
     const rows = document.getElementById('tbodyLayanan').querySelectorAll('tr');
     
@@ -501,7 +544,7 @@ async function saveData(e) {
         const sel = tr.querySelector('.sel-layanan');
         const opt = sel.options[sel.selectedIndex];
         
-        if(opt.value !== '') {
+        if(opt && opt.value !== '') {
             details.push({
                 id_layanan: opt.value,
                 id_harga_layanan: opt.getAttribute('data-id_harga'),
@@ -519,7 +562,6 @@ async function saveData(e) {
         return;
     }
 
-    // Build URL Encoded Payload
     const params = new URLSearchParams();
     params.append('id_member', id_member);
     params.append('id_member_or_id_bayi', id_member_or_id_bayi);
@@ -534,7 +576,7 @@ async function saveData(e) {
     
     const btnSubmit = document.getElementById('btnSubmit');
     btnSubmit.disabled = true;
-    btnSubmit.innerText = "Memproses Transaksi...";
+    btnSubmit.innerText = "Memproses...";
 
     try {
         const res = await fetch('../../api/booking/save.php', {
@@ -566,7 +608,7 @@ async function lihatDetail(id_booking) {
     document.getElementById('formBooking').style.display = 'none';
     document.getElementById('detailBooking').style.display = 'block';
     
-    document.getElementById('inv_body_layanan').innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+    document.getElementById('inv_body_layanan').innerHTML = '<tr><td colspan="4" class="text-center">Loading...</td></tr>';
     
     try {
         const res = await fetch('../../api/booking/detail.php?id_booking=' + id_booking);
@@ -574,7 +616,7 @@ async function lihatDetail(id_booking) {
         
         if(json.status === 'success') {
             const b = json.data;
-            document.getElementById('inv_kode').innerText = "Kode: " + b.kode_booking;
+            document.getElementById('inv_kode').innerText = "KODE: " + b.kode_booking;
             document.getElementById('inv_member').innerText = b.nama_member;
             document.getElementById('inv_bayi').innerText = b.nama_bayi || 'Diri Sendiri';
             document.getElementById('inv_wa').innerText = b.whatsapp_tampil || b.whatsapp_baru || b.whatsapp_member || '-';
@@ -591,7 +633,6 @@ async function lihatDetail(id_booking) {
             document.getElementById('update_id_booking').value = b.id_booking;
             document.getElementById('update_status_sel').value = b.status_booking;
             
-            // Render Details
             let tbody = '';
             b.details.forEach((d, i) => {
                 tbody += `
@@ -599,7 +640,7 @@ async function lihatDetail(id_booking) {
                         <td>${i+1}</td>
                         <td><strong>${d.nama_layanan}</strong></td>
                         <td>${d.keluhan || '-'}</td>
-                        <td style="text-align:right;">Rp ${formatRp(d.total)}</td>
+                        <td class="text-right">Rp ${formatRp(d.total)}</td>
                     </tr>
                 `;
             });
@@ -629,8 +670,8 @@ async function eksekusiUpdateStatus() {
         const json = await res.json();
         if(json.status === 'success') {
             alert('Berhasil: ' + json.message);
-            lihatDetail(id); // Reload Nota
-            fetchList(); // Reload Tabel Background
+            lihatDetail(id);
+            fetchList(); 
         } else {
             alert('Gagal: ' + json.message);
         }
@@ -646,7 +687,7 @@ async function eksekusiReschedule() {
         return;
     }
     
-    if(!confirm("Yakin ingin memindahkan jadwal pesanan ini ke " + tgl + "? Status akan otomatis diubah menjadi DIJADWALKAN.")) return;
+    if(!confirm("Yakin ingin memindahkan jadwal pesanan ini ke " + tgl + "? Status otomatis menjadi DIJADWALKAN.")) return;
 
     const params = new URLSearchParams();
     params.append('id_booking', id);
@@ -661,8 +702,8 @@ async function eksekusiReschedule() {
         const json = await res.json();
         if(json.status === 'success') {
             alert(json.message);
-            lihatDetail(id); // Reload Nota
-            fetchList(); // Reload Tabel Background
+            lihatDetail(id);
+            fetchList(); 
         } else {
             alert('Gagal Reschedule:\n' + json.message);
         }
@@ -673,19 +714,16 @@ async function eksekusiReschedule() {
 
 function showForm() {
     document.getElementById('detailBooking').style.display = 'none';
-    document.getElementById('formBooking').style.display = 'block';
+    $('#formBooking').fadeIn();
     document.getElementById('bookingForm').reset();
-    document.getElementById('tbodyLayanan').innerHTML = ''; // Kosongkan row layanan
+    document.getElementById('tbodyLayanan').innerHTML = ''; 
     document.getElementById('lblGrandTotal').innerText = '0';
     document.getElementById('id_member_or_id_bayi').innerHTML = '<option value="">-- Pilih Member Dulu --</option>';
     rowCount = 0;
-    addRowLayanan(); // Auto-add 1 baris
+    addRowLayanan(); 
 }
 
 function hideForm() {
-    document.getElementById('formBooking').style.display = 'none';
+    $('#formBooking').fadeOut();
 }
 </script>
-
-</body>
-</html>

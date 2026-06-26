@@ -5,150 +5,202 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: ../../login-admin.php");
     exit();
 }
+include '../includes/header.php';
+include '../includes/sidebar.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Layanan</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
-        .container { background: #fff; padding: 20px; border-radius: 5px; border: 1px solid #ccc; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        table, th, td { border: 1px solid #ddd; }
-        th, td { padding: 10px; text-align: left; }
-        th { background: #eee; }
-        button { padding: 6px 12px; cursor: pointer; margin-right: 5px; margin-bottom: 5px;}
-        .form-container { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; background: #fafafa; display: none; }
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: inline-block; width: 180px; vertical-align: top; font-weight: bold;}
-        .form-group input, .form-group select, .form-group textarea { padding: 5px; width: 250px; }
-        .back-link { text-decoration: none; color: #0056b3; font-weight: bold; margin-right: 20px; }
-        img.thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #ccc; }
-        .badge-active { color: green; font-weight: bold; }
-        .badge-inactive { color: red; font-weight: bold; }
-    </style>
-</head>
-<body>
 
-<div class="container">
-    <h2>Manajemen Layanan Induk</h2>
-
-    <a href="../../logout-admin.php" style="float: right; color: red; text-decoration: none;">Logout</a>
-    <br><br>
-    
-    <button onclick="showFormLayanan()">+ Tambah Layanan</button>
-
-    <!-- FORM LAYANAN (SAVE & UPDATE) -->
-    <div class="form-container" id="formLayanan">
-        <h3 id="formTitle">Form Layanan</h3>
-        <form id="layananForm" onsubmit="saveLayanan(event)">
-            <!-- Digunakan untuk trigger update -->
-            <input type="hidden" name="id_layanan" id="id_layanan">
-            
-            <div class="form-group">
-                <label>Kategori *</label>
-                <select name="id_kategori_layanan" id="id_kategori_layanan" required></select>
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 font-size-18">Manajemen Layanan Induk</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Master Data</a></li>
+                    <li class="breadcrumb-item active">Layanan</li>
+                </ol>
             </div>
-            <div class="form-group">
-                <label>Kode Layanan *</label>
-                <input type="text" name="kode_layanan" id="kode_layanan" placeholder="Misal: LYN-01" required>
-            </div>
-            <div class="form-group">
-                <label>Nama Layanan *</label>
-                <input type="text" name="nama_layanan" id="nama_layanan" required>
-            </div>
-            <div class="form-group">
-                <label>Durasi (Menit) *</label>
-                <input type="number" name="durasi_menit" id="durasi_menit" required>
-            </div>
-            <div class="form-group">
-                <label>Deskripsi</label>
-                <textarea name="deskripsi" id="deskripsi" rows="3"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Status</label>
-                <select name="is_active" id="is_active">
-                    <option value="1">Aktif</option>
-                    <option value="0">Non-Aktif</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Gambar 1 (Utama)</label>
-                <input type="file" name="picture1" accept="image/*">
-            </div>
-            <div class="form-group">
-                <label>Gambar 2</label>
-                <input type="file" name="picture2" accept="image/*">
-            </div>
-            <div class="form-group">
-                <label>Gambar 3</label>
-                <input type="file" name="picture3" accept="image/*">
-            </div>
-            <div class="form-group">
-                <label>URL Video 1</label>
-                <input type="text" name="video1" id="video1" placeholder="https://youtube.com/...">
-            </div>
-            
-            <button type="submit" style="background: blue; color: white;">Simpan Layanan</button>
-            <button type="button" onclick="hideFormLayanan()">Batal</button>
-        </form>
+        </div>
     </div>
-
-    <!-- FORM UBAH HARGA (SELECT-PRICE API) -->
-    <div class="form-container" id="formHarga" style="border-color: orange; background: #fffcf0;">
-        <h3 style="color: orange;">Atur Harga Baru: <span id="labelNamaLayanan" style="color:black;"></span></h3>
-        <form id="hargaForm" onsubmit="saveHarga(event)">
-            <input type="hidden" name="id_layanan" id="harga_id_layanan">
-            <div class="form-group">
-                <label>Tanggal Efektif</label>
-                <input type="date" name="tanggal_efektif" id="harga_tanggal" required>
-                <br><span style="font-size:0.8em; color:#666; margin-left: 185px;">(Pilih hari ini agar sistem men-sync dan langsung menayangkannya!)</span>
-            </div>
-            <div class="form-group">
-                <label>Harga (Rp)</label>
-                <input type="number" name="harga" required>
-            </div>
-            <div class="form-group">
-                <label>Komisi Persentase (%)</label>
-                <input type="number" step="0.01" name="komisi_persentase" required>
-            </div>
-            <button type="submit" style="background: orange; color: white;">Catat & Sinkronisasi Harga</button>
-            <button type="button" onclick="hideFormHarga()">Batal</button>
-        </form>
-    </div>
-
-    <!-- FILTER & PENCARIAN -->
-    <div style="margin-bottom: 15px; background: #eef5ff; padding: 15px; border-radius: 5px; border: 1px solid #cce0ff;">
-        <strong style="margin-right: 10px; color: #0056b3;">Pencarian Data:</strong>
-        <select id="filter_kategori" onchange="applyFilter()" style="padding: 7px; width: 220px; border-radius: 3px; border: 1px solid #ccc;">
-            <option value="">-- Semua Kategori --</option>
-        </select>
-        
-        <input type="text" id="filter_nama" placeholder="Ketik Nama Layanan..." oninput="applyFilter()" style="padding: 7px; margin-left: 10px; width: 300px; border-radius: 3px; border: 1px solid #ccc;">
-    </div>
-
-    <!-- TABEL DATA -->
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 5%; text-align: center;">No.</th>
-                <th>Gambar</th>
-                <th>Kode</th>
-                <th>Layanan</th>
-                <th>Kategori</th>
-                <th>Durasi</th>
-                <th>Harga Tayang Saat Ini</th>
-                <th>Status</th>
-                <th style="width: 25%;">Aksi</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <tr><td colspan="9" style="text-align: center;">Loading data...</td></tr>
-        </tbody>
-    </table>
 </div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title">Daftar Layanan Klinik</h4>
+                    <button onclick="showFormLayanan()" class="btn btn-success waves-effect waves-light font-weight-bold">
+                        <i class="mdi mdi-plus mr-1"></i> Tambah Layanan Baru
+                    </button>
+                </div>
+
+                <!-- FORM LAYANAN (SAVE & UPDATE) -->
+                <div id="formLayanan" style="display: none; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px; padding: 20px; margin-bottom: 30px;">
+                    <h5 class="text-success mb-4" id="formTitle">Form Layanan</h5>
+                    <form id="layananForm" onsubmit="saveLayanan(event)">
+                        <!-- Digunakan untuk trigger update -->
+                        <input type="hidden" name="id_layanan" id="id_layanan">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Kategori *</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" name="id_kategori_layanan" id="id_kategori_layanan" required></select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Kode Layanan *</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="kode_layanan" id="kode_layanan" placeholder="Misal: LYN-01" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Nama Layanan *</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="nama_layanan" id="nama_layanan" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Durasi (Menit) *</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" class="form-control" name="durasi_menit" id="durasi_menit" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Deskripsi</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" name="deskripsi" id="deskripsi" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Status</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control font-weight-bold" name="is_active" id="is_active">
+                                            <option value="1">Aktif</option>
+                                            <option value="0" class="text-danger">Non-Aktif</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Gambar 1 (Utama)</label>
+                                    <div class="col-sm-8">
+                                        <input type="file" class="form-control-file mt-1" name="picture1" accept="image/*">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Gambar 2</label>
+                                    <div class="col-sm-8">
+                                        <input type="file" class="form-control-file mt-1" name="picture2" accept="image/*">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Gambar 3</label>
+                                    <div class="col-sm-8">
+                                        <input type="file" class="form-control-file mt-1" name="picture3" accept="image/*">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">URL Video 1</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="video1" id="video1" placeholder="https://youtube.com/...">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-right">
+                            <button type="button" onclick="hideFormLayanan()" class="btn btn-secondary waves-effect waves-light mr-2 font-weight-bold">Batal</button>
+                            <button type="submit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Layanan</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- FORM UBAH HARGA (SELECT-PRICE API) -->
+                <div id="formHarga" style="display: none; background: #fffcf0; border: 1px solid #ffeeba; border-radius: 5px; padding: 20px; margin-bottom: 30px;">
+                    <h5 class="text-warning mb-4 text-dark"><i class="mdi mdi-cash-multiple mr-1"></i>Atur Harga Baru: <span id="labelNamaLayanan" class="font-weight-bold"></span></h5>
+                    <form id="hargaForm" onsubmit="saveHarga(event)">
+                        <input type="hidden" name="id_layanan" id="harga_id_layanan">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Tanggal Efektif</label>
+                                    <div class="col-sm-8">
+                                        <input type="date" class="form-control" name="tanggal_efektif" id="harga_tanggal" required>
+                                        <small class="form-text text-muted">Pilih hari ini agar sistem men-sync dan langsung menayangkannya!</small>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Harga (Rp)</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" class="form-control" name="harga" required>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Komisi Terapis (%)</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" step="0.01" class="form-control" name="komisi_persentase" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button type="button" onclick="hideFormHarga()" class="btn btn-secondary waves-effect waves-light mr-2 font-weight-bold">Batal</button>
+                            <button type="submit" class="btn btn-warning waves-effect waves-light font-weight-bold px-4 text-dark">Catat & Sinkronisasi Harga</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- FILTER & PENCARIAN -->
+                <div class="bg-light p-3 border rounded mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-auto">
+                            <strong class="text-primary"><i class="mdi mdi-filter mr-1"></i>Pencarian Data:</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="filter_kategori" class="custom-select" onchange="applyFilter()">
+                                <option value="">-- Semua Kategori --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mt-2 mt-md-0">
+                            <input type="text" class="form-control" id="filter_nama" placeholder="Ketik Nama Layanan..." oninput="applyFilter()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABEL DATA -->
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th style="width: 5%; text-align: center;">No.</th>
+                                <th style="text-align: center;">Gambar</th>
+                                <th>Kode</th>
+                                <th>Layanan</th>
+                                <th>Kategori</th>
+                                <th>Durasi</th>
+                                <th>Harga Tayang Saat Ini</th>
+                                <th>Status</th>
+                                <th style="width: 25%;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr><td colspan="9" class="text-center">Loading data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php include '../includes/footer.php'; ?>
 
 <script>
 window.onload = () => {
@@ -203,54 +255,53 @@ async function fetchLayananList() {
         if (result.status === 'success') {
             currentLayananList = result.data;
             if (result.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Belum ada master layanan.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">Belum ada master layanan.</td></tr>';
                 return;
             }
             
             result.data.forEach((item, index) => {
-                const hargaTxt = item.harga ? 'Rp ' + parseFloat(item.harga).toLocaleString('id-ID') : '<i style="color:red">Belum Diset</i>';
-                const statusHtml = parseInt(item.is_active) === 1 ? '<span class="badge-active">Aktif</span>' : '<span class="badge-inactive">Non-Aktif</span>';
+                const hargaTxt = item.harga ? 'Rp ' + parseFloat(item.harga).toLocaleString('id-ID') : '<i class="text-danger">Belum Diset</i>';
+                const statusHtml = parseInt(item.is_active) === 1 ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-danger">Non-Aktif</span>';
                 
-                // Mencegah error gambar yang kosong / belum upload
-                const imgTag = item.picture1 ? `<img src="../../images/${item.picture1}" class="thumb">` : '<div class="thumb" style="background:#eee;text-align:center;font-size:10px;line-height:50px;">No Img</div>';
+                const imgTag = item.picture1 ? `<img src="../../images/${item.picture1}" class="rounded avatar-sm object-cover" style="width: 40px; height: 40px; object-fit: cover;">` : '<div class="avatar-sm d-inline-block"><span class="avatar-title rounded bg-light text-dark font-size-12">No Img</span></div>';
 
                 tbody.innerHTML += `
                     <tr>
-                        <td style="text-align: center;">${index + 1}</td>
-                        <td style="text-align: center;">${imgTag}</td>
-                        <td>${item.kode_layanan}</td>
-                        <td><strong>${item.nama_layanan}</strong></td>
-                        <td>${item.nama_kategori || '-'}</td>
-                        <td>${item.durasi_menit} Menit</td>
-                        <td style="font-weight:bold; color:orange;">${hargaTxt}</td>
-                        <td>${statusHtml}</td>
-                        <td>
-                            <button onclick="editLayanan(${index})">Edit Data</button>
-                            <button onclick="openFormHarga(${item.id_layanan}, '${item.nama_layanan}')" style="background:orange; color:white; border:none; border-radius:3px; padding:7px;">Ubah Harga</button>
-                            ${parseInt(item.is_active) === 1 ? `<button onclick="nonactiveLayanan(${item.id_layanan})" style="background:red; color:white; border:none; border-radius:3px; padding:7px;">Nonaktifkan</button>` : ''}
+                        <td class="text-center align-middle">${index + 1}</td>
+                        <td class="text-center align-middle">${imgTag}</td>
+                        <td class="align-middle">${item.kode_layanan}</td>
+                        <td class="align-middle"><strong>${item.nama_layanan}</strong></td>
+                        <td class="align-middle">${item.nama_kategori || '-'}</td>
+                        <td class="align-middle">${item.durasi_menit} Menit</td>
+                        <td class="align-middle font-weight-bold text-warning">${hargaTxt}</td>
+                        <td class="align-middle">${statusHtml}</td>
+                        <td class="align-middle">
+                            <button onclick="editLayanan(${index})" class="btn btn-sm btn-info waves-effect waves-light mb-1"><i class="mdi mdi-pencil"></i> Edit</button>
+                            <button onclick="openFormHarga(${item.id_layanan}, '${item.nama_layanan.replace(/'/g, "\\'")}')" class="btn btn-sm btn-warning waves-effect waves-light mb-1 text-dark font-weight-bold"><i class="mdi mdi-cash"></i> Ubah Harga</button>
+                            ${parseInt(item.is_active) === 1 ? `<button onclick="nonactiveLayanan(${item.id_layanan})" class="btn btn-sm btn-danger waves-effect waves-light mb-1"><i class="mdi mdi-block-helper"></i> Nonaktif</button>` : ''}
                         </td>
                     </tr>
                 `;
             });
         } else {
-            tbody.innerHTML = `<tr><td colspan="9" style="color:red; text-align: center;">Error: ${result.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Error: ${result.message}</td></tr>`;
         }
     } catch (error) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Terjadi gangguan jaringan atau API tidak merespons.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center">Terjadi gangguan jaringan atau API tidak merespons.</td></tr>';
     }
 }
 
 // ================= LAYANAN CORE LOGIC =================
 function showFormLayanan() {
     hideFormHarga();
-    document.getElementById('formLayanan').style.display = 'block';
+    $('#formLayanan').fadeIn();
     document.getElementById('layananForm').reset();
     document.getElementById('id_layanan').value = '';
     document.getElementById('formTitle').innerText = 'Tambah Layanan Induk Baru';
 }
 
 function hideFormLayanan() {
-    document.getElementById('formLayanan').style.display = 'none';
+    $('#formLayanan').fadeOut();
 }
 
 function editLayanan(index) {
@@ -271,7 +322,7 @@ function editLayanan(index) {
 async function saveLayanan(e) {
     e.preventDefault();
     const form = document.getElementById('layananForm');
-    const formData = new FormData(form); // Otomatis menangkap <input type="file">
+    const formData = new FormData(form);
     
     const idLayanan = document.getElementById('id_layanan').value;
     const url = idLayanan ? '../../api/layanan/update.php' : '../../api/layanan/save.php';
@@ -316,18 +367,17 @@ async function nonactiveLayanan(id) {
 // ================= SMART SELECT-PRICE LOGIC =================
 function openFormHarga(id_layanan, namaLayanan) {
     hideFormLayanan();
-    document.getElementById('formHarga').style.display = 'block';
+    $('#formHarga').fadeIn();
     document.getElementById('hargaForm').reset();
     document.getElementById('harga_id_layanan').value = id_layanan;
     document.getElementById('labelNamaLayanan').innerText = namaLayanan;
     
-    // Set default date ke hari ini
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('harga_tanggal').value = today;
 }
 
 function hideFormHarga() {
-    document.getElementById('formHarga').style.display = 'none';
+    $('#formHarga').fadeOut();
 }
 
 async function saveHarga(e) {
@@ -343,9 +393,9 @@ async function saveHarga(e) {
         const result = await response.json();
         
         if (result.status === 'success') {
-            alert(result.message); // Memunculkan konfirmasi apakah tersinkronisasi atau hanya history
+            alert(result.message); 
             hideFormHarga();
-            fetchLayananList(); // Refresh table agar Harga Tayang Saat Ini berubah seketika!
+            fetchLayananList(); 
         } else {
             alert('Gagal: ' + result.message);
         }
@@ -354,6 +404,3 @@ async function saveHarga(e) {
     }
 }
 </script>
-
-</body>
-</html>
