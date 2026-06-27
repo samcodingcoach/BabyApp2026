@@ -130,7 +130,7 @@ try {
     $kode_booking = "B{$datePrefix}-{$seq}";
 
     $stmtMaster = $koneksi->prepare("INSERT INTO booking (kode_booking, id_member, id_member_or_id_bayi, tanggal_booking, id_terapis, alamat_baru, whatsapp_baru, prioritas, catatan, user_id, tarif_ongkir) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmtMaster->bind_param("siisisissid", $kode_booking, $id_member, $id_member_or_id_bayi, $tanggal_booking, $id_terapis, $alamat_baru, $whatsapp_baru, $prioritas, $catatan, $user_id, $tarif_ongkir);
+    $stmtMaster->bind_param("siisissisid", $kode_booking, $id_member, $id_member_or_id_bayi, $tanggal_booking, $id_terapis, $alamat_baru, $whatsapp_baru, $prioritas, $catatan, $user_id, $tarif_ongkir);
     
     if (!$stmtMaster->execute()) {
         throw new Exception("Gagal menyimpan Master Booking: " . $stmtMaster->error);

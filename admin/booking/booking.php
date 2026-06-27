@@ -106,10 +106,10 @@ include '../includes/sidebar.php';
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Target Pasien *</label>
+                                <label class="col-sm-3 col-form-label">Target Pasien</label>
                                 <div class="col-sm-9">
-                                    <select id="id_member_or_id_bayi" class="form-control select2" required style="width: 100%;">
-                                        <option value="">-- Pilih Member Dulu --</option>
+                                    <select id="id_member_or_id_bayi" class="form-control select2" style="width: 100%;">
+                                        <option value="">-- Diri Sendiri (Bukan Bayi) --</option>
                                     </select>
                                 </div>
                             </div>
@@ -350,10 +350,11 @@ include '../includes/sidebar.php';
                             <div class="form-group row">
                                 <label class="col-sm-3 col-form-label">Metode Pembayaran</label>
                                 <div class="col-sm-9">
-                                    <select class="form-control" id="metode_pembayaran" name="metode_pembayaran" required>
+                                    <select class="form-control select2" id="metode_pembayaran" name="metode_pembayaran" required style="width: 100%;">
                                         <option value="Cash">Cash (Tunai)</option>
-                                        <option value="Transfer Bank">Transfer Bank</option>
-                                        <option value="QRIS">QRIS</option>
+                                        <option value="Transfer Bank">Transfer Bank Manual</option>
+                                        <option value="QRIS">QRIS (Otomatis)</option>
+                                        <option value="VA">Virtual Account (Otomatis)</option>
                                         <option value="Debit / EDC">Debit / Mesin EDC</option>
                                     </select>
                                 </div>
@@ -391,7 +392,8 @@ let quillCatatan;
 
 window.onload = async () => {
     if($().select2) {
-        $('.select2').select2({ dropdownParent: $('#modalFormBooking') });
+        $('.select2').not('#metode_pembayaran').select2({ dropdownParent: $('#modalFormBooking') });
+        $('#metode_pembayaran').select2({ dropdownParent: $('#modalDetailBooking') });
     }
     quillAlamatBaru = new Quill('#alamat_baru_editor', { theme: 'snow', placeholder: '(Opsional) Isi jika alamat berbeda dengan profil' });
     quillCatatan = new Quill('#catatan_editor', { theme: 'snow', placeholder: 'Cth: Tolong bawakan mainan...' });
@@ -845,15 +847,35 @@ document.getElementById('formPelunasan').addEventListener('submit', async (e) =>
 
     const formData = new FormData(e.target);
 
+    const metode = document.getElementById('metode_pembayaran').value;
+    
+    let url = '../../api/booking/bayar.php';
+    if (metode === 'QRIS') url = '../../api/midtrans/create_qris.php';
+    if (metode === 'VA') url = '../../api/midtrans/create_va.php';
+
     try {
-        const res = await fetch('../../api/booking/bayar.php', {
+        const res = await fetch(url, {
             method: 'POST',
             body: formData
         });
         const json = await res.json();
         
         if (json.status === 'success') {
-            Swal.fire('Berhasil', json.message, 'success');
+            if (metode === 'QRIS') {
+                Swal.fire({
+                    title: 'Scan QRIS',
+                    html: `<img src="${json.qris_url}" style="width:100%; max-width:300px;"><br><p class="mt-2 text-muted">Menunggu pembayaran (Kode: ${json.kode_pembayaran})</p>`,
+                    icon: 'info'
+                });
+            } else if (metode === 'VA') {
+                Swal.fire({
+                    title: 'Virtual Account ' + json.data.bank.toUpperCase(),
+                    html: `<h2 class="text-primary mt-2 font-weight-bold">${json.data.va_number}</h2><p class="mt-2 text-muted">Menunggu pembayaran (Kode: ${json.data.kode_pembayaran})</p>`,
+                    icon: 'info'
+                });
+            } else {
+                Swal.fire('Berhasil', json.message, 'success');
+            }
             lihatDetail(document.getElementById('bayar_id_booking').value);
             fetchList();
         } else {

@@ -41,10 +41,12 @@ try {
     $stmtCek->close();
     
     $tanggal_bayar = date('Y-m-d H:i:s');
+    $user_id = $_SESSION['user_id'] ?? null;
+    $kode_pembayaran = 'MANUAL-' . $id_booking . '-' . time();
     
     // 2. Insert ke Pembayaran
-    $stmtBayar = $koneksi->prepare("INSERT INTO pembayaran (id_booking, jumlah_bayar, metode_pembayaran, tanggal_bayar, status_pembayaran) VALUES (?, ?, ?, ?, 'LUNAS')");
-    $stmtBayar->bind_param("idss", $id_booking, $jumlah_bayar, $metode_pembayaran, $tanggal_bayar);
+    $stmtBayar = $koneksi->prepare("INSERT INTO pembayaran (id_booking, user_id, tanggal_bayar, kode_pembayaran, jumlah_bayar, metode_pembayaran, status_pembayaran) VALUES (?, ?, ?, ?, ?, ?, 'LUNAS')");
+    $stmtBayar->bind_param("iissds", $id_booking, $user_id, $tanggal_bayar, $kode_pembayaran, $jumlah_bayar, $metode_pembayaran);
     if (!$stmtBayar->execute()) {
         throw new Exception("Gagal menyimpan data pembayaran: " . $stmtBayar->error);
     }
