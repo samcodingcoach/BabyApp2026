@@ -257,92 +257,81 @@ include '../includes/sidebar.php';
 
                 <div class="tab-content" id="tabContentBooking">
                     <div class="tab-pane show active" id="tab-inv-detail">
-                        <div class="card border border-light shadow-none mb-0" style="background-color: #fafafa; border-radius: 12px; border: 1px solid #e3e6f0 !important; overflow: hidden;">
-                            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #fff; border-bottom: 2px dashed #e3e6f0;">
-                                <h4 class="mb-0 font-weight-bold" id="inv_main_title"><i class="mdi mdi-receipt mr-2"></i> INVOICE TAGIHAN</h4>
-                                <h4 class="m-0 text-muted font-weight-bold" id="inv_kode"></h4>
+                        <!-- Desain Klasik & Elegan -->
+                        <div style="background-color: #fff; padding: 15px 30px; color: #000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                            <div class="text-center" style="border-bottom: 1px solid #e0e0e0; padding-bottom: 15px; margin-bottom: 20px;">
+                                <h2 style="margin: 0; font-weight: bold; letter-spacing: 1px;">KLINIK TERAPI</h2>
+                                <div style="font-size: 14px; color: #333;">Data preview faktur / invoice cetak</div>
                             </div>
-                            <div class="card-body p-4">
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <h6 class="font-size-14 text-muted font-weight-bold text-uppercase mb-2">Ditagihkan Kepada:</h6>
-                                        <h5 class="font-size-16 font-weight-bold text-dark mb-1" id="inv_member"></h5>
-                                        <address class="line-h-24 text-muted">
-                                            Pasien: <span class="text-dark" id="inv_bayi"></span><br>
-                                            <i class="mdi mdi-whatsapp text-success"></i> <span id="inv_wa"></span><br>
-                                            <i class="mdi mdi-map-marker-outline text-danger"></i> <span id="inv_alamat"></span>
-                                        </address>
-                                    </div>
-                                    <div class="col-sm-6 text-sm-right mt-4 mt-sm-0">
-                                        <h6 class="font-size-14 text-muted font-weight-bold text-uppercase mb-2">Detail Pemesanan:</h6>
-                                        <p class="mb-1"><strong>Jadwal: </strong> <span id="inv_jadwal" class="text-primary font-weight-bold"></span></p>
-                                        <p class="mb-1"><strong>Status: </strong> <span id="inv_status"></span></p>
-                                        <p class="mb-1"><strong>Terapis: </strong> <span class="text-dark font-weight-bold" id="inv_terapis"></span></p>
-                                        <p class="mb-1"><strong>Prioritas: </strong> <span class="text-danger font-weight-bold" id="inv_prioritas"></span></p>
-                                        <p class="mb-0"><strong>Tgl Cetak: </strong> <span class="text-muted" id="inv_created_at"></span></p>
-                                    </div>
-                                </div>
 
-                                <div class="row mt-4">
-                                    <div class="col-12">
-                                        <div class="table-responsive border rounded">
-                                            <table class="table table-centered table-nowrap table-striped mb-0">
-                                                <thead class="bg-light">
-                                                    <tr>
-                                                        <th style="width: 5%;">No</th>
-                                                        <th>Layanan & Keluhan</th>
-                                                        <th class="text-right" style="width: 25%;">Subtotal</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="inv_body_layanan">
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
+                            <div class="text-center" style="margin-bottom: 30px;">
+                                <h3 id="inv_main_title" style="margin: 0; font-weight: bold; letter-spacing: 2px;">INVOICE TAGIHAN</h3>
+                                <h5 id="inv_kode" style="margin: 5px 0 0 0; font-weight: normal; color: #333;">INV-XXX</h5>
+                            </div>
+
+                            <div class="row" style="margin-bottom: 30px;">
+                                <div class="col-sm-6">
+                                    <p style="margin:0;">Ditagihkan kepada,</p>
+                                    <p style="margin:0; font-weight: bold; font-size: 16px;" id="inv_member"></p>
+                                    <p style="margin:0;">Pasien: <span id="inv_bayi"></span></p>
+                                    <p style="margin:0;">Alamat: <span id="inv_alamat"></span></p>
+                                    <p style="margin:0;">Whatsapp: <span id="inv_wa"></span></p>
                                 </div>
-                                <div class="row mt-4">
-                                    <div class="col-sm-6">
-                                        <!-- Ruang kosong atau catatan -->
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="float-right text-right">
-                                            <p class="mb-2 font-size-15"><b>Ongkos Kirim:</b> <span class="ml-3 text-muted">Rp <span id="inv_ongkir">0</span></span></p>
-                                            <hr>
-                                            <h3 class="text-success font-weight-bold">Rp <span id="inv_grandtotal">0</span></h3>
-                                        </div>
-                                        <div class="clearfix"></div>
-                                    </div>
+                                <div class="col-sm-6 text-sm-right mt-3 mt-sm-0">
+                                    <p style="margin:0;">Reservasi</p>
+                                    <p style="margin:0; font-weight: bold;" id="inv_jadwal"></p>
+                                    <p style="margin:10px 0 0 0; font-weight: bold; font-size: 16px; font-style: italic;" id="inv_status"></p>
+                                    <p style="margin:0;">Terapis: <span id="inv_terapis"></span></p>
+                                    <p style="margin:0; font-size: 12px; color: #666;">Dicetak: <span id="inv_created_at"></span></p>
                                 </div>
-                                
-                                <div class="row mt-4" id="inv_pembayaran_section" style="display:none;">
-                                    <div class="col-12">
-                                        <h6 class="font-size-14 text-muted font-weight-bold text-uppercase mb-2 border-bottom pb-2">Pembayaran:</h6>
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-borderless">
-                                                <tr>
-                                                    <td style="width: 200px;"><b>Kode Booking</b></td>
-                                                    <td style="width: 10px;">:</td>
-                                                    <td id="inv_detail_kode_booking"></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><b>Metode Pembayaran</b></td>
-                                                    <td>:</td>
-                                                    <td id="inv_detail_metode"></td>
-                                                </tr>
-                                                <tr id="tr_inv_detail_tgl" style="display:none;">
-                                                    <td><b>Tanggal Pembayaran</b></td>
-                                                    <td>:</td>
-                                                    <td id="inv_detail_tgl"></td>
-                                                </tr>
-                                                <tr id="tr_inv_detail_va" style="display:none;">
-                                                    <td><b>Nomor Virtual Account</b></td>
-                                                    <td>:</td>
-                                                    <td><b class="text-dark" id="inv_detail_va"></b></td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
+                            </div>
+
+                            <table class="table table-sm" style="border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0; margin-bottom: 20px;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid #e0e0e0;">
+                                        <th style="border: none; padding-left: 0;">No</th>
+                                        <th style="border: none;">Layanan & Keluhan</th>
+                                        <th style="border: none; text-align: right; padding-right: 0;">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inv_body_layanan" style="border: none;">
+                                </tbody>
+                                <tfoot>
+                                    <tr style="border-top: 1px solid #ddd;">
+                                        <td colspan="2" style="text-align: right; border: none; font-weight: bold;">Ongkos Kirim</td>
+                                        <td style="text-align: right; border: none; padding-right: 0;">Rp <span id="inv_ongkir">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" style="text-align: right; border: none; font-weight: bold; font-size: 16px;">Grand Total</td>
+                                        <td style="text-align: right; border: none; font-weight: bold; font-size: 16px; padding-right: 0;">Rp <span id="inv_grandtotal">0</span></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <div id="inv_pembayaran_section" style="display:none;">
+                                <h5 style="margin-bottom: 10px; font-weight: bold;">Pembayaran</h5>
+                                <table style="width: 100%; max-width: 400px; font-size: 14px;">
+                                    <tr>
+                                        <td style="width: 40%; font-weight: bold; padding: 2px 0;">Kode Booking</td>
+                                        <td style="width: 5%;">:</td>
+                                        <td id="inv_detail_kode_booking" style="padding: 2px 0;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold; padding: 2px 0;">Metode Pembayaran</td>
+                                        <td>:</td>
+                                        <td id="inv_detail_metode" style="padding: 2px 0;"></td>
+                                    </tr>
+                                    <tr id="tr_inv_detail_tgl" style="display:none;">
+                                        <td style="font-weight: bold; padding: 2px 0;">Tanggal Pembayaran</td>
+                                        <td>:</td>
+                                        <td id="inv_detail_tgl" style="padding: 2px 0;"></td>
+                                    </tr>
+                                    <tr id="tr_inv_detail_va" style="display:none;">
+                                        <td style="font-weight: bold; padding: 2px 0;">Nomor Virtual Account</td>
+                                        <td>:</td>
+                                        <td id="inv_detail_va" style="padding: 2px 0; font-weight: bold;"></td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
                         
@@ -854,30 +843,32 @@ async function lihatDetail(id_booking) {
             
             const dateObj = new Date(b.tanggal_booking);
             const dateCreate = new Date(b.created_at);
-            document.getElementById('inv_jadwal').innerText = dateObj.toLocaleString('id-ID').replace(/\./g, ':');
-            document.getElementById('inv_created_at').innerText = dateCreate.toLocaleString('id-ID').replace(/\./g, ':');
+            const opts = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const optsLengkap = { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('inv_jadwal').innerText = dateObj.toLocaleString('id-ID', optsLengkap).replace(/\./g, ':').replace(',', '');
+            document.getElementById('inv_created_at').innerText = dateCreate.toLocaleString('id-ID', opts).replace(/\./g, ':').replace(',', '');
             document.getElementById('inv_terapis').innerText = b.nama_terapis;
-            document.getElementById('inv_status').innerHTML = getBadge(b.status_booking);
-            document.getElementById('inv_prioritas').innerText = b.prioritas == 1 ? 'VIP / Penting' : 'Normal';
+            // Status diubah menjadi plain text tanpa badge agar lebih klasik
+            let statusText = b.status_booking;
+            if (b.status_booking === 'BATAL') statusText = 'BATAL';
+            document.getElementById('inv_status').innerText = statusText;
             
+            let prioritasHtml = b.prioritas == 1 ? '<br><small style="color:red;">* VIP / Prioritas</small>' : '';
             document.getElementById('update_id_booking').value = b.id_booking;
             document.getElementById('update_status_sel').value = b.status_booking;
             
             let tbody = '';
             b.details.forEach((d, i) => {
-                let keluhanHtml = d.keluhan ? `<br><small class="text-danger"><i class="mdi mdi-alert-circle-outline"></i> Keluhan: ${d.keluhan}</small>` : '';
-                let kategoriHtml = d.nama_kategori ? `<span class="badge badge-soft-info mr-1">${d.nama_kategori}</span>` : '';
-                let durasiHtml = d.durasi_menit ? `<span class="badge badge-soft-secondary"><i class="mdi mdi-clock-outline"></i> ${d.durasi_menit} mnt</span>` : '';
+                let keluhanHtml = d.keluhan ? `<br><small style="color: #666;">Keluhan: ${d.keluhan}</small>` : '';
                 
                 tbody += `
-                    <tr>
-                        <td class="text-center align-middle">${i+1}</td>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding-left: 0;">${i+1}</td>
                         <td>
-                            <b class="text-dark font-size-15">${d.nama_layanan}</b><br>
-                            ${kategoriHtml} ${durasiHtml}
+                            <b>${d.nama_layanan}</b>
                             ${keluhanHtml}
                         </td>
-                        <td class="text-right align-middle text-dark font-weight-bold">Rp ${formatRp(d.total)}</td>
+                        <td style="text-align: right; padding-right: 0;">Rp ${formatRp(d.total)}</td>
                     </tr>
                 `;
             });
@@ -905,14 +896,15 @@ async function lihatDetail(id_booking) {
                 $('#tabContentBooking').hide();
                 $('#div_batal_info').show();
                 // Tampilkan tgl jika ada update_at, atau tgl_booking sbg fallback
-                $('#batal_timestamp').text(dateCreate.toLocaleString('id-ID'));
+                const opts = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+                $('#batal_timestamp').text(dateCreate.toLocaleString('id-ID', opts).replace(/\./g, ':').replace(',', ''));
             } else {
                 if (b.is_lunas) {
-                    $('#inv_main_title').html('<i class="mdi mdi-check-decagram mr-2"></i> FAKTUR LUNAS').removeClass('text-danger text-warning').addClass('text-success');
+                    $('#inv_main_title').text('FAKTUR LUNAS').css('color', '#28a745');
                     $('#btnDownloadInvoice').html('<i class="mdi mdi-file-pdf-outline mr-1"></i> Download Faktur Lunas (PDF)').removeClass('btn-outline-danger btn-danger').addClass('btn-success');
                     document.getElementById('inv_kode').innerText = (b.kode_pembayaran ? b.kode_pembayaran : b.kode_booking);
                 } else {
-                    $('#inv_main_title').html('<i class="mdi mdi-alert-circle-outline mr-2"></i> INVOICE TAGIHAN').removeClass('text-success text-warning').addClass('text-danger');
+                    $('#inv_main_title').text('INVOICE TAGIHAN').css('color', '#000');
                     $('#btnDownloadInvoice').html('<i class="mdi mdi-file-pdf-outline mr-1"></i> Download Invoice Tagihan (PDF)').removeClass('btn-outline-success btn-success').addClass('btn-danger');
                     document.getElementById('inv_kode').innerText = b.kode_booking;
                 }

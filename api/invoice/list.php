@@ -29,6 +29,7 @@ $stmt = $koneksi->prepare("
         booking.id_booking,
         booking.kode_booking, 
         booking.tanggal_booking,
+        booking.created_at,
         pembayaran.tanggal_bayar, 
         pembayaran.kode_pembayaran, 
         pembayaran.jumlah_bayar, 
