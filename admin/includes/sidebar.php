@@ -55,6 +55,9 @@
                         <li>
                             <a href="<?= $base_url ?>/users/users.php" class="waves-effect"><i class="feather-settings"></i><span>Akun Administrator</span></a>
                         </li>
+                        <li>
+                            <a href="<?= $base_url ?>/midtransadmin/midtransconfig.php" class="waves-effect"><i class="feather-credit-card"></i><span>Config Midtrans</span></a>
+                        </li>
                         
                     </ul>
                 </div>
