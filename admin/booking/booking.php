@@ -197,6 +197,12 @@ include '../includes/sidebar.php';
                                     </tbody>
                                     <tfoot>
                                         <tr>
+                                            <td colspan="4" class="text-right font-weight-bold font-size-14 align-middle text-muted">Ongkos Kirim :</td>
+                                            <td colspan="2" class="font-weight-bold font-size-14 text-muted align-middle">
+                                                Rp <span id="lblOngkirTotal">0</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td colspan="4" class="text-right font-weight-bold font-size-16 align-middle">GRAND TOTAL :</td>
                                             <td colspan="2" class="font-weight-bold font-size-18 text-success align-middle">
                                                 Rp <span id="lblGrandTotal">0</span>
@@ -398,12 +404,27 @@ window.onload = async () => {
     quillAlamatBaru = new Quill('#alamat_baru_editor', { theme: 'snow', placeholder: '(Opsional) Isi jika alamat berbeda dengan profil' });
     quillCatatan = new Quill('#catatan_editor', { theme: 'snow', placeholder: 'Cth: Tolong bawakan mainan...' });
     
+    // Hentikan polling jika modal invoice ditutup
+    $('#modalDetailBooking').on('hidden.bs.modal', function () {
+        if(pollInterval) clearInterval(pollInterval);
+    });
+    
     await fetchList();
     await preloadData();
 };
 
 function formatRp(angka) {
     return new Intl.NumberFormat('id-ID').format(angka || 0);
+}
+
+function unformatRp(str) {
+    if(typeof str === 'number') return str;
+    return parseFloat((str || '').toString().replace(/[^0-9]/g, '')) || 0;
+}
+
+function formatRupiahInput(input) {
+    let val = unformatRp(input.value);
+    input.value = val === 0 ? '0' : formatRp(val);
 }
 
 function getBadge(status) {
@@ -593,9 +614,9 @@ function addRowLayanan() {
     tr.innerHTML = `
         <td><select class="form-control sel-layanan select2" onchange="kalkulasiRow(${rowCount})" style="width: 100%;">${optionsLayanan}</select></td>
         <td><input type="text" class="form-control inp-keluhan" placeholder="Cth: Pegal bahu"></td>
-        <td><input type="number" class="form-control inp-harga" readonly style="background:#e9ecef;"></td>
-        <td><input type="number" class="form-control inp-diskon" value="0" oninput="kalkulasiRow(${rowCount})"></td>
-        <td><input type="number" class="form-control inp-subtotal text-success font-weight-bold" readonly style="background:#e9ecef;"></td>
+        <td><input type="text" class="form-control inp-harga" readonly style="background:#e9ecef;"></td>
+        <td><input type="text" class="form-control inp-diskon" value="0" oninput="formatRupiahInput(this); kalkulasiRow(${rowCount})"></td>
+        <td><input type="text" class="form-control inp-subtotal text-success font-weight-bold" readonly style="background:#e9ecef;"></td>
         <td class="text-center align-middle"><button type="button" onclick="hapusRow(${rowCount})" class="btn btn-sm btn-danger"><i class="mdi mdi-delete"></i></button></td>
     `;
     
@@ -621,13 +642,13 @@ function kalkulasiRow(id) {
         harga = parseFloat(opt.getAttribute('data-harga')) || 0;
     }
     
-    tr.querySelector('.inp-harga').value = harga;
+    tr.querySelector('.inp-harga').value = formatRp(harga);
     
-    let diskon = parseFloat(tr.querySelector('.inp-diskon').value) || 0;
+    let diskon = unformatRp(tr.querySelector('.inp-diskon').value);
     let subtotal = harga - diskon;
     if(subtotal < 0) subtotal = 0;
     
-    tr.querySelector('.inp-subtotal').value = subtotal;
+    tr.querySelector('.inp-subtotal').value = formatRp(subtotal);
     
     kalkulasiGrandTotal();
 }
@@ -636,12 +657,13 @@ function kalkulasiGrandTotal() {
     let grand = 0;
     const subtotals = document.querySelectorAll('.inp-subtotal');
     subtotals.forEach(el => {
-        grand += parseFloat(el.value) || 0;
+        grand += unformatRp(el.value);
     });
     
     const ongkir = parseFloat(document.getElementById('tarif_ongkir').value) || 0;
-    grand += ongkir;
+    document.getElementById('lblOngkirTotal').innerText = formatRp(ongkir);
     
+    grand += ongkir;
     document.getElementById('lblGrandTotal').innerText = formatRp(grand);
 }
 
@@ -669,10 +691,10 @@ async function saveData(e) {
                 id_layanan: opt.value,
                 id_harga_layanan: opt.getAttribute('data-id_harga'),
                 keluhan: tr.querySelector('.inp-keluhan').value,
-                nominal: parseFloat(tr.querySelector('.inp-harga').value) || 0,
-                diskon: parseFloat(tr.querySelector('.inp-diskon').value) || 0,
+                nominal: unformatRp(tr.querySelector('.inp-harga').value),
+                diskon: unformatRp(tr.querySelector('.inp-diskon').value),
                 ppn: 0,
-                total: parseFloat(tr.querySelector('.inp-subtotal').value) || 0
+                total: unformatRp(tr.querySelector('.inp-subtotal').value)
             });
         }
     }
@@ -865,14 +887,20 @@ document.getElementById('formPelunasan').addEventListener('submit', async (e) =>
                 Swal.fire({
                     title: 'Scan QRIS',
                     html: `<img src="${json.qris_url}" style="width:100%; max-width:300px;"><br><p class="mt-2 text-muted">Menunggu pembayaran (Kode: ${json.kode_pembayaran})</p>`,
-                    icon: 'info'
+                    icon: 'info',
+                    showConfirmButton: false,
+                    showCloseButton: true
                 });
+                startPollingStatus(document.getElementById('bayar_id_booking').value);
             } else if (metode === 'VA') {
                 Swal.fire({
                     title: 'Virtual Account ' + json.data.bank.toUpperCase(),
                     html: `<h2 class="text-primary mt-2 font-weight-bold">${json.data.va_number}</h2><p class="mt-2 text-muted">Menunggu pembayaran (Kode: ${json.data.kode_pembayaran})</p>`,
-                    icon: 'info'
+                    icon: 'info',
+                    showConfirmButton: false,
+                    showCloseButton: true
                 });
+                startPollingStatus(document.getElementById('bayar_id_booking').value);
             } else {
                 Swal.fire('Berhasil', json.message, 'success');
             }
@@ -957,5 +985,31 @@ function showForm() {
 
 function hideForm() {
     $('#modalFormBooking').modal('hide');
+}
+
+$('#modalDetailBooking').on('hidden.bs.modal', function () {
+    if (pollInterval) clearInterval(pollInterval);
+});
+
+let pollInterval;
+function startPollingStatus(id_booking) {
+    if(pollInterval) clearInterval(pollInterval);
+    
+    pollInterval = setInterval(async () => {
+        try {
+            const res = await fetch('../../api/booking/detail.php?id_booking=' + id_booking);
+            const json = await res.json();
+            if(json.status === 'success') {
+                const b = json.data;
+                // Jika pembayaran lunas, hentikan polling dan otomatis update UI
+                if(b.status_pembayaran === 'LUNAS') {
+                    clearInterval(pollInterval);
+                    Swal.fire('LUNAS!', 'Pembayaran ' + b.metode_pembayaran + ' telah berhasil diterima secara otomatis.', 'success');
+                    lihatDetail(id_booking); // Refresh tab invoice
+                    fetchList(); // Refresh tabel transaksi
+                }
+            }
+        } catch(e) {}
+    }, 4000); // Polling setiap 4 detik
 }
 </script>
