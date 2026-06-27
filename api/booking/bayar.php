@@ -31,22 +31,31 @@ try {
         throw new Exception("Data tidak lengkap atau jumlah bayar tidak valid.");
     }
     
-    // 1. Cek apakah sudah lunas sebelumnya
-    $stmtCek = $koneksi->prepare("SELECT id_pembayaran FROM pembayaran WHERE id_booking = ?");
+    // 1. Cek apakah sudah ada pembayaran sebelumnya
+    $stmtCek = $koneksi->prepare("SELECT id_pembayaran, status_pembayaran FROM pembayaran WHERE id_booking = ?");
     $stmtCek->bind_param("i", $id_booking);
     $stmtCek->execute();
-    if ($stmtCek->get_result()->num_rows > 0) {
+    $resCek = $stmtCek->get_result();
+    $existing = $resCek->fetch_assoc();
+    $stmtCek->close();
+    
+    if ($existing && $existing['status_pembayaran'] === 'LUNAS') {
         throw new Exception("Transaksi ini sudah lunas sebelumnya.");
     }
-    $stmtCek->close();
     
     $tanggal_bayar = date('Y-m-d H:i:s');
     $user_id = $_SESSION['user_id'] ?? null;
     $kode_pembayaran = 'MANUAL-' . $id_booking . '-' . time();
     
-    // 2. Insert ke Pembayaran
-    $stmtBayar = $koneksi->prepare("INSERT INTO pembayaran (id_booking, user_id, tanggal_bayar, kode_pembayaran, jumlah_bayar, metode_pembayaran, status_pembayaran) VALUES (?, ?, ?, ?, ?, ?, 'LUNAS')");
-    $stmtBayar->bind_param("iissds", $id_booking, $user_id, $tanggal_bayar, $kode_pembayaran, $jumlah_bayar, $metode_pembayaran);
+    // 2. Insert atau Update ke Pembayaran
+    if ($existing) {
+        $stmtBayar = $koneksi->prepare("UPDATE pembayaran SET user_id=?, tanggal_bayar=?, kode_pembayaran=?, jumlah_bayar=?, metode_pembayaran=?, status_pembayaran='LUNAS', qris_transaction_id=NULL, va_number=NULL, qris_image=NULL WHERE id_booking=?");
+        $stmtBayar->bind_param("issdsi", $user_id, $tanggal_bayar, $kode_pembayaran, $jumlah_bayar, $metode_pembayaran, $id_booking);
+    } else {
+        $stmtBayar = $koneksi->prepare("INSERT INTO pembayaran (id_booking, user_id, tanggal_bayar, kode_pembayaran, jumlah_bayar, metode_pembayaran, status_pembayaran) VALUES (?, ?, ?, ?, ?, ?, 'LUNAS')");
+        $stmtBayar->bind_param("iissds", $id_booking, $user_id, $tanggal_bayar, $kode_pembayaran, $jumlah_bayar, $metode_pembayaran);
+    }
+    
     if (!$stmtBayar->execute()) {
         throw new Exception("Gagal menyimpan data pembayaran: " . $stmtBayar->error);
     }

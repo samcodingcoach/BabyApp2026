@@ -104,8 +104,9 @@ try {
     $stmtJadwal->close();
 
     // Lolos Validasi -> Update Data
+    $tanggal_booking_sql = date('Y-m-d H:i:s', $req_start_time);
     $stmtUpdate = $koneksi->prepare("UPDATE booking SET tanggal_booking = ?, status_booking = 'DIJADWALKAN' WHERE id_booking = ?");
-    $stmtUpdate->bind_param("si", $tanggal_booking, $id_booking);
+    $stmtUpdate->bind_param("si", $tanggal_booking_sql, $id_booking);
     
     if (!$stmtUpdate->execute()) {
         throw new Exception("Gagal melakukan Reschedule: " . $stmtUpdate->error);

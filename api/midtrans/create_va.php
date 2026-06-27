@@ -58,13 +58,25 @@ try {
 
     $transactionId = $response->transaction_id ?? null;
 
-    // 2. Simpan record 'BELUM_LUNAS' ke tabel pembayaran
+    // 2. Cek eksistensi di tabel pembayaran
+    $stmtCek = $koneksi->prepare("SELECT id_pembayaran FROM pembayaran WHERE id_booking = ?");
+    $stmtCek->bind_param("i", $id_booking);
+    $stmtCek->execute();
+    $resCek = $stmtCek->get_result();
+    $existing = $resCek->fetch_assoc();
+    $stmtCek->close();
+
     $metode_pembayaran = 'VA ' . strtoupper($bankResponse);
     $status_pembayaran = 'BELUM_LUNAS';
     $tanggal_bayar = date('Y-m-d H:i:s');
     
-    $stmt = $koneksi->prepare("INSERT INTO pembayaran (id_booking, user_id, tanggal_bayar, kode_pembayaran, jumlah_bayar, metode_pembayaran, qris_transaction_id, status_pembayaran, va_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iissdssss", $id_booking, $user_id, $tanggal_bayar, $kode_pembayaran, $grossAmount, $metode_pembayaran, $transactionId, $status_pembayaran, $vaNumber);
+    if ($existing) {
+        $stmt = $koneksi->prepare("UPDATE pembayaran SET user_id=?, tanggal_bayar=?, kode_pembayaran=?, jumlah_bayar=?, metode_pembayaran=?, qris_transaction_id=?, status_pembayaran=?, va_number=?, qris_image=NULL WHERE id_booking=?");
+        $stmt->bind_param("issdssssi", $user_id, $tanggal_bayar, $kode_pembayaran, $grossAmount, $metode_pembayaran, $transactionId, $status_pembayaran, $vaNumber, $id_booking);
+    } else {
+        $stmt = $koneksi->prepare("INSERT INTO pembayaran (id_booking, user_id, tanggal_bayar, kode_pembayaran, jumlah_bayar, metode_pembayaran, qris_transaction_id, status_pembayaran, va_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("iissdssss", $id_booking, $user_id, $tanggal_bayar, $kode_pembayaran, $grossAmount, $metode_pembayaran, $transactionId, $status_pembayaran, $vaNumber);
+    }
     
     if (!$stmt->execute()) {
         throw new Exception("Gagal menyimpan data transaksi VA ke database lokal.");

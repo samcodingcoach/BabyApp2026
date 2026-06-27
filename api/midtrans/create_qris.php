@@ -49,13 +49,25 @@ try {
     $qrisImageUrl = $qrisTransaction->actions[0]->url;
     $qrisTransactionId = $qrisTransaction->transaction_id ?? null;
 
-    // 2. Simpan record 'BELUM_LUNAS' ke tabel pembayaran
+    // 2. Cek eksistensi di tabel pembayaran
+    $stmtCek = $koneksi->prepare("SELECT id_pembayaran FROM pembayaran WHERE id_booking = ?");
+    $stmtCek->bind_param("i", $id_booking);
+    $stmtCek->execute();
+    $resCek = $stmtCek->get_result();
+    $existing = $resCek->fetch_assoc();
+    $stmtCek->close();
+
     $metode_pembayaran = 'QRIS';
     $status_pembayaran = 'BELUM_LUNAS';
     $tanggal_bayar = date('Y-m-d H:i:s');
     
-    $stmt = $koneksi->prepare("INSERT INTO pembayaran (id_booking, user_id, tanggal_bayar, kode_pembayaran, jumlah_bayar, metode_pembayaran, qris_transaction_id, status_pembayaran, qris_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iissdssss", $id_booking, $user_id, $tanggal_bayar, $kode_pembayaran, $grossAmount, $metode_pembayaran, $qrisTransactionId, $status_pembayaran, $qrisImageUrl);
+    if ($existing) {
+        $stmt = $koneksi->prepare("UPDATE pembayaran SET user_id=?, tanggal_bayar=?, kode_pembayaran=?, jumlah_bayar=?, metode_pembayaran=?, qris_transaction_id=?, status_pembayaran=?, qris_image=?, va_number=NULL WHERE id_booking=?");
+        $stmt->bind_param("issdssssi", $user_id, $tanggal_bayar, $kode_pembayaran, $grossAmount, $metode_pembayaran, $qrisTransactionId, $status_pembayaran, $qrisImageUrl, $id_booking);
+    } else {
+        $stmt = $koneksi->prepare("INSERT INTO pembayaran (id_booking, user_id, tanggal_bayar, kode_pembayaran, jumlah_bayar, metode_pembayaran, qris_transaction_id, status_pembayaran, qris_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("iissdssss", $id_booking, $user_id, $tanggal_bayar, $kode_pembayaran, $grossAmount, $metode_pembayaran, $qrisTransactionId, $status_pembayaran, $qrisImageUrl);
+    }
     
     if (!$stmt->execute()) {
         throw new Exception("Gagal menyimpan data transaksi ke database lokal.");

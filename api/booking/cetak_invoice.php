@@ -176,7 +176,7 @@ $html = '
 <br><br>
 
 <h1 style="text-align:center; margin-bottom: 2px;">'.$title.'</h1>
-<h3 style="text-align:center; margin-top: 0; font-weight:normal;">'.$booking['kode_booking'].'</h3>
+<h3 style="text-align:center; margin-top: 0; font-weight:normal;">'.($booking['kode_pembayaran'] ?: $booking['kode_booking']).'</h3>
 <br><br>
 
 <table cellspacing="0" cellpadding="2" border="0">
@@ -238,25 +238,35 @@ $html .= '
 <h3 style="margin-bottom: 10px;">Pembayaran</h3>
 <table cellspacing="0" cellpadding="2" border="0">
     <tr>
-        <td width="25%"><b>Metode Pembayaran</b></td>
+        <td width="25%"><b>Kode Booking</b></td>
         <td width="3%">:</td>
-        <td width="72%">'.($booking['metode_pembayaran'] ? strtoupper($booking['metode_pembayaran']) : '-').'</td>
+        <td width="72%">'.$booking['kode_booking'].'</td>
     </tr>
     <tr>
-        <td><b>Nomor Rekening / QRIS</b></td>
+        <td><b>Metode Pembayaran</b></td>
         <td>:</td>
-        <td><i style="color:#666;">'.$va_or_qris.'</i></td>
-    </tr>
+        <td>'.($booking['metode_pembayaran'] ? strtoupper($booking['metode_pembayaran']) : '-').'</td>
+    </tr>';
+
+if ($is_lunas) {
+    $html .= '
     <tr>
-        <td><b>Kode Pembayaran</b></td>
+        <td><b>Tanggal Pembayaran</b></td>
         <td>:</td>
-        <td>'.($booking['kode_pembayaran'] ?: '-').'</td>
-    </tr>
+        <td>'.($booking['tanggal_bayar'] ? date('d M Y, H:i', strtotime($booking['tanggal_bayar'])) : '-').'</td>
+    </tr>';
+}
+
+if (strpos(strtoupper($booking['metode_pembayaran']), 'VA') !== false) {
+    $html .= '
     <tr>
-        <td><b>Jatuh Tempo</b></td>
+        <td><b>Nomor Virtual Account</b></td>
         <td>:</td>
-        <td>'.$jatuh_tempo.'</td>
-    </tr>
+        <td><i style="color:#111; font-weight:bold;">'.$va_or_qris.'</i></td>
+    </tr>';
+}
+
+$html .= '
 </table>
 
 <br><br><br>

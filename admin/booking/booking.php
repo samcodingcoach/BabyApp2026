@@ -313,6 +313,36 @@ include '../includes/sidebar.php';
                                         <div class="clearfix"></div>
                                     </div>
                                 </div>
+                                
+                                <div class="row mt-4" id="inv_pembayaran_section" style="display:none;">
+                                    <div class="col-12">
+                                        <h6 class="font-size-14 text-muted font-weight-bold text-uppercase mb-2 border-bottom pb-2">Pembayaran:</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-borderless">
+                                                <tr>
+                                                    <td style="width: 200px;"><b>Kode Booking</b></td>
+                                                    <td style="width: 10px;">:</td>
+                                                    <td id="inv_detail_kode_booking"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Metode Pembayaran</b></td>
+                                                    <td>:</td>
+                                                    <td id="inv_detail_metode"></td>
+                                                </tr>
+                                                <tr id="tr_inv_detail_tgl" style="display:none;">
+                                                    <td><b>Tanggal Pembayaran</b></td>
+                                                    <td>:</td>
+                                                    <td id="inv_detail_tgl"></td>
+                                                </tr>
+                                                <tr id="tr_inv_detail_va" style="display:none;">
+                                                    <td><b>Nomor Virtual Account</b></td>
+                                                    <td>:</td>
+                                                    <td><b class="text-dark" id="inv_detail_va"></b></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
@@ -380,6 +410,14 @@ include '../includes/sidebar.php';
                             <button type="submit" class="btn btn-success btn-block font-weight-bold mt-4" id="btnSubmitBayar" style="font-size:16px; padding:10px;">Proses Pembayaran (LUNAS)</button>
                         </form>
                         
+                        <div id="divWaitingBayar" style="display:none;" class="text-center p-4 border rounded bg-light">
+                            <h4 class="text-warning mt-3 font-weight-bold"><i class="mdi mdi-clock-outline"></i> MENUNGGU PEMBAYARAN</h4>
+                            <h5 class="text-dark mt-2" id="waiting_metode_teks"></h5>
+                            <div id="waiting_instruction" class="my-3"></div>
+                            <h3 class="text-danger font-weight-bold" id="waiting_countdown"></h3>
+                            <button type="button" class="btn btn-outline-danger mt-3" onclick="showFormPelunasan()">Batalkan / Ubah Metode</button>
+                        </div>
+                        
                         <div id="divLunasInfo" style="display:none;" class="text-center p-4 border rounded bg-light">
                             <i class="mdi mdi-check-circle text-success" style="font-size: 64px;"></i>
                             <h3 class="text-success mt-3 font-weight-bold">TRANSAKSI TELAH LUNAS</h3>
@@ -407,6 +445,40 @@ let masterOngkir = [];
 let dataTable = null;
 let quillAlamatBaru;
 let quillCatatan;
+let countdownInterval;
+
+function showFormPelunasan() {
+    document.getElementById('formPelunasan').style.display = 'block';
+    document.getElementById('divWaitingBayar').style.display = 'none';
+    document.getElementById('divLunasInfo').style.display = 'none';
+    if(countdownInterval) clearInterval(countdownInterval);
+}
+
+function startCountdown(expireAt, idBooking) {
+    if(countdownInterval) clearInterval(countdownInterval);
+    
+    const countdownEl = document.getElementById('waiting_countdown');
+    
+    countdownInterval = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = expireAt.getTime() - now;
+        
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            countdownEl.innerHTML = "WAKTU HABIS";
+            Swal.fire('Waktu Habis', 'Waktu pembayaran telah habis, silakan buat ulang.', 'warning').then(() => {
+                showFormPelunasan();
+            });
+            return;
+        }
+        
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        countdownEl.innerHTML = minutes + "m " + seconds + "s ";
+    }, 1000);
+}
+
 
 window.onload = async () => {
     if($().select2) {
@@ -468,10 +540,10 @@ async function fetchList() {
         if (result.status === 'success') {
             result.data.forEach((item, index) => {
                 const dateObj = new Date(item.tanggal_booking);
-                const tgl = dateObj.toLocaleString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+                const tgl = dateObj.toLocaleString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace(/\./g, ':');
                 
                 const dateEndObj = new Date(item.waktu_selesai);
-                const tglEnd = dateEndObj.toLocaleString('id-ID', {hour:'2-digit', minute:'2-digit'});
+                const tglEnd = dateEndObj.toLocaleString('id-ID', {hour:'2-digit', minute:'2-digit'}).replace(/\./g, ':');
 
                 tbody.innerHTML += `
                     <tr>
@@ -772,7 +844,6 @@ async function lihatDetail(id_booking) {
         
         if(json.status === 'success') {
             const b = json.data;
-            document.getElementById('inv_kode').innerText = "KODE: " + b.kode_booking;
             document.getElementById('inv_member').innerText = b.nama;
             document.getElementById('inv_bayi').innerText = b.nama_bayi || 'Diri Sendiri';
             document.getElementById('inv_wa').innerText = b.whatsapp || '-';
@@ -783,8 +854,8 @@ async function lihatDetail(id_booking) {
             
             const dateObj = new Date(b.tanggal_booking);
             const dateCreate = new Date(b.created_at);
-            document.getElementById('inv_jadwal').innerText = dateObj.toLocaleString('id-ID');
-            document.getElementById('inv_created_at').innerText = dateCreate.toLocaleString('id-ID');
+            document.getElementById('inv_jadwal').innerText = dateObj.toLocaleString('id-ID').replace(/\./g, ':');
+            document.getElementById('inv_created_at').innerText = dateCreate.toLocaleString('id-ID').replace(/\./g, ':');
             document.getElementById('inv_terapis').innerText = b.nama_terapis;
             document.getElementById('inv_status').innerHTML = getBadge(b.status_booking);
             document.getElementById('inv_prioritas').innerText = b.prioritas == 1 ? 'VIP / Penting' : 'Normal';
@@ -839,9 +910,34 @@ async function lihatDetail(id_booking) {
                 if (b.is_lunas) {
                     $('#inv_main_title').html('<i class="mdi mdi-check-decagram mr-2"></i> FAKTUR LUNAS').removeClass('text-danger text-warning').addClass('text-success');
                     $('#btnDownloadInvoice').html('<i class="mdi mdi-file-pdf-outline mr-1"></i> Download Faktur Lunas (PDF)').removeClass('btn-outline-danger btn-danger').addClass('btn-success');
+                    document.getElementById('inv_kode').innerText = (b.kode_pembayaran ? b.kode_pembayaran : b.kode_booking);
                 } else {
                     $('#inv_main_title').html('<i class="mdi mdi-alert-circle-outline mr-2"></i> INVOICE TAGIHAN').removeClass('text-success text-warning').addClass('text-danger');
                     $('#btnDownloadInvoice').html('<i class="mdi mdi-file-pdf-outline mr-1"></i> Download Invoice Tagihan (PDF)').removeClass('btn-outline-success btn-success').addClass('btn-danger');
+                    document.getElementById('inv_kode').innerText = b.kode_booking;
+                }
+
+                if (b.id_pembayaran) {
+                    $('#inv_pembayaran_section').show();
+                    document.getElementById('inv_detail_kode_booking').innerText = b.kode_booking;
+                    document.getElementById('inv_detail_metode').innerText = (b.metode_pembayaran || '-').toUpperCase();
+                    
+                    if (b.is_lunas && b.tanggal_bayar) {
+                        $('#tr_inv_detail_tgl').show();
+                        const dBayar = new Date(b.tanggal_bayar.replace(' ', 'T'));
+                        document.getElementById('inv_detail_tgl').innerText = dBayar.toLocaleString('id-ID').replace(/\./g, ':');
+                    } else {
+                        $('#tr_inv_detail_tgl').hide();
+                    }
+                    
+                    if (b.metode_pembayaran && b.metode_pembayaran.toUpperCase().includes('VA')) {
+                        $('#tr_inv_detail_va').show();
+                        document.getElementById('inv_detail_va').innerText = b.va_number || '-';
+                    } else {
+                        $('#tr_inv_detail_va').hide();
+                    }
+                } else {
+                    $('#inv_pembayaran_section').hide();
                 }
 
                 if (b.status_booking === 'DIKONFIRMASI') {
@@ -857,12 +953,42 @@ async function lihatDetail(id_booking) {
                     
                     if (b.is_lunas) {
                         formBayar.style.display = 'none';
+                        if (document.getElementById('divWaitingBayar')) document.getElementById('divWaitingBayar').style.display = 'none';
                         divLunas.style.display = 'block';
                         document.getElementById('lunas_tgl_teks').innerText = 'Tgl Bayar: ' + b.tanggal_bayar;
                         document.getElementById('lunas_metode_teks').innerText = 'Metode: ' + b.metode_pembayaran;
+                    } else if (b.id_pembayaran && b.status_pembayaran === 'BELUM_LUNAS') {
+                        // Cek waktu kadaluarsa
+                        const createdAtStr = b.pembayaran_created_at.replace(' ', 'T');
+                        const createdAt = new Date(createdAtStr);
+                        const now = new Date();
+                        let maxMinutes = 0;
+                        if (b.metode_pembayaran.includes('QRIS')) maxMinutes = 8;
+                        else if (b.metode_pembayaran.includes('VA')) maxMinutes = 60;
+                        
+                        const expireAt = new Date(createdAt.getTime() + maxMinutes * 60000);
+                        if (now < expireAt && maxMinutes > 0) {
+                            formBayar.style.display = 'none';
+                            divLunas.style.display = 'none';
+                            document.getElementById('divWaitingBayar').style.display = 'block';
+                            
+                            document.getElementById('waiting_metode_teks').innerText = 'Metode: ' + b.metode_pembayaran;
+                            
+                            let inst = '';
+                            if (b.metode_pembayaran.includes('QRIS')) {
+                                inst = `<img src="${b.qris_image}" style="width:200px; height:200px;"><br><small>Scan QRIS ini dengan aplikasi M-Banking/E-Wallet Anda.</small>`;
+                            } else {
+                                inst = `<h2 class="text-primary font-weight-bold">${b.va_number}</h2><small>Transfer ke Virtual Account di atas.</small>`;
+                            }
+                            document.getElementById('waiting_instruction').innerHTML = inst;
+                            
+                            startCountdown(expireAt, b.id_booking);
+                            startPollingStatus(b.id_booking);
+                        } else {
+                            showFormPelunasan();
+                        }
                     } else {
-                        formBayar.style.display = 'block';
-                        divLunas.style.display = 'none';
+                        showFormPelunasan();
                     }
                 }
                 
@@ -940,31 +1066,12 @@ document.getElementById('formPelunasan').addEventListener('submit', async (e) =>
         const json = await res.json();
         
         if (json.status === 'success') {
-            if (metode === 'QRIS') {
-                Swal.fire({
-                    title: 'Scan QRIS',
-                    html: `<img src="${json.qris_url}" style="width:100%; max-width:300px;"><br><p class="mt-2 text-muted">Menunggu pembayaran (Kode: ${json.kode_pembayaran})</p>`,
-                    icon: 'info',
-                    showConfirmButton: false,
-                    showCloseButton: true
-                });
-                startPollingStatus(document.getElementById('bayar_id_booking').value);
-            } else if (metode === 'VA') {
-                Swal.fire({
-                    title: 'Virtual Account ' + json.data.bank.toUpperCase(),
-                    html: `<h2 class="text-primary mt-2 font-weight-bold">${json.data.va_number}</h2><p class="mt-2 text-muted">Menunggu pembayaran (Kode: ${json.data.kode_pembayaran})</p>`,
-                    icon: 'info',
-                    showConfirmButton: false,
-                    showCloseButton: true
-                });
-                startPollingStatus(document.getElementById('bayar_id_booking').value);
-            } else {
-                Swal.fire('Berhasil', json.message, 'success');
-            }
-            lihatDetail(document.getElementById('bayar_id_booking').value);
-            fetchList();
+            Swal.fire('Berhasil', 'Pembayaran sedang diproses / disiapkan...', 'success').then(() => {
+                lihatDetail(document.getElementById('bayar_id_booking').value);
+                fetchList();
+            });
         } else {
-            Swal.fire('Gagal', json.message, 'error');
+            Swal.fire('Gagal', json.message || 'Terjadi kesalahan.', 'error');
         }
     } catch (error) {
         Swal.fire('Error', 'Terjadi kesalahan pada sistem.', 'error');
@@ -983,40 +1090,35 @@ async function eksekusiReschedule() {
         return;
     }
     
+    // Langsung proses tanpa dialog konfirmasi
     Swal.fire({
-        title: 'Konfirmasi',
-        text: "Yakin ingin memindahkan jadwal pesanan ini ke " + tgl + "? Status otomatis menjadi DIJADWALKAN.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ffc107',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Ya, Pindahkan',
-        cancelButtonText: 'Batal'
-    }).then(async (result) => {
-        if(result.isConfirmed) {
-            const params = new URLSearchParams();
-            params.append('id_booking', id);
-            params.append('tanggal_booking', tgl);
-            
-            try {
-                const res = await fetch('../../api/booking/reschedule.php', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                    body: params.toString()
-                });
-                const json = await res.json();
-                if(json.status === 'success') {
-                    Swal.fire('Sukses', json.message, 'success');
-                    lihatDetail(id);
-                    fetchList(); 
-                } else {
-                    Swal.fire('Gagal', json.message, 'error');
-                }
-            } catch(e) {
-                Swal.fire('Error', "Gagal koneksi ke server.", 'error');
-            }
-        }
+        title: 'Memproses...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
     });
+    
+    const params = new URLSearchParams();
+    params.append('id_booking', id);
+    params.append('tanggal_booking', tgl);
+    
+    try {
+        const res = await fetch('../../api/booking/reschedule.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: params.toString()
+        });
+        const json = await res.json();
+        
+        if(json.status === 'success') {
+            Swal.close(); // Tutup loading
+            lihatDetail(id);
+            fetchList(); 
+        } else {
+            Swal.fire('Gagal', json.message, 'error');
+        }
+    } catch(e) {
+        Swal.fire('Error', "Gagal koneksi ke server.", 'error');
+    }
 }
 
 function showForm() {
