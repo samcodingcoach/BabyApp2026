@@ -234,14 +234,14 @@ include '../includes/sidebar.php';
                 </button>
             </div>
             <div class="modal-body">
-                <ul class="nav nav-tabs nav-justified mb-3">
-                    <li class="nav-item">
+                <ul class="nav nav-tabs nav-justified mb-3" id="navTabsBooking">
+                    <li class="nav-item" id="nav_item_invoice">
                         <a href="#tab-inv-detail" data-toggle="tab" class="nav-link active">Invoice / Struk</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" id="nav_item_status">
                         <a href="#tab-inv-status" data-toggle="tab" class="nav-link">Ubah Status Transaksi</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" id="nav_item_reschedule">
                         <a href="#tab-inv-reschedule" data-toggle="tab" class="nav-link">Reschedule Jadwal</a>
                     </li>
                     <li class="nav-item" id="nav_item_bayar" style="display:none;">
@@ -249,65 +249,77 @@ include '../includes/sidebar.php';
                     </li>
                 </ul>
 
-                <div class="tab-content">
+                <div id="div_batal_info" style="display:none;" class="text-center p-5 border rounded bg-white">
+                    <i class="mdi mdi-close-circle text-danger" style="font-size: 72px;"></i>
+                    <h3 class="text-danger mt-3 font-weight-bold">TRANSAKSI TELAH DIBATALKAN</h3>
+                    <h5 class="text-muted mt-2">Dibatalkan pada: <span id="batal_timestamp" class="font-weight-bold text-dark"></span></h5>
+                </div>
+
+                <div class="tab-content" id="tabContentBooking">
                     <div class="tab-pane show active" id="tab-inv-detail">
-                        <div class="clearfix">
-                            <div class="float-left">
-                                <h4><b>INVOICE / STRUK</b></h4>
+                        <div class="card border border-light shadow-none mb-0" style="background-color: #fafafa; border-radius: 12px; border: 1px solid #e3e6f0 !important; overflow: hidden;">
+                            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #fff; border-bottom: 2px dashed #e3e6f0;">
+                                <h4 class="mb-0 font-weight-bold" id="inv_main_title"><i class="mdi mdi-receipt mr-2"></i> INVOICE TAGIHAN</h4>
+                                <h4 class="m-0 text-muted font-weight-bold" id="inv_kode"></h4>
                             </div>
-                            <div class="float-right">
-                                <h4 class="m-0 text-muted" id="inv_kode"></h4>
-                            </div>
-                        </div>
+                            <div class="card-body p-4">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <h6 class="font-size-14 text-muted font-weight-bold text-uppercase mb-2">Ditagihkan Kepada:</h6>
+                                        <h5 class="font-size-16 font-weight-bold text-dark mb-1" id="inv_member"></h5>
+                                        <address class="line-h-24 text-muted">
+                                            Pasien: <span class="text-dark" id="inv_bayi"></span><br>
+                                            <i class="mdi mdi-whatsapp text-success"></i> <span id="inv_wa"></span><br>
+                                            <i class="mdi mdi-map-marker-outline text-danger"></i> <span id="inv_alamat"></span>
+                                        </address>
+                                    </div>
+                                    <div class="col-sm-6 text-sm-right mt-4 mt-sm-0">
+                                        <h6 class="font-size-14 text-muted font-weight-bold text-uppercase mb-2">Detail Pemesanan:</h6>
+                                        <p class="mb-1"><strong>Jadwal: </strong> <span id="inv_jadwal" class="text-primary font-weight-bold"></span></p>
+                                        <p class="mb-1"><strong>Status: </strong> <span id="inv_status"></span></p>
+                                        <p class="mb-1"><strong>Terapis: </strong> <span class="text-dark font-weight-bold" id="inv_terapis"></span></p>
+                                        <p class="mb-1"><strong>Prioritas: </strong> <span class="text-danger font-weight-bold" id="inv_prioritas"></span></p>
+                                        <p class="mb-0"><strong>Tgl Cetak: </strong> <span class="text-muted" id="inv_created_at"></span></p>
+                                    </div>
+                                </div>
 
-                        <div class="row mt-4">
-                            <div class="col-6">
-                                <h6 class="font-weight-bold">TO:</h6>
-                                <address class="line-h-24">
-                                    <b><span id="inv_member"></span></b><br>
-                                    Pasien: <span id="inv_bayi"></span><br>
-                                    Alamat: <span id="inv_alamat"></span><br>
-                                    <abbr title="Phone">WA:</abbr> <span id="inv_wa"></span>
-                                </address>
-                            </div>
-                            <div class="col-6">
-                                <div class="mt-3 float-right">
-                                    <p class="mb-2"><strong>Jadwal: </strong> <span id="inv_jadwal" class="text-primary font-weight-bold"></span></p>
-                                    <p class="mb-2"><strong>Status: </strong> <span id="inv_status"></span></p>
-                                    <p class="mb-2"><strong>Terapis: </strong> <span id="inv_terapis"></span></p>
-                                    <p class="m-b-10"><strong>Prioritas: </strong> <span id="inv_prioritas"></span></p>
-                                    <p class="m-b-10"><strong>Tgl Cetak: </strong> <span id="inv_created_at"></span></p>
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <div class="table-responsive border rounded">
+                                            <table class="table table-centered table-nowrap table-striped mb-0">
+                                                <thead class="bg-light">
+                                                    <tr>
+                                                        <th style="width: 5%;">No</th>
+                                                        <th>Layanan & Keluhan</th>
+                                                        <th class="text-right" style="width: 25%;">Subtotal</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="inv_body_layanan">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="col-sm-6">
+                                        <!-- Ruang kosong atau catatan -->
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="float-right text-right">
+                                            <p class="mb-2 font-size-15"><b>Ongkos Kirim:</b> <span class="ml-3 text-muted">Rp <span id="inv_ongkir">0</span></span></p>
+                                            <hr>
+                                            <h3 class="text-success font-weight-bold">Rp <span id="inv_grandtotal">0</span></h3>
+                                        </div>
+                                        <div class="clearfix"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="table-responsive">
-                                    <table class="table mt-4">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Layanan & Keluhan</th>
-                                                <th class="text-right">Harga</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="inv_body_layanan">
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-6">
-                            </div>
-                            <div class="col-6">
-                                <div class="float-right text-right">
-                                    <p><b>Ongkos Kirim:</b> Rp <span id="inv_ongkir">0</span></p>
-                                    <h3 class="text-success">Rp <span id="inv_grandtotal">0</span></h3>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
+                        
+                        <div class="mt-4 text-center">
+                            <button type="button" class="btn btn-danger font-weight-bold px-4 py-2 shadow-sm" id="btnDownloadInvoice" style="display:none; font-size:16px;">
+                                <i class="mdi mdi-file-pdf-outline mr-1"></i> Download Faktur (PDF)
+                            </button>
                         </div>
                     </div>
 
@@ -755,16 +767,19 @@ async function lihatDetail(id_booking) {
     document.getElementById('inv_body_layanan').innerHTML = '<tr><td colspan="4" class="text-center">Loading...</td></tr>';
     
     try {
-        const res = await fetch('../../api/booking/detail.php?id_booking=' + id_booking);
+        const res = await fetch('../../api/invoice/list.php?id_booking=' + id_booking);
         const json = await res.json();
         
         if(json.status === 'success') {
             const b = json.data;
             document.getElementById('inv_kode').innerText = "KODE: " + b.kode_booking;
-            document.getElementById('inv_member').innerText = b.nama_member;
+            document.getElementById('inv_member').innerText = b.nama;
             document.getElementById('inv_bayi').innerText = b.nama_bayi || 'Diri Sendiri';
-            document.getElementById('inv_wa').innerText = b.whatsapp_tampil || b.whatsapp_baru || b.whatsapp_member || '-';
-            document.getElementById('inv_alamat').innerHTML = b.alamat_tampil || b.alamat_baru || '-';
+            document.getElementById('inv_wa').innerText = b.whatsapp || '-';
+            
+            let alamatLengkap = b.alamat_baru || b.alamat || '-';
+            if(b.kecamatan) alamatLengkap += ' (Kec. ' + b.kecamatan + ')';
+            document.getElementById('inv_alamat').innerHTML = alamatLengkap;
             
             const dateObj = new Date(b.tanggal_booking);
             const dateCreate = new Date(b.created_at);
@@ -779,14 +794,19 @@ async function lihatDetail(id_booking) {
             
             let tbody = '';
             b.details.forEach((d, i) => {
+                let keluhanHtml = d.keluhan ? `<br><small class="text-danger"><i class="mdi mdi-alert-circle-outline"></i> Keluhan: ${d.keluhan}</small>` : '';
+                let kategoriHtml = d.nama_kategori ? `<span class="badge badge-soft-info mr-1">${d.nama_kategori}</span>` : '';
+                let durasiHtml = d.durasi_menit ? `<span class="badge badge-soft-secondary"><i class="mdi mdi-clock-outline"></i> ${d.durasi_menit} mnt</span>` : '';
+                
                 tbody += `
                     <tr>
-                        <td>${i+1}</td>
+                        <td class="text-center align-middle">${i+1}</td>
                         <td>
-                            <b>${d.nama_layanan}</b><br>
-                            <small class="text-muted">Keluhan: ${d.keluhan || '-'}</small>
+                            <b class="text-dark font-size-15">${d.nama_layanan}</b><br>
+                            ${kategoriHtml} ${durasiHtml}
+                            ${keluhanHtml}
                         </td>
-                        <td class="text-right">Rp ${formatRp(d.total)}</td>
+                        <td class="text-right align-middle text-dark font-weight-bold">Rp ${formatRp(d.total)}</td>
                     </tr>
                 `;
             });
@@ -794,33 +814,68 @@ async function lihatDetail(id_booking) {
             document.getElementById('inv_ongkir').innerText = formatRp(b.tarif_ongkir);
             document.getElementById('inv_grandtotal').innerText = formatRp(b.grand_total);
             
-            // Logika Tab Pelunasan
+            // Matrix Visibilitas Tab
+            $('#div_batal_info').hide();
+            $('#navTabsBooking').show();
+            $('#tabContentBooking').show();
+            
+            $('#nav_item_invoice').show();
+            $('#nav_item_status').show();
+            $('#nav_item_reschedule').show();
+            $('#nav_item_bayar').hide();
+            $('#btnDownloadInvoice').hide();
+            
             const navBayar = document.getElementById('nav_item_bayar');
             const formBayar = document.getElementById('formPelunasan');
             const divLunas = document.getElementById('divLunasInfo');
             
-            if (b.status_booking === 'SELESAI') {
-                navBayar.style.display = 'block';
-                document.getElementById('bayar_id_booking').value = b.id_booking;
-                document.getElementById('bayar_nominal_asli').value = b.grand_total;
-                document.getElementById('bayar_tagihan').value = 'Rp ' + formatRp(b.grand_total);
+            if (b.status_booking === 'BATAL') {
+                $('#navTabsBooking').hide();
+                $('#tabContentBooking').hide();
+                $('#div_batal_info').show();
+                // Tampilkan tgl jika ada update_at, atau tgl_booking sbg fallback
+                $('#batal_timestamp').text(dateCreate.toLocaleString('id-ID'));
+            } else {
+                // Semua yang valid bisa download invoice/faktur
+                $('#btnDownloadInvoice').show().attr('onclick', `window.open('../../api/booking/cetak_invoice.php?id_booking=${b.id_booking}')`);
                 
                 if (b.is_lunas) {
-                    formBayar.style.display = 'none';
-                    divLunas.style.display = 'block';
-                    document.getElementById('lunas_tgl_teks').innerText = 'Tgl Bayar: ' + b.tanggal_bayar;
-                    document.getElementById('lunas_metode_teks').innerText = 'Metode: ' + b.metode_pembayaran;
-                    document.getElementById('inv_status').innerHTML += ' <span class="badge badge-success ml-1" style="font-size:14px;"><i class="mdi mdi-check-decagram"></i> LUNAS</span>';
+                    $('#inv_main_title').html('<i class="mdi mdi-check-decagram mr-2"></i> FAKTUR LUNAS').removeClass('text-danger text-warning').addClass('text-success');
+                    $('#btnDownloadInvoice').html('<i class="mdi mdi-file-pdf-outline mr-1"></i> Download Faktur Lunas (PDF)').removeClass('btn-outline-danger btn-danger').addClass('btn-success');
                 } else {
-                    formBayar.style.display = 'block';
-                    divLunas.style.display = 'none';
+                    $('#inv_main_title').html('<i class="mdi mdi-alert-circle-outline mr-2"></i> INVOICE TAGIHAN').removeClass('text-success text-warning').addClass('text-danger');
+                    $('#btnDownloadInvoice').html('<i class="mdi mdi-file-pdf-outline mr-1"></i> Download Invoice Tagihan (PDF)').removeClass('btn-outline-success btn-success').addClass('btn-danger');
                 }
-            } else {
-                navBayar.style.display = 'none';
+
+                if (b.status_booking === 'DIKONFIRMASI') {
+                    $('#nav_item_reschedule').hide();
+                } else if (b.status_booking === 'SELESAI') {
+                    $('#nav_item_status').hide();
+                    $('#nav_item_reschedule').hide();
+                    $('#nav_item_bayar').show();
+                    
+                    document.getElementById('bayar_id_booking').value = b.id_booking;
+                    document.getElementById('bayar_nominal_asli').value = b.grand_total;
+                    document.getElementById('bayar_tagihan').value = 'Rp ' + formatRp(b.grand_total);
+                    
+                    if (b.is_lunas) {
+                        formBayar.style.display = 'none';
+                        divLunas.style.display = 'block';
+                        document.getElementById('lunas_tgl_teks').innerText = 'Tgl Bayar: ' + b.tanggal_bayar;
+                        document.getElementById('lunas_metode_teks').innerText = 'Metode: ' + b.metode_pembayaran;
+                    } else {
+                        formBayar.style.display = 'block';
+                        divLunas.style.display = 'none';
+                    }
+                }
+                
                 if (b.is_lunas) {
-                     document.getElementById('inv_status').innerHTML += ' <span class="badge badge-success ml-1" style="font-size:14px;"><i class="mdi mdi-check-decagram"></i> LUNAS</span>';
+                    document.getElementById('inv_status').innerHTML += ' <span class="badge badge-success ml-1" style="font-size:14px;"><i class="mdi mdi-check-decagram"></i> LUNAS</span>';
                 }
             }
+            
+            // Selalu set tab pertama aktif secara default saat dibuka
+            $('#navTabsBooking a[href="#tab-inv-detail"]').tab('show');
             
             $('#modalDetailBooking').modal('show');
         } else {
