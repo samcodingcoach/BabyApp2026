@@ -26,6 +26,8 @@ $stmt = $koneksi->prepare("
         pembayaran.metode_pembayaran, 
         pembayaran.qris_transaction_id, 
         pembayaran.status_pembayaran, 
+        pembayaran.va_number,
+        pembayaran.qris_image,
         pembayaran.created_at as pembayaran_created_at, 
         member.nama, 
         member.alamat, 
@@ -56,6 +58,11 @@ $booking = $res->fetch_assoc();
 $stmt->close();
 
 $is_lunas = (!empty($booking['id_pembayaran']) && $booking['status_pembayaran'] === 'LUNAS');
+
+if (empty($booking['id_pembayaran'])) {
+    die("Transaksi ini belum memiliki tagihan pembayaran sehingga invoice tidak dapat dicetak.");
+}
+
 $title = $is_lunas ? 'FAKTUR LUNAS' : 'INVOICE TAGIHAN';
 
 // Ambil Profil Usaha
@@ -128,8 +135,8 @@ $pdf->SetTitle($title . ' - ' . $booking['kode_booking']);
 $pdf->SetSubject('Invoice');
 $pdf->SetKeywords('TCPDF, PDF, invoice, faktur');
 
-$pdf->SetMargins(15, 20, 15);
-$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+$pdf->SetMargins(5, 5, 5);
+$pdf->SetAutoPageBreak(TRUE, 5);
 $pdf->AddPage();
 
 $pdf->SetFont('helvetica', '', 10);
@@ -140,10 +147,18 @@ $jatuh_tempo = $is_lunas ? '-' : 'Hari ini';
 $created_at_date = $booking['pembayaran_created_at'] ? date('d M Y', strtotime($booking['pembayaran_created_at'])) : date('d M Y');
 
 $va_or_qris = '-';
-if ($booking['metode_pembayaran'] === 'QRIS') {
-    $va_or_qris = 'Gunakan Aplikasi Pembayaran yang mendukung QRIS';
-} else if ($booking['metode_pembayaran'] === 'VA') {
-    $va_or_qris = 'Cek email / riwayat VA'; // Default fallback, admin midtrans knows
+if (strpos(strtoupper($booking['metode_pembayaran']), 'QRIS') !== false) {
+    if (!empty($booking['qris_image'])) {
+        $va_or_qris = '<br><img src="'.$booking['qris_image'].'" width="80" height="80" /><br><span style="font-size:8px;">Scan dengan E-Wallet/M-Banking</span>';
+    } else {
+        $va_or_qris = 'Gunakan Aplikasi Pembayaran yang mendukung QRIS';
+    }
+} else if (strpos(strtoupper($booking['metode_pembayaran']), 'VA') !== false) {
+    if (!empty($booking['va_number'])) {
+        $va_or_qris = '<b>'.$booking['va_number'].'</b>';
+    } else {
+        $va_or_qris = 'Cek email / riwayat VA'; // Default fallback
+    }
 }
 
 // Title and Header (Kop)

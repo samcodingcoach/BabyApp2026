@@ -35,6 +35,8 @@ $stmt = $koneksi->prepare("
         pembayaran.metode_pembayaran, 
         pembayaran.qris_transaction_id, 
         pembayaran.status_pembayaran, 
+        pembayaran.va_number,
+        pembayaran.qris_image,
         pembayaran.created_at as pembayaran_created_at, 
         member.nama, 
         member.alamat, 

@@ -836,9 +836,6 @@ async function lihatDetail(id_booking) {
                 // Tampilkan tgl jika ada update_at, atau tgl_booking sbg fallback
                 $('#batal_timestamp').text(dateCreate.toLocaleString('id-ID'));
             } else {
-                // Semua yang valid bisa download invoice/faktur
-                $('#btnDownloadInvoice').show().attr('onclick', `window.open('../../api/booking/cetak_invoice.php?id_booking=${b.id_booking}')`);
-                
                 if (b.is_lunas) {
                     $('#inv_main_title').html('<i class="mdi mdi-check-decagram mr-2"></i> FAKTUR LUNAS').removeClass('text-danger text-warning').addClass('text-success');
                     $('#btnDownloadInvoice').html('<i class="mdi mdi-file-pdf-outline mr-1"></i> Download Faktur Lunas (PDF)').removeClass('btn-outline-danger btn-danger').addClass('btn-success');
@@ -867,6 +864,11 @@ async function lihatDetail(id_booking) {
                         formBayar.style.display = 'block';
                         divLunas.style.display = 'none';
                     }
+                }
+                
+                // Tampilkan tombol download HANYA JIKA ada data pembayaran (LUNAS atau BELUM_LUNAS)
+                if (b.id_pembayaran && (b.status_pembayaran === 'BELUM_LUNAS' || b.status_pembayaran === 'LUNAS')) {
+                    $('#btnDownloadInvoice').show().attr('onclick', `window.open('../../api/booking/cetak_invoice.php?id_booking=${b.id_booking}')`);
                 }
                 
                 if (b.is_lunas) {

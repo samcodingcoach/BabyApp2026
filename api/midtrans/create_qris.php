@@ -54,8 +54,8 @@ try {
     $status_pembayaran = 'BELUM_LUNAS';
     $tanggal_bayar = date('Y-m-d H:i:s');
     
-    $stmt = $koneksi->prepare("INSERT INTO pembayaran (id_booking, user_id, tanggal_bayar, kode_pembayaran, jumlah_bayar, metode_pembayaran, qris_transaction_id, status_pembayaran) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iissdsss", $id_booking, $user_id, $tanggal_bayar, $kode_pembayaran, $grossAmount, $metode_pembayaran, $qrisTransactionId, $status_pembayaran);
+    $stmt = $koneksi->prepare("INSERT INTO pembayaran (id_booking, user_id, tanggal_bayar, kode_pembayaran, jumlah_bayar, metode_pembayaran, qris_transaction_id, status_pembayaran, qris_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("iissdssss", $id_booking, $user_id, $tanggal_bayar, $kode_pembayaran, $grossAmount, $metode_pembayaran, $qrisTransactionId, $status_pembayaran, $qrisImageUrl);
     
     if (!$stmt->execute()) {
         throw new Exception("Gagal menyimpan data transaksi ke database lokal.");
