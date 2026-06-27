@@ -22,6 +22,11 @@
                             <a href="<?= $base_url ?>/booking/booking.php" class="waves-effect"><i class="feather-calendar"></i><span>Booking Transaksi</span></a>
                         </li>
 
+                        <li class="menu-title">Keuangan</li>
+                        <li>
+                            <a href="<?= $base_url ?>/komisi/komisi.php" class="waves-effect"><i class="feather-dollar-sign"></i><span>Komisi Terapis</span></a>
+                        </li>
+
                         <li class="menu-title">Master Data</li>
                         
                         <li>

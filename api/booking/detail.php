@@ -25,11 +25,13 @@ $stmt = $koneksi->prepare("
         b.id_booking, b.kode_booking, b.id_member, m.nama as nama_member, m.whatsapp as whatsapp_member, m.alamat as alamat_member,
         b.id_member_or_id_bayi, byi.nama_bayi,
         b.tanggal_booking, b.id_terapis, t.nama_terapis, 
-        b.status_booking, b.alamat_baru, b.whatsapp_baru, b.prioritas, b.catatan, b.created_at, b.tarif_ongkir
+        b.status_booking, b.alamat_baru, b.whatsapp_baru, b.prioritas, b.catatan, b.created_at, b.tarif_ongkir,
+        p.id_pembayaran, p.status_pembayaran, p.tanggal_bayar, p.metode_pembayaran
     FROM booking b
     LEFT JOIN member m ON b.id_member = m.id_member
     LEFT JOIN terapis t ON b.id_terapis = t.id_terapis
     LEFT JOIN bayi byi ON b.id_member_or_id_bayi = byi.id_bayi
+    LEFT JOIN pembayaran p ON b.id_booking = p.id_booking
     WHERE b.id_booking = ?
 ");
 $stmt->bind_param("i", $id_booking);
@@ -76,6 +78,7 @@ $grandTotal += (double)($booking['tarif_ongkir'] ?? 0);
 // Gabungkan response
 $booking['details'] = $details;
 $booking['grand_total'] = $grandTotal;
+$booking['is_lunas'] = (!empty($booking['id_pembayaran']) && $booking['status_pembayaran'] === 'LUNAS');
 
 $koneksi->close();
 

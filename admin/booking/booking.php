@@ -238,6 +238,9 @@ include '../includes/sidebar.php';
                     <li class="nav-item">
                         <a href="#tab-inv-reschedule" data-toggle="tab" class="nav-link">Reschedule Jadwal</a>
                     </li>
+                    <li class="nav-item" id="nav_item_bayar" style="display:none;">
+                        <a href="#tab-inv-bayar" data-toggle="tab" class="nav-link text-success font-weight-bold">Pelunasan</a>
+                    </li>
                 </ul>
 
                 <div class="tab-content">
@@ -332,6 +335,40 @@ include '../includes/sidebar.php';
                             </div>
                         </div>
                     </div>
+
+                    <!-- TAB PELUNASAN -->
+                    <div class="tab-pane" id="tab-inv-bayar">
+                        <form id="formPelunasan">
+                            <input type="hidden" id="bayar_id_booking" name="id_booking">
+                            <input type="hidden" id="bayar_nominal_asli" name="jumlah_bayar">
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label">Grand Total Tagihan</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control font-weight-bold text-danger" id="bayar_tagihan" readonly style="font-size: 20px; background:#fff;">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label">Metode Pembayaran</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" id="metode_pembayaran" name="metode_pembayaran" required>
+                                        <option value="Cash">Cash (Tunai)</option>
+                                        <option value="Transfer Bank">Transfer Bank</option>
+                                        <option value="QRIS">QRIS</option>
+                                        <option value="Debit / EDC">Debit / Mesin EDC</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-block font-weight-bold mt-4" id="btnSubmitBayar" style="font-size:16px; padding:10px;">Proses Pembayaran (LUNAS)</button>
+                        </form>
+                        
+                        <div id="divLunasInfo" style="display:none;" class="text-center p-4 border rounded bg-light">
+                            <i class="mdi mdi-check-circle text-success" style="font-size: 64px;"></i>
+                            <h3 class="text-success mt-3 font-weight-bold">TRANSAKSI TELAH LUNAS</h3>
+                            <h5 class="text-dark mt-2" id="lunas_tgl_teks"></h5>
+                            <h5 class="text-muted" id="lunas_metode_teks"></h5>
+                        </div>
+                    </div>
+
                 </div>
             </div>
             <div class="modal-footer">
@@ -733,6 +770,34 @@ async function lihatDetail(id_booking) {
             document.getElementById('inv_ongkir').innerText = formatRp(b.tarif_ongkir);
             document.getElementById('inv_grandtotal').innerText = formatRp(b.grand_total);
             
+            // Logika Tab Pelunasan
+            const navBayar = document.getElementById('nav_item_bayar');
+            const formBayar = document.getElementById('formPelunasan');
+            const divLunas = document.getElementById('divLunasInfo');
+            
+            if (b.status_booking === 'SELESAI') {
+                navBayar.style.display = 'block';
+                document.getElementById('bayar_id_booking').value = b.id_booking;
+                document.getElementById('bayar_nominal_asli').value = b.grand_total;
+                document.getElementById('bayar_tagihan').value = 'Rp ' + formatRp(b.grand_total);
+                
+                if (b.is_lunas) {
+                    formBayar.style.display = 'none';
+                    divLunas.style.display = 'block';
+                    document.getElementById('lunas_tgl_teks').innerText = 'Tgl Bayar: ' + b.tanggal_bayar;
+                    document.getElementById('lunas_metode_teks').innerText = 'Metode: ' + b.metode_pembayaran;
+                    document.getElementById('inv_status').innerHTML += ' <span class="badge badge-success ml-1" style="font-size:14px;"><i class="mdi mdi-check-decagram"></i> LUNAS</span>';
+                } else {
+                    formBayar.style.display = 'block';
+                    divLunas.style.display = 'none';
+                }
+            } else {
+                navBayar.style.display = 'none';
+                if (b.is_lunas) {
+                     document.getElementById('inv_status').innerHTML += ' <span class="badge badge-success ml-1" style="font-size:14px;"><i class="mdi mdi-check-decagram"></i> LUNAS</span>';
+                }
+            }
+            
             $('#modalDetailBooking').modal('show');
         } else {
             Swal.fire('Error', 'Gagal memuat detail nota.', 'error');
@@ -768,6 +833,39 @@ async function eksekusiUpdateStatus() {
         Swal.fire('Error', 'Kesalahan koneksi.', 'error');
     }
 }
+
+// ----------------------------------------------------
+// PROSES PELUNASAN
+// ----------------------------------------------------
+document.getElementById('formPelunasan').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnSubmitBayar');
+    btn.disabled = true;
+    btn.innerText = 'Memproses...';
+
+    const formData = new FormData(e.target);
+
+    try {
+        const res = await fetch('../../api/booking/bayar.php', {
+            method: 'POST',
+            body: formData
+        });
+        const json = await res.json();
+        
+        if (json.status === 'success') {
+            Swal.fire('Berhasil', json.message, 'success');
+            lihatDetail(document.getElementById('bayar_id_booking').value);
+            fetchList();
+        } else {
+            Swal.fire('Gagal', json.message, 'error');
+        }
+    } catch (error) {
+        Swal.fire('Error', 'Terjadi kesalahan pada sistem.', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Proses Pembayaran (LUNAS)';
+    }
+});
 
 async function eksekusiReschedule() {
     const id = document.getElementById('update_id_booking').value;
