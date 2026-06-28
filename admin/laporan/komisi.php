@@ -19,7 +19,7 @@ while($t = $q->fetch_assoc()){
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-flex align-items-center justify-content-between">
-            <h4 class="mb-0 font-size-18">Laporan Komisi & Kinerja Terapis</h4>
+            <h4 class="mb-0 font-size-18">Laporan Komisi Terapis</h4>
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item"><a href="javascript: void(0);">Laporan</a></li>
@@ -35,53 +35,55 @@ while($t = $q->fetch_assoc()){
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form id="formFilter" class="mb-4 bg-light p-3 border rounded">
+                <form id="formFilter" class="mb-4">
                     <div class="row align-items-end">
                         <div class="col-md-3">
-                            <label class="font-weight-bold">Tanggal Awal</label>
+                            <label>Tanggal Awal</label>
                             <input type="date" id="start_date" class="form-control" value="<?= date('Y-m-01') ?>" required>
                         </div>
                         <div class="col-md-3">
-                            <label class="font-weight-bold">Tanggal Akhir</label>
+                            <label>Tanggal Akhir</label>
                             <input type="date" id="end_date" class="form-control" value="<?= date('Y-m-t') ?>" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="font-weight-bold">Terapis (Opsional)</label>
-                            <select id="id_terapis" class="form-control custom-select">
+                            <label>Terapis (Opsional)</label>
+                            <select id="id_terapis" class="form-control">
                                 <option value="">- Semua Terapis -</option>
                                 <?= $terapis_options ?>
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <button type="submit" class="btn btn-info btn-block font-weight-bold"><i class="mdi mdi-filter"></i> Analisis</button>
+                            <button type="submit" class="btn btn-primary btn-block"><i class="mdi mdi-filter"></i> Filter</button>
                         </div>
                     </div>
                 </form>
 
                 <div class="row mb-4" id="summary_section" style="display:none;">
                     <div class="col-sm-6">
-                        <div class="p-3 bg-white border border-info rounded shadow-sm text-center">
-                            <h5 class="font-size-15 mb-2 text-muted text-uppercase">Terapis Terlibat</h5>
-                            <h2 class="text-info mb-0 font-weight-bold" id="summ_terapis">0</h2>
+                        <div class="p-3 bg-light border rounded">
+                            <h5 class="font-size-15 mb-1">Total Transaksi Komisi</h5>
+                            <h3 class="text-primary mb-0" id="summ_transaksi">0</h3>
                         </div>
                     </div>
                     <div class="col-sm-6">
-                        <div class="p-3 bg-white border border-warning rounded shadow-sm text-center">
-                            <h5 class="font-size-15 mb-2 text-muted text-uppercase">Total Pendapatan (Omset)</h5>
-                            <h2 class="text-warning mb-0 font-weight-bold" id="summ_omset">Rp 0</h2>
+                        <div class="p-3 bg-light border rounded">
+                            <h5 class="font-size-15 mb-1">Total Pencairan Komisi</h5>
+                            <h3 class="text-success mb-0" id="summ_komisi">Rp 0</h3>
                         </div>
                     </div>
                 </div>
 
                 <div class="table-responsive">
                     <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                        <thead class="bg-info text-white">
+                        <thead>
                             <tr>
                                 <th>No.</th>
+                                <th>Tanggal Dibuat</th>
+                                <th>Kode Pembayaran</th>
                                 <th>Nama Terapis</th>
-                                <th>Jumlah Layanan Selesai</th>
-                                <th>Total Omset (Rp)</th>
-                                <th>Estimasi Komisi (Misal: 30%)</th>
+                                <th>Status Pencairan</th>
+                                <th>Tgl Pencairan</th>
+                                <th class="text-right">Nominal Komisi (Rp)</th>
                             </tr>
                         </thead>
                         <tbody id="table_body">
@@ -120,26 +122,39 @@ async function loadData() {
     const terapis = $('#id_terapis').val();
     
     dtTable.clear().draw();
+    $('#table_body').html('<tr><td colspan="7" class="text-center">Loading...</td></tr>');
     
     try {
         const res = await fetch(`../../api/laporan/komisi.php?start_date=${sd}&end_date=${ed}&id_terapis=${terapis}`);
         const json = await res.json();
         
         if (json.status === 'success') {
-            $('#summ_terapis').text(json.summary.jumlah_terapis_aktif + ' Orang');
-            $('#summ_omset').text('Rp ' + formatRp(json.summary.grand_total_omset));
+            $('#summ_transaksi').text(json.summary.total_transaksi_komisi);
+            $('#summ_komisi').text('Rp ' + formatRp(json.summary.total_komisi));
             $('#summary_section').show();
             
             json.data.forEach((d, i) => {
-                // Menghitung persentase contoh 30% dari total omset
-                const komisi30 = d.total_omset * 0.3;
+                let createdObj = new Date(d.created_at.replace(' ', 'T'));
+                let createdRapi = createdObj.toLocaleString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace(/\./g, ':').replace(',', '');
                 
+                let cairRapi = '-';
+                if (d.tanggal_pencairan) {
+                    let cairObj = new Date(d.tanggal_pencairan.replace(' ', 'T'));
+                    cairRapi = cairObj.toLocaleString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace(/\./g, ':').replace(',', '');
+                }
+
+                let badgeStatus = d.status_pencairan === 'SUDAH_CAIR'
+                    ? `<span class="badge badge-success">SUDAH CAIR</span>`
+                    : `<span class="badge badge-secondary">${d.status_pencairan}</span>`;
+
                 dtTable.row.add([
                     i + 1,
-                    `<b class="text-dark font-size-16">${d.nama_terapis || 'Terapis Tidak Ditemukan'}</b>`,
-                    `<span class="badge badge-soft-info font-size-14">${d.total_transaksi} Transaksi Lunas</span>`,
-                    `<b class="text-primary font-size-15">${formatRp(d.total_omset)}</b>`,
-                    `<b class="text-warning font-size-15">${formatRp(komisi30)}</b> <br><small class="text-muted">(Dapat disesuaikan)</small>`
+                    createdRapi,
+                    d.kode_pembayaran || '-',
+                    d.nama_terapis || '-',
+                    badgeStatus,
+                    cairRapi,
+                    `<div class="text-right font-weight-bold">` + formatRp(d.nominal_komisi) + `</div>`
                 ]);
             });
             dtTable.draw();
