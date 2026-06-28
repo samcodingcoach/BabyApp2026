@@ -37,23 +37,26 @@ while($t = $q->fetch_assoc()){
             <div class="card-body">
                 <form id="formFilter" class="mb-4">
                     <div class="row align-items-end">
-                        <div class="col-md-3">
-                            <label>Tanggal Awal</label>
+                        <div class="col-md-2">
+                            <label class="font-weight-bold">Tanggal Awal</label>
                             <input type="date" id="start_date" class="form-control" value="<?= date('Y-m-01') ?>" required>
                         </div>
-                        <div class="col-md-3">
-                            <label>Tanggal Akhir</label>
+                        <div class="col-md-2">
+                            <label class="font-weight-bold">Tanggal Akhir</label>
                             <input type="date" id="end_date" class="form-control" value="<?= date('Y-m-t') ?>" required>
                         </div>
                         <div class="col-md-4">
-                            <label>Terapis (Opsional)</label>
-                            <select id="id_terapis" class="form-control">
+                            <label class="font-weight-bold">Terapis (Opsional)</label>
+                            <select id="id_terapis" class="form-control custom-select">
                                 <option value="">- Semua Terapis -</option>
                                 <?= $terapis_options ?>
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary btn-block"><i class="mdi mdi-filter"></i> Filter</button>
+                            <button type="submit" class="btn btn-primary btn-block font-weight-bold"><i class="mdi mdi-filter"></i> Filter</button>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" onclick="cetakLaporan()" class="btn btn-danger btn-block font-weight-bold"><i class="mdi mdi-printer"></i> Cetak</button>
                         </div>
                     </div>
                 </form>
@@ -158,5 +161,14 @@ async function loadData() {
     } catch(e) {
         Swal.fire('Error', 'Gagal memuat data laporan.', 'error');
     }
+}
+
+function cetakLaporan() {
+    const sd = $('#start_date').val();
+    const ed = $('#end_date').val();
+    const terapis = $('#id_terapis').val();
+    
+    // Buka tab baru untuk print
+    window.open(`cetak-omset.php?start_date=${sd}&end_date=${ed}&id_terapis=${terapis}`, '_blank');
 }
 </script>
