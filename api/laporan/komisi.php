@@ -21,49 +21,59 @@ if (!$start_date || !$end_date) {
     http_response_code(400); echo json_encode(['status' => 'error', 'message' => 'start_date dan end_date wajib diisi (YYYY-MM-DD)']); exit();
 }
 
-$where = "pembayaran.status_pembayaran = 'LUNAS' AND DATE(pembayaran.tanggal_bayar) >= ? AND DATE(pembayaran.tanggal_bayar) <= ?";
+$where = "DATE(komisi_terapis.created_at) >= ? AND DATE(komisi_terapis.created_at) <= ?";
 $params = [$start_date, $end_date];
 $types = "ss";
 
 if ($id_terapis) {
-    $where .= " AND terapis.id_terapis = ?";
+    $where .= " AND komisi_terapis.id_terapis = ?";
     $params[] = $id_terapis;
     $types .= "i";
 }
 
-// Grouping berdasarkan terapis untuk melihat komisi keseluruhan
 $sql = "
-    SELECT 
-        terapis.id_terapis,
-        terapis.nama_terapis,
-        COUNT(booking.id_booking) as total_transaksi,
-        SUM(pembayaran.jumlah_bayar) as total_omset
-    FROM booking
-    JOIN pembayaran ON booking.id_booking = pembayaran.id_booking
-    JOIN terapis ON booking.id_terapis = terapis.id_terapis
+    SELECT
+        komisi_terapis.id_komisi, 
+        komisi_terapis.id_booking, 
+        komisi_terapis.id_terapis, 
+        terapis.nama_terapis, 
+        komisi_terapis.nominal_komisi, 
+        komisi_terapis.status_pencairan, 
+        komisi_terapis.tanggal_pencairan, 
+        komisi_terapis.created_at, 
+        pembayaran.kode_pembayaran
+    FROM
+        komisi_terapis
+        INNER JOIN
+        terapis
+        ON 
+            komisi_terapis.id_terapis = terapis.id_terapis
+        INNER JOIN
+        booking
+        ON 
+            komisi_terapis.id_booking = booking.id_booking
+        INNER JOIN
+        pembayaran
+        ON 
+            booking.id_booking = pembayaran.id_booking
     WHERE $where
-    GROUP BY terapis.id_terapis, terapis.nama_terapis
-    ORDER BY total_omset DESC
+    ORDER BY komisi_terapis.created_at DESC
 ";
 
 $stmt = $koneksi->prepare($sql);
+if(!$stmt) {
+    echo json_encode(['status' => 'error', 'message' => $koneksi->error]); exit();
+}
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
 
 $data = [];
-$grand_total_omset = 0;
+$total_komisi = 0;
 
 while ($row = $result->fetch_assoc()) {
-    // Karena belum ada tabel atau kolom komisi khusus, kita kembalikan omset. 
-    // Persentase komisi bisa dihitung di frontend atau ditambahkan nanti.
-    $data[] = [
-        'id_terapis' => $row['id_terapis'],
-        'nama_terapis' => $row['nama_terapis'],
-        'total_transaksi' => (int)$row['total_transaksi'],
-        'total_omset' => (int)$row['total_omset']
-    ];
-    $grand_total_omset += (int)$row['total_omset'];
+    $data[] = $row;
+    $total_komisi += $row['nominal_komisi'];
 }
 
 echo json_encode([
@@ -72,8 +82,8 @@ echo json_encode([
         'start_date' => $start_date,
         'end_date' => $end_date,
         'id_terapis' => $id_terapis,
-        'jumlah_terapis_aktif' => count($data),
-        'grand_total_omset' => $grand_total_omset
+        'total_transaksi_komisi' => count($data),
+        'total_komisi' => $total_komisi
     ],
     'data' => $data
 ]);

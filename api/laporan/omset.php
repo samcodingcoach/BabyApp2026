@@ -21,7 +21,7 @@ if (!$start_date || !$end_date) {
     http_response_code(400); echo json_encode(['status' => 'error', 'message' => 'start_date dan end_date wajib diisi (YYYY-MM-DD)']); exit();
 }
 
-$where = "pembayaran.status_pembayaran = 'LUNAS' AND DATE(pembayaran.tanggal_bayar) >= ? AND DATE(pembayaran.tanggal_bayar) <= ?";
+$where = "DATE(pembayaran.tanggal_bayar) >= ? AND DATE(pembayaran.tanggal_bayar) <= ?";
 $params = [$start_date, $end_date];
 $types = "ss";
 
@@ -32,26 +32,34 @@ if ($id_terapis) {
 }
 
 $sql = "
-    SELECT 
-        booking.id_booking, 
-        booking.kode_booking, 
-        pembayaran.kode_pembayaran,
-        booking.tanggal_booking,
-        pembayaran.tanggal_bayar,
-        pembayaran.jumlah_bayar,
-        pembayaran.metode_pembayaran,
-        terapis.id_terapis,
-        terapis.nama_terapis,
-        member.nama as nama_pasien
-    FROM booking
-    JOIN pembayaran ON booking.id_booking = pembayaran.id_booking
-    LEFT JOIN terapis ON booking.id_terapis = terapis.id_terapis
-    LEFT JOIN member ON booking.id_member = member.id_member
+    SELECT
+        pembayaran.id_pembayaran, 
+        pembayaran.id_booking, 
+        pembayaran.tanggal_bayar, 
+        pembayaran.kode_pembayaran, 
+        pembayaran.jumlah_bayar, 
+        pembayaran.metode_pembayaran, 
+        pembayaran.status_pembayaran, 
+        booking.id_terapis, 
+        terapis.nama_terapis
+    FROM
+        pembayaran
+        INNER JOIN
+        booking
+        ON 
+            pembayaran.id_booking = booking.id_booking
+        INNER JOIN
+        terapis
+        ON 
+            booking.id_terapis = terapis.id_terapis
     WHERE $where
     ORDER BY pembayaran.tanggal_bayar DESC
 ";
 
 $stmt = $koneksi->prepare($sql);
+if(!$stmt) {
+    echo json_encode(['status' => 'error', 'message' => $koneksi->error]); exit();
+}
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -61,7 +69,7 @@ $total_omset = 0;
 
 while ($row = $result->fetch_assoc()) {
     $data[] = $row;
-    $total_omset += $row['jumlah_bayar']; // Atau grand_total, asumsikan pembayaran = grand_total jika lunas
+    $total_omset += $row['jumlah_bayar'];
 }
 
 echo json_encode([
