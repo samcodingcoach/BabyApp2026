@@ -24,7 +24,10 @@
 
                         <li class="menu-title">Keuangan</li>
                         <li>
-                            <a href="<?= $base_url ?>/komisi/komisi.php" class="waves-effect"><i class="feather-dollar-sign"></i><span>Komisi Terapis</span></a>
+                            <a href="<?= $base_url ?>/laporan/omset-layanan.php" class="waves-effect"><i class="feather-pie-chart"></i><span>Laporan Omset</span></a>
+                        </li>
+                        <li>
+                            <a href="<?= $base_url ?>/laporan/komisi.php" class="waves-effect"><i class="feather-dollar-sign"></i><span>Laporan Komisi</span></a>
                         </li>
 
                         <li class="menu-title">Master Data</li>
