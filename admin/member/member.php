@@ -57,13 +57,9 @@ include '../includes/sidebar.php';
                         <thead>
                             <tr>
                                 <th style="width: 5%; text-align: center;">No.</th>
-                                <th style="text-align: center;">Foto</th>
-                                <th>NIK</th>
                                 <th>Nama Lengkap</th>
                                 <th>L/P</th>
                                 <th>Kecamatan</th>
-                                <th>Whatsapp</th>
-                                <th>Status</th>
                                 <th style="width: 20%;">Aksi</th>
                             </tr>
                         </thead>
@@ -283,13 +279,9 @@ async function fetchList(page = 1) {
                 tbody.innerHTML += `
                     <tr>
                         <td class="text-center align-middle">${startIndex + index + 1}</td>
-                        <td class="text-center align-middle">${imgTag}</td>
-                        <td class="align-middle"><strong>${item.nik}</strong></td>
-                        <td class="align-middle">${item.nama}</td>
+                        <td class="align-middle"><strong>${item.nama}</strong></td>
                         <td class="align-middle">${getKelaminText(item.jenis_kelamin)}</td>
                         <td class="align-middle">${item.kecamatan || '-'}</td>
-                        <td class="align-middle">${item.whatsapp || '-'}</td>
-                        <td class="align-middle">${statusHtml}</td>
                         <td class="align-middle">
                             <button onclick="editData(${index})" class="btn btn-sm btn-info waves-effect waves-light mb-1"><i class="mdi mdi-pencil"></i> Edit</button>
                             <a href="../bayi/bayi.php?id_member=${item.id_member}" class="btn btn-sm btn-warning waves-effect waves-light mb-1 text-dark font-weight-bold"><i class="mdi mdi-account-child"></i> Data Anak</a>

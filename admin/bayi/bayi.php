@@ -64,13 +64,11 @@ include '../includes/sidebar.php';
                         <thead>
                             <tr>
                                 <th style="width: 5%; text-align: center;">No.</th>
-                                <th style="text-align: center;">Foto</th>
                                 <th>Nama Anak</th>
                                 <th>L/P</th>
                                 <th>Estimasi Usia</th>
                                 <th>B / T / LK</th>
                                 <th>Gol. Darah</th>
-                                <th>Alergi</th>
                                 <th style="width: 10%;">Aksi</th>
                             </tr>
                         </thead>
@@ -337,13 +335,11 @@ async function fetchList() {
                 tbody.innerHTML += `
                     <tr>
                         <td class="text-center align-middle">${index + 1}</td>
-                        <td class="text-center align-middle">${imgTag}</td>
                         <td class="align-middle"><strong>${item.nama_bayi}</strong><br><small class="text-muted">Anak ke-${item.anak_ke || '?'}</small></td>
                         <td class="align-middle">${getKelaminText(item.jenis_kelamin)}</td>
                         <td class="align-middle">${hitungUsia(item.tanggal_lahir)}</td>
                         <td class="align-middle">${strBtlk}</td>
                         <td class="align-middle"><span class="text-danger font-weight-bold">${item.golongan_darah || '-'}</span></td>
-                        <td class="align-middle"><small class="text-warning font-weight-bold">${item.alergi || '-'}</small></td>
                         <td class="align-middle">
                             <button onclick="editData(${index})" class="btn btn-sm btn-info waves-effect waves-light"><i class="mdi mdi-pencil"></i> Edit${statusInactive}</button>
                         </td>
