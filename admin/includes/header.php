@@ -26,6 +26,72 @@ if (isset($_SESSION['user_id'])) {
         $header_stmt->close();
     }
 }
+
+// ======== PROTEKSI HALAMAN BERDASARKAN MENU LEVEL ========
+if (isset($_SESSION['user_id'])) {
+    $current_role = $_SESSION['role_id'];
+    $current_path = ltrim(str_replace('/terapi/', '', $_SERVER['SCRIPT_NAME']), '/');
+
+    // Daftar halaman yang selalu boleh diakses tanpa cek menu_level (Whitelist)
+    $whitelist = [
+        'admin/index.php', 
+        'admin/profile-usaha/profile-usaha.php',
+    ];
+
+    // Superadmin (role 1) selalu bisa akses Manajemen Menu Level
+    if ($current_role == 1) {
+        $whitelist[] = 'admin/menu-level/menu-level.php';
+    }
+
+    $is_allowed = in_array($current_path, $whitelist);
+
+    if (!$is_allowed) {
+        // Cek menggunakan API (HTTP Request ke Endpoint)
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://";
+        $api_url = $protocol . $_SERVER['HTTP_HOST'] . "/terapi/api/menu-level/list.php?role_id=" . $current_role;
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $api_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Hindari hang terlalu lama
+        $response = curl_exec($ch);
+        curl_close($ch);
+        
+        if ($response) {
+            $api_data = json_decode($response, true);
+            if (isset($api_data['status']) && $api_data['status'] === 'success') {
+                foreach ($api_data['data'] as $menu) {
+                    // Hanya izinkan jika terdaftar DAN terlihat = 1 (atau izinkan jika memang secara logis butuh diakses walau sembunyi? User bilang 'sembunyi kok muncul', berarti harus diblokir juga)
+                    if ($menu['link'] === $current_path && isset($menu['terlihat']) && $menu['terlihat'] == 1) {
+                        $is_allowed = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!$is_allowed) {
+        echo "<!DOCTYPE html><html><head>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <script src='/terapi/admin/plugins/sweetalert2/sweetalert2.min.js'></script>
+        <link href='/terapi/admin/plugins/sweetalert2/sweetalert2.min.css' rel='stylesheet' type='text/css' />
+        <style>body { background-color: #f8f9fa; font-family: sans-serif; }</style>
+        </head><body><script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Akses Ditolak!',
+                text: 'Anda tidak memiliki hak akses untuk halaman ini.',
+                confirmButtonText: 'Kembali ke Dashboard',
+                allowOutsideClick: false
+            }).then(() => {
+                window.location.href = '/terapi/admin/index.php';
+            });
+        </script></body></html>";
+        exit();
+    }
+}
+// ======== END PROTEKSI ========
 ?>
 <!DOCTYPE html>
 <html lang="id">
