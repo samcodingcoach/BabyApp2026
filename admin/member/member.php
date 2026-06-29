@@ -99,79 +99,96 @@ include '../includes/sidebar.php';
             <form id="memberForm" onsubmit="saveData(event)">
                 <div class="modal-body">
                     <input type="hidden" name="id_member" id="id_member">
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Nomor Induk (NIK) *</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="nik" id="nik" placeholder="No KTP / ID" required>
+                    <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active font-weight-bold" data-toggle="tab" href="#tab-identitas" role="tab">Identitas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" data-toggle="tab" href="#tab-alamat" role="tab">Alamat</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" data-toggle="tab" href="#tab-lainnya" role="tab">Lainnya</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content p-3 text-muted">
+                        <!-- TAB 1: IDENTITAS -->
+                        <div class="tab-pane active" id="tab-identitas" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Nomor Induk (NIK) *</label>
+                                        <input type="text" class="form-control" name="nik" id="nik" placeholder="No KTP / ID" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Nama Lengkap *</label>
+                                        <input type="text" class="form-control" name="nama" id="nama" required>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Nama Lengkap *</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="nama" id="nama" required>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Jenis Kelamin</label>
-                                <div class="col-sm-8">
-                                    <select class="form-control select2" name="jenis_kelamin" id="jenis_kelamin" style="width: 100%;">
-                                        <option value="">-- Pilih --</option>
-                                        <option value="1">Laki-Laki</option>
-                                        <option value="0">Perempuan</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Alamat Domisili</label>
-                                <div class="col-sm-8">
-                                    <input type="hidden" name="alamat" id="alamat_hidden">
-                                    <div id="alamat_editor" style="height: 80px;"></div>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Kecamatan</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="kecamatan" id="kecamatan">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Jenis Kelamin</label>
+                                        <select class="form-control select2" name="jenis_kelamin" id="jenis_kelamin" style="width: 100%;">
+                                            <option value="">-- Pilih --</option>
+                                            <option value="1">Laki-Laki</option>
+                                            <option value="0">Perempuan</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Foto Profile</label>
+                                        <input type="file" class="dropify" name="photo" accept="image/jpeg, image/png, image/webp" data-height="100">
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Alamat (Titik GPS)</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="alamat_gps" id="alamat_gps" placeholder="Cth: Paste URL Maps">
+                        
+                        <!-- TAB 2: ALAMAT -->
+                        <div class="tab-pane" id="tab-alamat" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Alamat Lengkap</label>
+                                        <input type="hidden" name="alamat" id="alamat_hidden">
+                                        <div id="alamat_editor" style="height: 120px;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Domisili (Kecamatan)</label>
+                                        <input type="text" class="form-control" name="kecamatan" id="kecamatan">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Alamat (Titik GPS)</label>
+                                        <input type="text" class="form-control" name="alamat_gps" id="alamat_gps" placeholder="Cth: Paste URL Maps">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">No. Whatsapp</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="whatsapp_input" placeholder="08123..." data-toggle="input-mask" data-mask-format="0000-0000-00000">
-                                    <input type="hidden" name="whatsapp" id="whatsapp">
+                        </div>
+
+                        <!-- TAB 3: LAINNYA -->
+                        <div class="tab-pane" id="tab-lainnya" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>No. Whatsapp</label>
+                                        <input type="text" class="form-control" id="whatsapp_input" placeholder="08123..." data-toggle="input-mask" data-mask-format="0000-0000-00000">
+                                        <input type="hidden" name="whatsapp" id="whatsapp">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Password Akun</label>
+                                        <input type="password" class="form-control" name="password" id="password" placeholder="(Kosongi jika tidak diubah)">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Password Akun</label>
-                                <div class="col-sm-8">
-                                    <input type="password" class="form-control" name="password" id="password" placeholder="(Kosongi jika tidak ingin diubah)">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Status Member</label>
-                                <div class="col-sm-8">
-                                    <select class="form-control font-weight-bold select2" name="is_active" id="is_active" style="width: 100%;">
-                                        <option value="1">Aktif (Approved)</option>
-                                        <option value="0" class="text-danger">Belum Aktif / Blokir</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Foto Profile</label>
-                                <div class="col-sm-8">
-                                    <input type="file" class="dropify" name="photo" accept="image/jpeg, image/png, image/webp">
-                                    <small class="form-text text-muted">Akan direname otomatis sesuai NIK pendaftar.</small>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Status Member</label>
+                                        <select class="form-control font-weight-bold select2" name="is_active" id="is_active" style="width: 100%;">
+                                            <option value="1">Aktif (Approved)</option>
+                                            <option value="0" class="text-danger">Belum Aktif / Blokir</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -304,6 +321,9 @@ function showForm() {
     document.getElementById('id_member').value = '';
     document.getElementById('formTitle').innerText = 'Daftarkan Member Baru';
     
+    // Reset tab to default (Identitas)
+    $('.nav-tabs a[href="#tab-identitas"]').tab('show');
+    
     if($().select2) {
         $('#jenis_kelamin').val('').trigger('change');
         $('#is_active').val('1').trigger('change');
@@ -323,6 +343,10 @@ function hideForm() {
 
 function editData(index) {
     document.getElementById('formTitle').innerText = 'Edit Profil Member';
+    
+    // Reset tab to default (Identitas)
+    $('.nav-tabs a[href="#tab-identitas"]').tab('show');
+    
     const item = currentList[index];
     
     document.getElementById('id_member').value = item.id_member;
