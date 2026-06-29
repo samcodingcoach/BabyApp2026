@@ -57,6 +57,7 @@ include '../includes/sidebar.php';
                             <tr>
                                 <th style="width: 5%; text-align: center;">No.</th>
                                 <th>Role ID</th>
+                                <th>Kategori</th>
                                 <th>Nama Menu</th>
                                 <th>Link URL</th>
                                 <th>Visibilitas</th>
@@ -91,6 +92,18 @@ include '../includes/sidebar.php';
                         <label class="font-weight-bold">Role ID *</label>
                         <select class="form-control custom-select" name="role_id" id="role_id" required>
                             <option value="">-- Pilih Role --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold">Kategori Menu *</label>
+                        <select class="form-control custom-select" name="kategori_menu" id="kategori_menu" required>
+                            <option value="">-- Pilih Kategori --</option>
+                            <option value="Menu Utama">Menu Utama</option>
+                            <option value="Keuangan">Keuangan</option>
+                            <option value="Master Data">Master Data</option>
+                            <option value="Pengaturan">Pengaturan</option>
+                            <option value="Lainnya">Lainnya</option>
                         </select>
                     </div>
                     
@@ -201,6 +214,7 @@ async function fetchList() {
                     <tr>
                         <td class="text-center align-middle">${index + 1}</td>
                         <td class="align-middle">${getRoleName(item.role_id)}</td>
+                        <td class="align-middle"><span class="badge badge-soft-primary">${item.kategori_menu || '-'}</span></td>
                         <td class="align-middle font-weight-bold text-dark">${item.nama_menu}</td>
                         <td class="align-middle"><small class="text-muted">${item.link || '-'}</small></td>
                         <td class="align-middle">${statusHtml}</td>
@@ -243,6 +257,7 @@ function editData(index) {
     
     document.getElementById('id_levelmenu').value = item.id_levelmenu;
     document.getElementById('role_id').value = item.role_id;
+    document.getElementById('kategori_menu').value = item.kategori_menu || '';
     document.getElementById('nama_menu').value = item.nama_menu;
     document.getElementById('link').value = item.link || '';
     document.getElementById('terlihat').value = item.terlihat;
