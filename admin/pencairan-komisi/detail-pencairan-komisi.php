@@ -111,8 +111,7 @@ if (empty($kode_pencairan)) {
                                         <th style="width: 5%; text-align: center;">No.</th>
                                         <th>Terapis</th>
                                         <th>Booking</th>
-                                        <th>Tarif Transport</th>
-                                        <th>Nominal Cair</th>
+                                        <th>Nominal Komisi</th>
                                         <th style="width: 10%; text-align: center;">Aksi</th>
                                     </tr>
                                 </thead>
@@ -120,8 +119,16 @@ if (empty($kode_pencairan)) {
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colspan="4" class="text-right font-size-16">Total Komisi Cair:</th>
-                                        <th colspan="2" class="font-size-16 text-success" id="total_cair">Rp 0</th>
+                                        <th colspan="3" class="text-right font-size-15 text-muted">Subtotal Komisi:</th>
+                                        <th colspan="2" class="font-size-15 text-muted" id="subtotal_komisi">Rp 0</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="3" class="text-right font-size-15 text-muted">Biaya Admin:</th>
+                                        <th colspan="2" class="font-size-15 text-danger" id="row_biaya_admin">- Rp 0</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="3" class="text-right font-size-16">Total Komisi Cair (Bersih):</th>
+                                        <th colspan="2" class="font-size-16 text-success font-weight-bold" id="total_cair">Rp 0</th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -178,13 +185,11 @@ if (empty($kode_pencairan)) {
                                         <tr>
                                             <th style="width: 5%;"><input type="checkbox" id="checkAll"></th>
                                             <th>Kode Booking</th>
-                                            <th>Tarif Ongkir</th>
                                             <th>Komisi</th>
-                                            <th>Total</th>
                                         </tr>
                                     </thead>
                                     <tbody id="miniTableBody">
-                                        <tr><td colspan="5" class="text-center text-muted">Pilih terapis terlebih dahulu...</td></tr>
+                                        <tr><td colspan="3" class="text-center text-muted">Pilih terapis terlebih dahulu...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -221,6 +226,7 @@ let isClosed = false;
 let currentList = [];
 let dataTable = null;
 let allKomisiRaw = []; // To store komisi objects temporarily
+let biayaAdmin = 0; // Global store for admin fee
 
 window.onload = async () => {
     $('.select2').select2({ dropdownParent: $('#formModal') });
@@ -246,12 +252,15 @@ async function fetchInfoPencairan() {
             const data = result.data[0];
             idPencairan = data.id_pencarian;
             isClosed = (parseInt(data.isClosed) === 1);
+            biayaAdmin = parseFloat(data.biaya_admin) || 0;
             
             document.getElementById('info_kode').innerText = data.kode_pencairan;
             document.getElementById('info_bank').innerText = data.bank || '-';
             document.getElementById('info_tanggal').innerText = data.tanggal_transfer || '-';
-            document.getElementById('info_admin').innerText = formatRupiah(data.biaya_admin);
+            document.getElementById('info_admin').innerText = formatRupiah(biayaAdmin);
             document.getElementById('info_keterangan').innerText = data.keterangan || '-';
+            
+            document.getElementById('row_biaya_admin').innerText = '- ' + formatRupiah(biayaAdmin);
             
             if (isClosed) {
                 document.getElementById('info_status').innerHTML = '<span class="badge badge-soft-success"><i class="mdi mdi-check-circle"></i> Closed</span>';
@@ -300,14 +309,15 @@ async function fetchList() {
                         <td class="text-center align-middle">${index + 1}</td>
                         <td class="align-middle font-weight-bold">${item.nama_terapis} <br><small class="text-muted">${item.kode_terapis}</small></td>
                         <td class="align-middle"><a href="../booking/detail.php?id=${item.id_booking}" target="_blank" class="text-info">${item.kode_booking}</a></td>
-                        <td class="align-middle">${formatRupiah(item.tarif_ongkir)}</td>
                         <td class="align-middle text-right font-weight-bold text-success">${formatRupiah(item.nominal)}</td>
-                        <td class="align-middle">${actionHtml}</td>
+                        <td class="align-middle text-center">${actionHtml}</td>
                     </tr>
                 `;
             });
             
-            document.getElementById('total_cair').innerText = formatRupiah(total_cair);
+            document.getElementById('subtotal_komisi').innerText = formatRupiah(total_cair);
+            const totalBersih = total_cair - biayaAdmin;
+            document.getElementById('total_cair').innerText = formatRupiah(totalBersih);
         }
         
         dataTable = $('#datatable').DataTable({
@@ -401,7 +411,7 @@ function calculateTotal() {
 async function loadMiniTable(idTerapis, idBooking, tanggal) {
     if (!idTerapis) return;
     
-    $('#miniTableBody').html('<tr><td colspan="5" class="text-center"><i class="mdi mdi-spin mdi-loading"></i> Memuat...</td></tr>');
+    $('#miniTableBody').html('<tr><td colspan="3" class="text-center"><i class="mdi mdi-spin mdi-loading"></i> Memuat...</td></tr>');
     $('#nominal').val(0);
     $('#checkAll').prop('checked', false);
     allKomisiRaw = [];
@@ -418,20 +428,16 @@ async function loadMiniTable(idTerapis, idBooking, tanggal) {
             let html = '';
             
             if (jsonK.data.length === 0) {
-                html = '<tr><td colspan="5" class="text-center text-muted">Tidak ada komisi belum cair.</td></tr>';
+                html = '<tr><td colspan="3" class="text-center text-muted">Tidak ada komisi belum cair.</td></tr>';
             } else {
                 jsonK.data.forEach(k => {
-                    const ongkir = parseFloat(k.tarif_ongkir || 0);
                     const komisi = parseFloat(k.nominal_komisi || 0);
-                    const total = ongkir + komisi;
                     
                     html += `
                         <tr>
-                            <td class="text-center"><input type="checkbox" class="komisi-check" data-id="${k.id_komisi}" data-nominal="${total}"></td>
+                            <td class="text-center"><input type="checkbox" class="komisi-check" data-id="${k.id_komisi}" data-nominal="${komisi}"></td>
                             <td>${k.kode_booking || '-'}</td>
-                            <td class="text-right">${formatRupiah(ongkir)}</td>
-                            <td class="text-right text-primary">${formatRupiah(komisi)}</td>
-                            <td class="text-right font-weight-bold text-success">${formatRupiah(total)}</td>
+                            <td class="text-right font-weight-bold text-success">${formatRupiah(komisi)}</td>
                         </tr>
                     `;
                 });
@@ -439,7 +445,7 @@ async function loadMiniTable(idTerapis, idBooking, tanggal) {
             $('#miniTableBody').html(html);
         }
     } catch(e){
-        $('#miniTableBody').html('<tr><td colspan="5" class="text-center text-danger">Gagal memuat data</td></tr>');
+        $('#miniTableBody').html('<tr><td colspan="3" class="text-center text-danger">Gagal memuat data</td></tr>');
     }
 }
 
@@ -462,7 +468,7 @@ function showForm() {
     }
     
     $('#filter_tanggal').val('');
-    $('#miniTableBody').html('<tr><td colspan="5" class="text-center text-muted">Pilih terapis terlebih dahulu...</td></tr>');
+    $('#miniTableBody').html('<tr><td colspan="3" class="text-center text-muted">Pilih terapis terlebih dahulu...</td></tr>');
     
     document.getElementById('formTitle').innerText = 'Tambah Rincian Komisi';
     $('#formModal').modal('show');
