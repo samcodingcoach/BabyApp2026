@@ -256,8 +256,8 @@ function showForm() {
     document.getElementById('id_pencarian').value = '';
     $('#bank').val('').trigger('change');
     document.getElementById('formTitle').innerText = 'Buat Pencairan Komisi Baru';
-    document.getElementById('bukti').required = true;
-    document.getElementById('bukti_hint').classList.add('d-none');
+    document.getElementById('bukti').required = false; // TIDAK WAJIB saat membuat baru
+    document.getElementById('bukti_hint').classList.remove('d-none');
     
     // Reset dropify
     let drEvent = $('#bukti').dropify();
