@@ -96,7 +96,8 @@ if ($stmt->execute()) {
             'nominal' => $nominal
         ]
     ]);
-} else {
+} 
+else {
     echo json_encode(['status' => 'error', 'message' => 'Gagal menyimpan detail pencairan: ' . $stmt->error]);
 }
 
