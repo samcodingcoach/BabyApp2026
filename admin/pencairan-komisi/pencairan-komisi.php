@@ -64,7 +64,6 @@ include '../includes/sidebar.php';
                                 <th>Keterangan</th>
                                 <th>Bank</th>
                                 <th>Biaya Admin</th>
-                                <th>Download</th>
                                 <th>Status</th>
                                 <th style="width: 15%;">Aksi</th>
                             </tr>
@@ -213,18 +212,17 @@ async function fetchList() {
                     ? '<span class="badge badge-soft-success font-size-12"><i class="mdi mdi-check-circle"></i> Closed</span>' 
                     : '<span class="badge badge-soft-warning font-size-12"><i class="mdi mdi-clock-outline"></i> Open</span>';
                 
-                let actionHtml = `<a href="detail.php?kode=${item.kode_pencairan}" class="btn btn-sm btn-primary waves-effect waves-light mr-1" title="Lihat Rincian"><i class="mdi mdi-eye"></i> Detail</a>`;
+                let actionHtml = `<a href="detail-pencairan-komisi.php?kode=${item.kode_pencairan}" class="btn btn-sm btn-primary waves-effect waves-light mr-1 mb-1" title="Lihat Rincian"><i class="mdi mdi-eye"></i> Detail</a>`;
                 
-                if (!isClosed) {
-                    actionHtml += `
-                        <button onclick="editData(${index})" class="btn btn-sm btn-info waves-effect waves-light mr-1" title="Edit"><i class="mdi mdi-pencil"></i></button>
-                        <button onclick="deleteData(${item.id_pencarian})" class="btn btn-sm btn-danger waves-effect waves-light" title="Hapus"><i class="mdi mdi-trash-can"></i></button>
-                    `;
+                if (item.bukti) {
+                    actionHtml += `<a href="../../images/pencairan/${item.bukti}" target="_blank" class="btn btn-sm btn-success waves-effect waves-light mr-1 mb-1" title="Lihat Bukti"><i class="mdi mdi-download"></i> Bukti</a>`;
                 }
 
-                let buktiHtml = '-';
-                if (item.bukti) {
-                    buktiHtml = `<a href="../../images/pencairan/${item.bukti}" target="_blank" class="btn btn-sm btn-success waves-effect waves-light"><i class="mdi mdi-download"></i> Bukti</a>`;
+                if (!isClosed) {
+                    actionHtml += `
+                        <button onclick="editData(${index})" class="btn btn-sm btn-info waves-effect waves-light mr-1 mb-1" title="Edit"><i class="mdi mdi-pencil"></i></button>
+                        <button onclick="deleteData(${item.id_pencarian})" class="btn btn-sm btn-danger waves-effect waves-light mb-1" title="Hapus"><i class="mdi mdi-trash-can"></i></button>
+                    `;
                 }
                 
                 tbody.innerHTML += `
@@ -232,10 +230,8 @@ async function fetchList() {
                         <td class="text-center align-middle">${index + 1}</td>
                         <td class="align-middle font-weight-bold text-primary">${item.kode_pencairan}</td>
                         <td class="align-middle">${item.keterangan || '-'}</td>
-                       
                         <td class="align-middle">${item.bank || '-'}</td>
                         <td class="align-middle text-right">${formatRupiah(item.biaya_admin)}</td>
-                        <td class="align-middle">${buktiHtml}</td>
                         <td class="align-middle">${statusHtml}</td>
                         <td class="align-middle">${actionHtml}</td>
                     </tr>

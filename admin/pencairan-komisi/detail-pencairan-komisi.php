@@ -1,0 +1,566 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../../login-admin.php");
+    exit();
+}
+include '../includes/header.php';
+include '../includes/sidebar.php';
+
+$kode_pencairan = $_GET['kode'] ?? '';
+if (empty($kode_pencairan)) {
+    echo "<script>alert('Kode pencairan tidak valid'); window.location='pencairan-komisi.php';</script>";
+    exit();
+}
+?>
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 font-size-18">Rincian Komisi - <?= htmlspecialchars($kode_pencairan) ?></h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="pencairan-komisi.php">Pencairan Komisi</a></li>
+                    <li class="breadcrumb-item active">Rincian</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs nav-tabs-custom nav-justified mb-3" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active font-weight-bold" data-toggle="tab" href="#tab-info" role="tab">
+                            <span class="d-block d-sm-none"><i class="fas fa-info-circle"></i></span>
+                            <span class="d-none d-sm-block"><i class="mdi mdi-information-outline mr-1"></i> Informasi Transaksi</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold" data-toggle="tab" href="#tab-rincian" role="tab">
+                            <span class="d-block d-sm-none"><i class="fas fa-list"></i></span>
+                            <span class="d-none d-sm-block"><i class="mdi mdi-format-list-bulleted mr-1"></i> Daftar Rincian Komisi</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    
+                    <!-- TAB 1: Informasi Transaksi -->
+                    <div class="tab-pane active p-3" id="tab-info" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-borderless table-sm mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" style="width: 35%;" class="text-muted">Kode Pencairan</th>
+                                            <td>: <strong class="text-primary font-size-15" id="info_kode">...</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="text-muted">Status</th>
+                                            <td>: <span id="info_status">...</span></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="text-muted">Bank Tujuan</th>
+                                            <td>: <span class="font-weight-bold" id="info_bank">...</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-borderless table-sm mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" style="width: 35%;" class="text-muted">Tanggal Transfer</th>
+                                            <td>: <span class="font-weight-bold" id="info_tanggal">...</span></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="text-muted">Biaya Admin</th>
+                                            <td>: <span id="info_admin" class="font-weight-bold text-danger">...</span></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" class="text-muted">Keterangan</th>
+                                            <td>: <span id="info_keterangan" class="font-italic">...</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- TAB 2: Daftar Rincian Komisi -->
+                    <div class="tab-pane p-3" id="tab-rincian" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="card-title mb-0">Data Komisi</h4>
+                            <button id="btnTambahRincian" onclick="showForm()" class="btn btn-success waves-effect waves-light font-weight-bold d-none">
+                                <i class="mdi mdi-plus mr-1"></i> Tambah Rincian
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th style="width: 5%; text-align: center;">No.</th>
+                                        <th>Terapis</th>
+                                        <th>Booking</th>
+                                        <th>Tarif Transport</th>
+                                        <th>Nominal Cair</th>
+                                        <th style="width: 10%; text-align: center;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="4" class="text-right font-size-16">Total Komisi Cair:</th>
+                                        <th colspan="2" class="font-size-16 text-success" id="total_cair">Rp 0</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Form Detail Pencairan -->
+<div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formTitle">Tambah Rincian Komisi</h5>
+                <button type="button" class="close waves-effect waves-light" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="detailForm" onsubmit="saveData(event)">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="id_detail_pencairan" id="id_detail_pencairan">
+                    <input type="hidden" name="id_pencarian" id="form_id_pencarian">
+                    
+                    <div id="insertGroup">
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="font-weight-bold">Terapis *</label>
+                                <select class="form-control select2" id="sel_terapis" style="width: 100%;" required>
+                                    <option value="">-- Cari Terapis --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="font-weight-bold">Tanggal Booking</label>
+                                <input type="date" class="form-control" id="filter_tanggal">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Booking (Selesai)</label>
+                            <select class="form-control select2" id="sel_booking" style="width: 100%;" disabled>
+                                <option value="">-- Semua Booking Selesai --</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold">Pilih Komisi Belum Cair *</label>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th style="width: 5%;"><input type="checkbox" id="checkAll"></th>
+                                            <th>Kode Booking</th>
+                                            <th>Tarif Ongkir</th>
+                                            <th>Komisi</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="miniTableBody">
+                                        <tr><td colspan="5" class="text-center text-muted">Pilih terapis terlebih dahulu...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-0" id="nominalGroup" class="d-none">
+                        <label class="font-weight-bold">Nominal Pencairan *</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text font-weight-bold">Rp</span>
+                            </div>
+                            <input type="text" class="form-control font-weight-bold text-success font-size-16" name="nominal" id="nominal" value="0" readonly>
+                        </div>
+                        <small class="text-muted" id="nominalHint">Total nominal dari komisi yang dipilih.</small>
+                    </div>
+                    
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary waves-effect waves-light font-weight-bold" data-dismiss="modal">Batal</button>
+                    <button type="submit" id="btnSubmit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Rincian</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php include '../includes/footer.php'; ?>
+
+<script>
+const KODE_PENCAIRAN = '<?= htmlspecialchars($kode_pencairan) ?>';
+let idPencairan = null;
+let isClosed = false;
+let currentList = [];
+let dataTable = null;
+let allKomisiRaw = []; // To store komisi objects temporarily
+
+window.onload = async () => {
+    $('.select2').select2({ dropdownParent: $('#formModal') });
+    
+    await fetchInfoPencairan();
+    if (idPencairan) {
+        document.getElementById('form_id_pencarian').value = idPencairan;
+        fetchList();
+        setupSelect2Cascade();
+    }
+};
+
+function formatRupiah(angka) {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+}
+
+// 1. Fetch info pencairan dari list.php
+async function fetchInfoPencairan() {
+    try {
+        const response = await fetch(`../../api/pencairan-komisi/list.php?kode_pencairan=${KODE_PENCAIRAN}&_t=${Date.now()}`);
+        const result = await response.json();
+        if (result.status === 'success' && result.data.length > 0) {
+            const data = result.data[0];
+            idPencairan = data.id_pencarian;
+            isClosed = (parseInt(data.isClosed) === 1);
+            
+            document.getElementById('info_kode').innerText = data.kode_pencairan;
+            document.getElementById('info_bank').innerText = data.bank || '-';
+            document.getElementById('info_tanggal').innerText = data.tanggal_transfer || '-';
+            document.getElementById('info_admin').innerText = formatRupiah(data.biaya_admin);
+            document.getElementById('info_keterangan').innerText = data.keterangan || '-';
+            
+            if (isClosed) {
+                document.getElementById('info_status').innerHTML = '<span class="badge badge-soft-success"><i class="mdi mdi-check-circle"></i> Closed</span>';
+                document.getElementById('btnTambahRincian').classList.add('d-none'); // Hide tambah button
+            } else {
+                document.getElementById('info_status').innerHTML = '<span class="badge badge-soft-warning"><i class="mdi mdi-clock-outline"></i> Open</span>';
+                document.getElementById('btnTambahRincian').classList.remove('d-none'); // Show tambah button
+            }
+        } else {
+            Swal.fire('Error', 'Data pencairan tidak ditemukan', 'error').then(() => {
+                window.location = 'pencairan-komisi.php';
+            });
+        }
+    } catch (e) {
+        console.error(e);
+        Swal.fire('Error', 'Gagal memuat informasi', 'error');
+    }
+}
+
+// 2. Fetch list detail komisi
+async function fetchList() {
+    try {
+        const response = await fetch(`../../api/pencairan-komisi/detail-komisi.php?kode_pencairan=${KODE_PENCAIRAN}&_t=${Date.now()}`);
+        const result = await response.json();
+        
+        if (dataTable) dataTable.destroy();
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        
+        if (result.status === 'success') {
+            currentList = result.data;
+            let total_cair = 0;
+            
+            currentList.forEach((item, index) => {
+                total_cair += parseFloat(item.nominal);
+                let actionHtml = '-';
+                
+                if (!isClosed) {
+                    actionHtml = `
+                        <button onclick="deleteData(${item.id_pencarian}, ${item.id_komisi})" class="btn btn-sm btn-danger waves-effect waves-light" title="Hapus"><i class="mdi mdi-trash-can"></i></button>
+                    `;
+                }
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="text-center align-middle">${index + 1}</td>
+                        <td class="align-middle font-weight-bold">${item.nama_terapis} <br><small class="text-muted">${item.kode_terapis}</small></td>
+                        <td class="align-middle"><a href="../booking/detail.php?id=${item.id_booking}" target="_blank" class="text-info">${item.kode_booking}</a></td>
+                        <td class="align-middle">${formatRupiah(item.tarif_ongkir)}</td>
+                        <td class="align-middle text-right font-weight-bold text-success">${formatRupiah(item.nominal)}</td>
+                        <td class="align-middle">${actionHtml}</td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('total_cair').innerText = formatRupiah(total_cair);
+        }
+        
+        dataTable = $('#datatable').DataTable({
+            language: { emptyTable: "Belum ada rincian pencairan." }
+        });
+        
+    } catch (error) {
+        console.error(error);
+        Swal.fire('Error', 'Terjadi gangguan koneksi ke server.', 'error');
+    }
+}
+
+// 3. Cascade Select2 Logic
+async function setupSelect2Cascade() {
+    // 3a. Load Terapis
+    try {
+        const resT = await fetch('../../api/terapis/list.php');
+        const jsonT = await resT.json();
+        if(jsonT.status === 'success') {
+            let html = '<option value="">-- Cari Terapis --</option>';
+            jsonT.data.forEach(t => {
+                html += `<option value="${t.id_terapis}">${t.nama_terapis} (${t.kode_terapis})</option>`;
+            });
+            $('#sel_terapis').html(html);
+        }
+    } catch(e) {}
+
+    // 3b. On Terapis Change -> Load Booking (SELESAI)
+    $('#sel_terapis').on('change', async function() {
+        const idTerapis = $(this).val();
+        $('#sel_booking').html('<option value="">-- Pilih Booking --</option>').prop('disabled', true);
+        $('#sel_komisi').html('<option value="">-- Pilih Komisi --</option>').prop('disabled', true);
+        $('#nominal').val(0);
+        
+        if(idTerapis) {
+            try {
+                let url = `../../api/booking/list.php?status_booking=SELESAI&id_terapis=${idTerapis}`;
+                const tgl = $('#filter_tanggal').val();
+                if (tgl) url += `&tanggal_awal=${tgl}&tanggal_akhir=${tgl}`;
+                
+                const resB = await fetch(url);
+                const jsonB = await resB.json();
+                if(jsonB.status === 'success') {
+                    let html = '<option value="">-- Semua Booking Selesai --</option>';
+                    jsonB.data.forEach(b => {
+                        html += `<option value="${b.id_booking}">${b.kode_booking} - ${b.nama_member || 'Guest'}</option>`;
+                    });
+                    $('#sel_booking').html(html).prop('disabled', false);
+                }
+                
+                loadMiniTable(idTerapis, $('#sel_booking').val(), tgl);
+            } catch(e){}
+        }
+    });
+
+    $('#filter_tanggal').on('change', function() {
+        $('#sel_terapis').trigger('change');
+    });
+
+    // 3c. On Booking Change -> Load Komisi (BELUM_CAIR)
+    $('#sel_booking').on('change', function() {
+        const idTerapis = $('#sel_terapis').val();
+        const tgl = $('#filter_tanggal').val();
+        loadMiniTable(idTerapis, $(this).val(), tgl);
+    });
+
+    // CheckAll logic
+    $('#checkAll').on('change', function() {
+        $('.komisi-check').prop('checked', $(this).prop('checked'));
+        calculateTotal();
+    });
+
+    $(document).on('change', '.komisi-check', function() {
+        if (!$(this).prop('checked')) {
+            $('#checkAll').prop('checked', false);
+        } else if ($('.komisi-check:checked').length === $('.komisi-check').length) {
+            $('#checkAll').prop('checked', true);
+        }
+        calculateTotal();
+    });
+}
+
+function calculateTotal() {
+    let total = 0;
+    $('.komisi-check:checked').each(function() {
+        total += parseFloat($(this).data('nominal'));
+    });
+    $('#nominal').val(new Intl.NumberFormat('id-ID').format(total));
+}
+
+async function loadMiniTable(idTerapis, idBooking, tanggal) {
+    if (!idTerapis) return;
+    
+    $('#miniTableBody').html('<tr><td colspan="5" class="text-center"><i class="mdi mdi-spin mdi-loading"></i> Memuat...</td></tr>');
+    $('#nominal').val(0);
+    $('#checkAll').prop('checked', false);
+    allKomisiRaw = [];
+    
+    let url = `../../api/komisi/list.php?status_pencairan=BELUM_CAIR&id_terapis=${idTerapis}`;
+    if (idBooking) url += `&id_booking=${idBooking}`;
+    if (tanggal) url += `&tanggal=${tanggal}`;
+    
+    try {
+        const resK = await fetch(url);
+        const jsonK = await resK.json();
+        if(jsonK.status === 'success') {
+            allKomisiRaw = jsonK.data;
+            let html = '';
+            
+            if (jsonK.data.length === 0) {
+                html = '<tr><td colspan="5" class="text-center text-muted">Tidak ada komisi belum cair.</td></tr>';
+            } else {
+                jsonK.data.forEach(k => {
+                    const ongkir = parseFloat(k.tarif_ongkir || 0);
+                    const komisi = parseFloat(k.nominal_komisi || 0);
+                    const total = ongkir + komisi;
+                    
+                    html += `
+                        <tr>
+                            <td class="text-center"><input type="checkbox" class="komisi-check" data-id="${k.id_komisi}" data-nominal="${total}"></td>
+                            <td>${k.kode_booking || '-'}</td>
+                            <td class="text-right">${formatRupiah(ongkir)}</td>
+                            <td class="text-right text-primary">${formatRupiah(komisi)}</td>
+                            <td class="text-right font-weight-bold text-success">${formatRupiah(total)}</td>
+                        </tr>
+                    `;
+                });
+            }
+            $('#miniTableBody').html(html);
+        }
+    } catch(e){
+        $('#miniTableBody').html('<tr><td colspan="5" class="text-center text-danger">Gagal memuat data</td></tr>');
+    }
+}
+
+function showForm() {
+    if(isClosed) return;
+    document.getElementById('detailForm').reset();
+    document.getElementById('id_detail_pencairan').value = '';
+    
+    // Show select group
+    document.getElementById('insertGroup').classList.remove('d-none');
+    
+    // Jika transaksi sudah memiliki rincian komisi, kunci pilihan terapis ke terapis tersebut
+    if (currentList && currentList.length > 0) {
+        const lockedIdTerapis = currentList[0].id_terapis;
+        $('#sel_terapis').val(lockedIdTerapis).trigger('change');
+        $('#sel_terapis').prop('disabled', true);
+    } else {
+        $('#sel_terapis').val('').trigger('change');
+        $('#sel_terapis').prop('disabled', false);
+    }
+    
+    $('#filter_tanggal').val('');
+    $('#miniTableBody').html('<tr><td colspan="5" class="text-center text-muted">Pilih terapis terlebih dahulu...</td></tr>');
+    
+    document.getElementById('formTitle').innerText = 'Tambah Rincian Komisi';
+    $('#formModal').modal('show');
+}
+
+async function saveData(e) {
+    e.preventDefault();
+    
+    // Multi-insert mode
+    const checkedBoxes = $('.komisi-check:checked');
+    if (checkedBoxes.length === 0) {
+        Swal.fire('Peringatan', 'Silakan centang minimal 1 komisi untuk ditambahkan.', 'warning');
+        return;
+    }
+    
+    const btn = document.getElementById('btnSubmit');
+    const oriText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="mdi mdi-spin mdi-loading"></i> Menyimpan...';
+    
+    try {
+        const promises = [];
+        checkedBoxes.each(function() {
+            const idKomisi = $(this).data('id');
+            const nominal = $(this).data('nominal');
+            
+            const fd = new FormData();
+            fd.append('id_pencarian', idPencairan);
+            fd.append('id_komisi', idKomisi);
+            fd.append('nominal', nominal);
+            
+            promises.push(fetch('../../api/pencairan-komisi/save-detail.php', {
+                method: 'POST',
+                body: fd
+            }).then(r => r.json()));
+        });
+        
+        const results = await Promise.all(promises);
+        const allSuccess = results.every(r => r.status === 'success');
+        
+        if (allSuccess) {
+            $('#formModal').modal('hide');
+            Swal.fire('Berhasil!', 'Semua rincian komisi berhasil ditambahkan.', 'success');
+            fetchList();
+        } else {
+            Swal.fire('Info', 'Beberapa komisi mungkin gagal disimpan. Silakan periksa kembali.', 'info');
+            fetchList();
+        }
+    } catch (error) {
+        Swal.fire('Error', 'Gangguan koneksi ke server', 'error');
+    }
+    
+    btn.disabled = false;
+    btn.innerHTML = oriText;
+}
+
+function deleteData(id_pencarian, id_komisi) {
+    if(isClosed) return;
+    
+    Swal.fire({
+        title: 'Apakah Anda Yakin?',
+        text: "Rincian komisi ini akan dihapus dari transaksi pencairan!",
+        type: 'warning',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    }).then(async (result) => {
+        if (result.isConfirmed || result.value) {
+            try {
+                const formData = new FormData();
+                formData.append('id_pencarian', id_pencarian);
+                formData.append('id_komisi', id_komisi);
+                
+                const response = await fetch('../../api/pencairan-komisi/delete-detail.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) throw new Error('HTTP status ' + response.status);
+                
+                const res = await response.json();
+                
+                if (res.status === 'success') {
+                    // Berhasil dihapus, cukup refresh tabel tanpa notif sukses tambahan
+                    fetchList();
+                } else {
+                    Swal.fire('Gagal', res.message, 'error');
+                }
+            } catch (err) {
+                logDebug("Caught exception: " + err.message);
+                Swal.fire('Error', 'Terjadi kesalahan sistem: ' + err.message, 'error');
+            }
+        }
+    }).catch(err => {
+        logDebug("SweetAlert exception: " + err.message);
+    });
+}
+</script>

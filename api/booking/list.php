@@ -17,6 +17,7 @@ $id_booking = $_GET['id_booking'] ?? null;
 $kode_booking = $_GET['kode_booking'] ?? null;
 $id_member = $_GET['id_member'] ?? null;
 $status_booking = $_GET['status_booking'] ?? null;
+$id_terapis = $_GET['id_terapis'] ?? null;
 $tanggal_awal = $_GET['tanggal_awal'] ?? null;
 $tanggal_akhir = $_GET['tanggal_akhir'] ?? null;
 
@@ -47,6 +48,7 @@ if (!empty($id_booking)) { $query .= " AND b.id_booking = ?"; $types .= "i"; $pa
 if (!empty($kode_booking)) { $query .= " AND b.kode_booking = ?"; $types .= "s"; $params[] = $kode_booking; }
 if (!empty($id_member)) { $query .= " AND b.id_member = ?"; $types .= "i"; $params[] = $id_member; }
 if (!empty($status_booking)) { $query .= " AND b.status_booking = ?"; $types .= "s"; $params[] = $status_booking; }
+if (!empty($id_terapis)) { $query .= " AND b.id_terapis = ?"; $types .= "i"; $params[] = $id_terapis; }
 
 if (!empty($tanggal_awal) && !empty($tanggal_akhir)) {
     $query .= " AND DATE(b.tanggal_booking) BETWEEN ? AND ?";

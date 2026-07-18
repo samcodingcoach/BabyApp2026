@@ -38,6 +38,7 @@ $query = "
         pencairan_detail.nominal, 
         pencairan_detail.created_at, 
         pencairan_detail.update_at,
+        terapis.id_terapis,
         terapis.kode_terapis,
         terapis.nama_terapis
     FROM
