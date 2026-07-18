@@ -223,6 +223,8 @@ async function fetchList() {
                         <button onclick="editData(${index})" class="btn btn-sm btn-info waves-effect waves-light mr-1 mb-1" title="Edit"><i class="mdi mdi-pencil"></i></button>
                         <button onclick="deleteData(${item.id_pencarian})" class="btn btn-sm btn-danger waves-effect waves-light mb-1" title="Hapus"><i class="mdi mdi-trash-can"></i></button>
                     `;
+                } else {
+                    actionHtml += `<a href="print.php?kode=${item.kode_pencairan}" target="_blank" class="btn btn-sm btn-dark waves-effect waves-light mr-1 mb-1" title="Cetak Struk / Invoice"><i class="mdi mdi-printer"></i> Cetak</a>`;
                 }
                 
                 tbody.innerHTML += `
