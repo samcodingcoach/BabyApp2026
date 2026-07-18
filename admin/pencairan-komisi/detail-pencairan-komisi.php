@@ -48,6 +48,12 @@ if (empty($kode_pencairan)) {
                             <span class="d-none d-sm-block"><i class="mdi mdi-format-list-bulleted mr-1"></i> Daftar Rincian Komisi</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold" data-toggle="tab" href="#tab-bukti" role="tab">
+                            <span class="d-block d-sm-none"><i class="fas fa-file-invoice"></i></span>
+                            <span class="d-none d-sm-block"><i class="mdi mdi-receipt mr-1"></i> Bukti Transfer & Closing</span>
+                        </a>
+                    </li>
                 </ul>
 
                 <!-- Tab panes -->
@@ -132,6 +138,34 @@ if (empty($kode_pencairan)) {
                                     </tr>
                                 </tfoot>
                             </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: Bukti Transfer -->
+                    <div class="tab-pane p-3" id="tab-bukti" role="tabpanel">
+                        <div id="buktiContainer">
+                            <!-- Bukti View (if closed) -->
+                            <div id="buktiView" class="d-none text-center">
+                                <h5 class="text-success mb-3"><i class="mdi mdi-check-circle"></i> Transaksi Sudah Di-Closing</h5>
+                                <div id="buktiImageContainer" class="mb-3"></div>
+                                <a id="btnDownloadBukti" href="#" target="_blank" class="btn btn-primary"><i class="mdi mdi-download"></i> Unduh Bukti Transfer</a>
+                            </div>
+
+                            <!-- Bukti Form (if not closed) -->
+                            <div id="buktiFormContainer" class="d-none">
+                                <div class="alert alert-warning font-weight-bold">
+                                    <i class="mdi mdi-alert mr-1"></i> Perhatian! Mengunggah bukti transfer akan melakukan CLOSING pada transaksi ini. Data rincian komisi tidak akan bisa diubah lagi.
+                                </div>
+                                <form id="closingForm" onsubmit="submitClosing(event)">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">Upload Bukti Transfer <span class="text-danger">*</span> <small class="text-muted">(JPG, PNG, PDF | Maks 2MB)</small></label>
+                                        <input type="file" class="dropify" name="bukti" id="buktiClosing" accept=".jpg,.jpeg,.png,.pdf" data-height="200" required>
+                                    </div>
+                                    <div class="text-right mt-4">
+                                        <button type="submit" id="btnSubmitClosing" class="btn btn-success waves-effect waves-light font-weight-bold"><i class="mdi mdi-check-all mr-1"></i> Simpan & Closing Transaksi</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
 
@@ -265,9 +299,37 @@ async function fetchInfoPencairan() {
             if (isClosed) {
                 document.getElementById('info_status').innerHTML = '<span class="badge badge-soft-success"><i class="mdi mdi-check-circle"></i> Closed</span>';
                 document.getElementById('btnTambahRincian').classList.add('d-none'); // Hide tambah button
+                
+                $('#buktiFormContainer').addClass('d-none');
+                $('#buktiView').removeClass('d-none');
+                
+                if (data.bukti) {
+                    const ext = data.bukti.split('.').pop().toLowerCase();
+                    const url = `../../images/pencairan/${data.bukti}`;
+                    $('#btnDownloadBukti').attr('href', url);
+                    
+                    if (['jpg','jpeg','png'].includes(ext)) {
+                        $('#buktiImageContainer').html(`<img src="${url}" class="img-fluid rounded shadow-sm" style="max-height: 400px;" alt="Bukti Transfer">`);
+                    } else if (ext === 'pdf') {
+                        $('#buktiImageContainer').html(`<embed src="${url}" type="application/pdf" width="100%" height="400px" />`);
+                    } else {
+                        $('#buktiImageContainer').html(`<p class="text-muted">Format file tidak mendukung preview.</p>`);
+                    }
+                } else {
+                    $('#buktiImageContainer').html(`<p class="text-muted font-italic">Tidak ada file bukti yang terlampir.</p>`);
+                    $('#btnDownloadBukti').addClass('d-none');
+                }
             } else {
                 document.getElementById('info_status').innerHTML = '<span class="badge badge-soft-warning"><i class="mdi mdi-clock-outline"></i> Open</span>';
                 document.getElementById('btnTambahRincian').classList.remove('d-none'); // Show tambah button
+                
+                $('#buktiView').addClass('d-none');
+                $('#buktiFormContainer').removeClass('d-none');
+                
+                if (!window.closingDropifyInit) {
+                    $('#buktiClosing').dropify();
+                    window.closingDropifyInit = true;
+                }
             }
         } else {
             Swal.fire('Error', 'Data pencairan tidak ditemukan', 'error').then(() => {
@@ -472,6 +534,40 @@ function showForm() {
     
     document.getElementById('formTitle').innerText = 'Tambah Rincian Komisi';
     $('#formModal').modal('show');
+}
+
+async function submitClosing(e) {
+    e.preventDefault();
+    const form = document.getElementById('closingForm');
+    const formData = new FormData(form);
+    formData.append('kode_pencairan', KODE_PENCAIRAN);
+    
+    const btn = document.getElementById('btnSubmitClosing');
+    const oriText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="mdi mdi-spin mdi-loading mr-1"></i> Memproses...';
+    
+    try {
+        const response = await fetch('../../api/pencairan-komisi/closing.php', {
+            method: 'POST',
+            body: formData
+        });
+        const res = await response.json();
+        
+        if (res.status === 'success') {
+            Swal.fire('Berhasil', res.message, 'success').then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire('Gagal', res.message, 'error');
+            btn.disabled = false;
+            btn.innerHTML = oriText;
+        }
+    } catch(err) {
+        Swal.fire('Error', 'Gangguan sistem: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = oriText;
+    }
 }
 
 async function saveData(e) {
