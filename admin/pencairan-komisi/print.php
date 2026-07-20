@@ -192,7 +192,7 @@ function rp($angka) {
         <tr>
             <td><strong>Dibayarkan Ke</strong></td>
             <td>: <?= htmlspecialchars($nama_terapis) ?> (<?= htmlspecialchars($kode_terapis) ?>)</td>
-            <td><strong>Bank Tujuan</strong></td>
+            <td><strong>Transfer Dari</strong></td>
             <td>: <?= htmlspecialchars($info['bank']) ?></td>
         </tr>
         <tr>
