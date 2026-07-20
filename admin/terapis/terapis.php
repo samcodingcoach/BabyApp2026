@@ -89,112 +89,172 @@ include '../includes/sidebar.php';
                 </button>
             </div>
             <form id="terapisForm" onsubmit="saveData(event)">
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <input type="hidden" name="id_terapis" id="id_terapis">
                     
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Kode Terapis *</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="kode_terapis" id="kode_terapis" placeholder="Contoh: TRP01" required>
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs nav-tabs-custom nav-justified mb-3" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active font-weight-bold" data-toggle="tab" href="#tab-identitas" role="tab">Identitas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" data-toggle="tab" href="#tab-alamat" role="tab">Alamat</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" data-toggle="tab" href="#tab-rekening" role="tab">Rekening</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold" data-toggle="tab" href="#tab-lainnya" role="tab">Lainnya</a>
+                        </li>
+                    </ul>
+
+                    <!-- Tab panes -->
+                    <div class="tab-content text-muted">
+                        <!-- TAB 1: IDENTITAS -->
+                        <div class="tab-pane active" id="tab-identitas" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Nama Lengkap *</label>
+                                        <input type="text" class="form-control" name="nama_terapis" id="nama_terapis" required>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Nama Lengkap *</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="nama_terapis" id="nama_terapis" required>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Jenis Kelamin</label>
+                                        <select class="form-control select2" name="jenis_kelamin" id="jenis_kelamin" style="width: 100%;">
+                                            <option value="">-- Pilih --</option>
+                                            <option value="1">Laki-Laki</option>
+                                            <option value="0">Perempuan</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Jenis Kelamin</label>
-                                <div class="col-sm-8">
-                                    <select class="form-control select2" name="jenis_kelamin" id="jenis_kelamin" style="width: 100%;">
-                                        <option value="">-- Pilih --</option>
-                                        <option value="1">Laki-Laki</option>
-                                        <option value="0">Perempuan</option>
-                                    </select>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Tanggal Lahir</label>
+                                        <input type="date" class="form-control" name="tanggal_lahir" id="tanggal_lahir">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Tanggal Lahir</label>
-                                <div class="col-sm-8">
-                                    <input type="date" class="form-control" name="tanggal_lahir" id="tanggal_lahir">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Agama</label>
-                                <div class="col-sm-8">
-                                    <select class="form-control select2" name="agama" id="agama" style="width: 100%;">
-                                        <option value="1">Islam</option>
-                                        <option value="2">Kristen</option>
-                                        <option value="3">Katolik</option>
-                                        <option value="4">Hindu</option>
-                                        <option value="5">Budha</option>
-                                        <option value="6">Lainnya</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Alamat Domisili</label>
-                                <div class="col-sm-8">
-                                    <input type="hidden" name="alamat" id="alamat_hidden">
-                                    <div id="alamat_editor" style="height: 80px;"></div>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Kecamatan</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="kecamatan" id="kecamatan" placeholder="Cth: Lowokwaru">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Agama</label>
+                                        <select class="form-control select2" name="agama" id="agama" style="width: 100%;">
+                                            <option value="1">Islam</option>
+                                            <option value="2">Kristen</option>
+                                            <option value="3">Katolik</option>
+                                            <option value="4">Hindu</option>
+                                            <option value="5">Budha</option>
+                                            <option value="6">Lainnya</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Alamat (Titik GPS)</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="alamat_gps" id="alamat_gps" placeholder="Paste link GMaps">
+
+                        <!-- TAB 2: ALAMAT -->
+                        <div class="tab-pane" id="tab-alamat" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Alamat Domisili</label>
+                                        <textarea class="form-control" name="alamat" id="alamat" rows="2" placeholder="Masukkan alamat lengkap"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Kecamatan</label>
+                                        <input type="text" class="form-control" name="kecamatan" id="kecamatan" placeholder="Cth: Lowokwaru">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Alamat (Titik GPS)</label>
+                                        <input type="text" class="form-control" name="alamat_gps" id="alamat_gps" placeholder="Paste link GMaps">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Pendidikan Terakhir</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="pendidikan" id="pendidikan" value="SMA/K">
+                        </div>
+
+                        <!-- TAB 3: REKENING -->
+                        <div class="tab-pane" id="tab-rekening" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>No. Rekening 1</label>
+                                        <input type="text" class="form-control" name="no_rek1" id="no_rek1" placeholder="Cth: 123456789">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Atas Nama Rekening 1</label>
+                                        <input type="text" class="form-control" name="an_rek1" id="an_rek1" placeholder="Cth: Budi Santoso">
+                                    </div>
+                                </div>
+                                <div class="col-md-12"><hr></div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>No. Rekening 2</label>
+                                        <input type="text" class="form-control" name="no_rek2" id="no_rek2" placeholder="Opsi Tambahan">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Atas Nama Rekening 2</label>
+                                        <input type="text" class="form-control" name="an_rek2" id="an_rek2" placeholder="Opsi Tambahan">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Akun Instagram</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="ig" id="ig" placeholder="@username">
+                        </div>
+
+                        <!-- TAB 4: LAINNYA -->
+                        <div class="tab-pane" id="tab-lainnya" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Pendidikan Terakhir</label>
+                                        <input type="text" class="form-control" name="pendidikan" id="pendidikan" value="SMA/K">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Keterangan / Bio</label>
-                                <div class="col-sm-8">
-                                    <input type="hidden" name="keterangan" id="keterangan_hidden">
-                                    <div id="keterangan_editor" style="height: 80px;"></div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Akun Instagram</label>
+                                        <input type="text" class="form-control" name="ig" id="ig" placeholder="@username">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Status Tayang</label>
-                                <div class="col-sm-8">
-                                    <select class="form-control font-weight-bold select2" name="is_active" id="is_active" style="width: 100%;">
-                                        <option value="1">Aktif Tayang</option>
-                                        <option value="0" class="text-danger">Non-Aktif (Bekukan)</option>
-                                    </select>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Foto Profile</label>
+                                        <input type="file" class="dropify" name="foto" id="foto_dropify" accept="image/jpeg, image/png, image/webp" data-height="100">
+                                        <small class="form-text text-muted">Akan direname otomatis sesuai Kode Terapis.</small>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Foto Profile</label>
-                                <div class="col-sm-8">
-                                    <input type="file" class="dropify" name="foto" accept="image/jpeg, image/png, image/webp">
-                                    <small class="form-text text-muted">Akan direname otomatis sesuai Kode Terapis.</small>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Keterangan / Bio</label>
+                                        <input type="hidden" name="keterangan" id="keterangan_hidden">
+                                        <div id="keterangan_editor" style="height: 60px;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Status Tayang</label>
+                                        <select class="form-control font-weight-bold select2" name="is_active" id="is_active" style="width: 100%;">
+                                            <option value="1">Aktif Tayang</option>
+                                            <option value="0" class="text-danger">Non-Aktif (Bekukan)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Kode Terapis *</label>
+                                        <input type="text" class="form-control" name="kode_terapis" id="kode_terapis" placeholder="Contoh: TRP01" required>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary waves-effect waves-light font-weight-bold" data-dismiss="modal">Batal</button>
                     <button type="submit" id="btnSubmit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">Simpan Profil</button>
                 </div>
@@ -209,7 +269,6 @@ include '../includes/sidebar.php';
 let currentList = [];
 let dataTable = null;
 let filterTimer;
-let quillAlamat;
 let quillKeterangan;
 
 window.onload = () => {
@@ -217,7 +276,6 @@ window.onload = () => {
         $('.select2').select2({ dropdownParent: $('#formModal') });
     }
     $('.dropify').dropify();
-    quillAlamat = new Quill('#alamat_editor', { theme: 'snow' });
     quillKeterangan = new Quill('#keterangan_editor', { theme: 'snow' });
     fetchList();
 };
@@ -311,10 +369,10 @@ function showForm() {
         $('#is_active').val('1').trigger('change');
     }
     
-    if (quillAlamat) quillAlamat.setContents([]);
     if (quillKeterangan) quillKeterangan.setContents([]);
     $('.dropify-clear').click();
     
+    $('.nav-tabs a[href="#tab-identitas"]').tab('show');
     $('#formModal').modal('show');
 }
 
@@ -333,11 +391,17 @@ function editData(index) {
     document.getElementById('tanggal_lahir').value = item.tanggal_lahir || '';
     document.getElementById('agama').value = item.agama || '1';
     
-    if (quillAlamat) quillAlamat.clipboard.dangerouslyPasteHTML(item.alamat || '');
-    if (quillKeterangan) quillKeterangan.clipboard.dangerouslyPasteHTML(item.keterangan || '');
-    
+    document.getElementById('alamat').value = item.alamat || '';
     document.getElementById('kecamatan').value = item.kecamatan || '';
     document.getElementById('alamat_gps').value = item.alamat_gps || '';
+    
+    document.getElementById('no_rek1').value = item.nor_rek1 || '';
+    document.getElementById('an_rek1').value = item.an_rek1 || '';
+    document.getElementById('no_rek2').value = item.no_rek2 || '';
+    document.getElementById('an_rek2').value = item.an_rek2 || '';
+    
+    if (quillKeterangan) quillKeterangan.clipboard.dangerouslyPasteHTML(item.keterangan || '');
+    
     document.getElementById('pendidikan').value = item.pendidikan || '';
     document.getElementById('ig').value = item.ig || '';
     document.getElementById('is_active').value = item.is_active;
@@ -348,15 +412,14 @@ function editData(index) {
         $('#is_active').val(item.is_active).trigger('change');
     }
     
+    $('.nav-tabs a[href="#tab-identitas"]').tab('show');
     $('#formModal').modal('show');
 }
 
 async function saveData(e) {
     e.preventDefault();
     
-    const alamatText = quillAlamat.root.innerHTML === '<p><br></p>' ? '' : quillAlamat.root.innerHTML;
     const keteranganText = quillKeterangan.root.innerHTML === '<p><br></p>' ? '' : quillKeterangan.root.innerHTML;
-    document.getElementById('alamat_hidden').value = alamatText;
     document.getElementById('keterangan_hidden').value = keteranganText;
     
     const form = document.getElementById('terapisForm');

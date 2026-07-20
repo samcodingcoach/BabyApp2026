@@ -28,6 +28,12 @@ $ig = $_POST['ig'] ?? null;
 $keterangan = $_POST['keterangan'] ?? null;
 $is_active = isset($_POST['is_active']) ? $_POST['is_active'] : 1;
 
+// Rekening Bank
+$no_rek1 = $_POST['no_rek1'] ?? null;
+$no_rek2 = $_POST['no_rek2'] ?? null;
+$an_rek1 = $_POST['an_rek1'] ?? null;
+$an_rek2 = $_POST['an_rek2'] ?? null;
+
 if (!$kode_terapis || !$nama_terapis) {
     http_response_code(400); echo json_encode(['status' => 'error', 'message' => 'kode_terapis dan nama_terapis wajib diisi']); exit();
 }
@@ -52,8 +58,8 @@ if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
     }
 }
 
-$stmt = $koneksi->prepare("INSERT INTO terapis (kode_terapis, nama_terapis, jenis_kelamin, tanggal_lahir, agama, alamat, kecamatan, alamat_gps, foto, pendidikan, ig, keterangan, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssisssssssssi", $kode_terapis, $nama_terapis, $jenis_kelamin, $tanggal_lahir, $agama, $alamat, $kecamatan, $alamat_gps, $foto, $pendidikan, $ig, $keterangan, $is_active);
+$stmt = $koneksi->prepare("INSERT INTO terapis (kode_terapis, nama_terapis, jenis_kelamin, tanggal_lahir, agama, alamat, kecamatan, alamat_gps, foto, pendidikan, ig, keterangan, is_active, nor_rek1, no_rek2, an_rek1, an_rek2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("ssisssssssssissss", $kode_terapis, $nama_terapis, $jenis_kelamin, $tanggal_lahir, $agama, $alamat, $kecamatan, $alamat_gps, $foto, $pendidikan, $ig, $keterangan, $is_active, $no_rek1, $no_rek2, $an_rek1, $an_rek2);
 
 if ($stmt->execute()) {
     http_response_code(201);

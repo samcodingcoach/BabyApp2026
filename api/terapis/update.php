@@ -41,6 +41,11 @@ $ig = $_POST['ig'] ?? $existing['ig'];
 $keterangan = $_POST['keterangan'] ?? $existing['keterangan'];
 $is_active = isset($_POST['is_active']) ? $_POST['is_active'] : $existing['is_active'];
 
+$no_rek1 = $_POST['no_rek1'] ?? $existing['no_rek1'];
+$no_rek2 = $_POST['no_rek2'] ?? $existing['no_rek2'];
+$an_rek1 = $_POST['an_rek1'] ?? $existing['an_rek1'];
+$an_rek2 = $_POST['an_rek2'] ?? $existing['an_rek2'];
+
 // Cek duplikasi kode baru
 $stmtDup = $koneksi->prepare("SELECT id_terapis FROM terapis WHERE kode_terapis = ? AND id_terapis != ?");
 $stmtDup->bind_param("si", $kode_terapis, $id_terapis);
@@ -75,8 +80,8 @@ if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
     }
 }
 
-$stmt = $koneksi->prepare("UPDATE terapis SET kode_terapis=?, nama_terapis=?, jenis_kelamin=?, tanggal_lahir=?, agama=?, alamat=?, kecamatan=?, alamat_gps=?, foto=?, pendidikan=?, ig=?, keterangan=?, is_active=?, update_at=CURRENT_TIMESTAMP WHERE id_terapis=?");
-$stmt->bind_param("ssisssssssssii", $kode_terapis, $nama_terapis, $jenis_kelamin, $tanggal_lahir, $agama, $alamat, $kecamatan, $alamat_gps, $foto, $pendidikan, $ig, $keterangan, $is_active, $id_terapis);
+$stmt = $koneksi->prepare("UPDATE terapis SET kode_terapis=?, nama_terapis=?, jenis_kelamin=?, tanggal_lahir=?, agama=?, alamat=?, kecamatan=?, alamat_gps=?, foto=?, pendidikan=?, ig=?, keterangan=?, is_active=?, nor_rek1=?, no_rek2=?, an_rek1=?, an_rek2=?, update_at=CURRENT_TIMESTAMP WHERE id_terapis=?");
+$stmt->bind_param("ssisssssssssissssi", $kode_terapis, $nama_terapis, $jenis_kelamin, $tanggal_lahir, $agama, $alamat, $kecamatan, $alamat_gps, $foto, $pendidikan, $ig, $keterangan, $is_active, $no_rek1, $no_rek2, $an_rek1, $an_rek2, $id_terapis);
 
 if ($stmt->execute()) {
     http_response_code(200); echo json_encode(['status' => 'success', 'message' => 'Data terapis berhasil diupdate']);
