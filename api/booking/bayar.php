@@ -60,8 +60,8 @@ try {
     $tarif_ongkir = isset($b['tarif_ongkir']) ? (double)$b['tarif_ongkir'] : 0;
     $stmtB->close();
 
-    // 3. Hitung potongan_ongkir (FLAT 40%)
-    $potongan_ongkir = $tarif_ongkir * 0.4;
+    // 3. Hitung potongan_ongkir (FLAT 60% untuk Terapis)
+    $potongan_ongkir = $tarif_ongkir * 0.6;
     
     // 4. Ambil jumlah_komisi (SUM dari total_komisi di booking_detail)
     $stmtK = $koneksi->prepare("SELECT SUM(total_komisi) as jumlah_komisi FROM booking_detail WHERE id_booking = ?");
