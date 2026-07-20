@@ -38,6 +38,7 @@ $sql = "
         pembayaran.tanggal_bayar, 
         pembayaran.kode_pembayaran, 
         pembayaran.jumlah_bayar, 
+        pembayaran.jumlah_omset,
         pembayaran.metode_pembayaran, 
         pembayaran.status_pembayaran, 
         booking.id_terapis, 
@@ -69,7 +70,7 @@ $total_omset = 0;
 
 while ($row = $result->fetch_assoc()) {
     $data[] = $row;
-    $total_omset += $row['jumlah_bayar'];
+    $total_omset += (float)$row['jumlah_omset'];
 }
 
 echo json_encode([

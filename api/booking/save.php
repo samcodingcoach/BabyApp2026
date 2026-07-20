@@ -141,6 +141,9 @@ try {
 
     // Memproses Insert Details
     $stmtDetail = $koneksi->prepare("INSERT INTO booking_detail (id_booking, kode_booking, id_layanan, id_harga_layanan, keluhan, nominal, diskon, ppn, total, total_komisi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    if (!$stmtDetail) {
+        throw new Exception("Gagal prepare booking_detail. Mungkin kolom belum dibuat: " . $koneksi->error);
+    }
     
     // Siapkan statement untuk ambil persentase komisi
     $stmtKomisi = $koneksi->prepare("SELECT komisi_persentase FROM layanan_harga WHERE id_harga_layanan = ?");

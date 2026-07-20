@@ -71,14 +71,19 @@ try {
     $rowK = $resK->fetch_assoc();
     $jumlah_komisi = isset($rowK['jumlah_komisi']) ? (double)$rowK['jumlah_komisi'] : 0;
     $stmtK->close();
+    
+    // Owner omset = Total Bayar - Total Komisi Terapis - Potongan Ongkir Terapis
+    // Karena jumlah_bayar adalah (Harga Layanan + Ongkir)
+    // Maka sisa murni untuk Owner adalah jumlah_bayar dikurangi semua jatah Terapis
+    $jumlah_omset = $jumlah_bayar - ($jumlah_komisi + $potongan_ongkir);
 
     // 5. Insert atau Update ke Pembayaran
     if ($existing) {
-        $stmtBayar = $koneksi->prepare("UPDATE pembayaran SET user_id=?, tanggal_bayar=?, kode_pembayaran=?, jumlah_bayar=?, jumlah_komisi=?, potongan_ongkir=?, metode_pembayaran=?, status_pembayaran='LUNAS', qris_transaction_id=NULL, va_number=NULL, qris_image=NULL WHERE id_booking=?");
-        $stmtBayar->bind_param("issdddsi", $user_id, $tanggal_bayar, $kode_pembayaran, $jumlah_bayar, $jumlah_komisi, $potongan_ongkir, $metode_pembayaran, $id_booking);
+        $stmtBayar = $koneksi->prepare("UPDATE pembayaran SET user_id=?, tanggal_bayar=?, kode_pembayaran=?, jumlah_bayar=?, jumlah_komisi=?, potongan_ongkir=?, jumlah_omset=?, metode_pembayaran=?, status_pembayaran='LUNAS', qris_transaction_id=NULL, va_number=NULL, qris_image=NULL WHERE id_booking=?");
+        $stmtBayar->bind_param("issddddsi", $user_id, $tanggal_bayar, $kode_pembayaran, $jumlah_bayar, $jumlah_komisi, $potongan_ongkir, $jumlah_omset, $metode_pembayaran, $id_booking);
     } else {
-        $stmtBayar = $koneksi->prepare("INSERT INTO pembayaran (id_booking, user_id, tanggal_bayar, kode_pembayaran, jumlah_bayar, jumlah_komisi, potongan_ongkir, metode_pembayaran, status_pembayaran) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'LUNAS')");
-        $stmtBayar->bind_param("iissddds", $id_booking, $user_id, $tanggal_bayar, $kode_pembayaran, $jumlah_bayar, $jumlah_komisi, $potongan_ongkir, $metode_pembayaran);
+        $stmtBayar = $koneksi->prepare("INSERT INTO pembayaran (id_booking, user_id, tanggal_bayar, kode_pembayaran, jumlah_bayar, jumlah_komisi, potongan_ongkir, jumlah_omset, metode_pembayaran, status_pembayaran) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'LUNAS')");
+        $stmtBayar->bind_param("iissdddds", $id_booking, $user_id, $tanggal_bayar, $kode_pembayaran, $jumlah_bayar, $jumlah_komisi, $potongan_ongkir, $jumlah_omset, $metode_pembayaran);
     }
     
     if (!$stmtBayar->execute()) {
