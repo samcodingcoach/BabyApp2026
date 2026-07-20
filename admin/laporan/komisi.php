@@ -8,11 +8,6 @@ include '../includes/header.php';
 include '../includes/sidebar.php';
 
 require_once '../../config/koneksi.php';
-$q = $koneksi->query("SELECT id_terapis, nama_terapis FROM terapis WHERE is_active=1");
-$terapis_options = '';
-while($t = $q->fetch_assoc()){
-    $terapis_options .= '<option value="'.$t['id_terapis'].'">'.$t['nama_terapis'].'</option>';
-}
 ?>
 
 <!-- start page title -->
@@ -49,7 +44,6 @@ while($t = $q->fetch_assoc()){
                             <label>Terapis (Opsional)</label>
                             <select id="id_terapis" class="form-control select2" style="width: 100%;">
                                 <option value="">- Semua Terapis -</option>
-                                <?= $terapis_options ?>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -102,13 +96,14 @@ function formatRp(angka) {
 
 let dtTable;
 
-$(document).ready(function() {
+$(document).ready(async function() {
     dtTable = $('#datatable').DataTable({
         language: { url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json" }
     });
     
     $('.select2').select2();
     
+    await loadTerapisOptions();
     loadData();
 
     $('#formFilter').submit(function(e) {
@@ -116,6 +111,24 @@ $(document).ready(function() {
         loadData();
     });
 });
+
+async function loadTerapisOptions() {
+    try {
+        const res = await fetch('../../api/terapis/list.php');
+        const json = await res.json();
+        if (json.status === 'success') {
+            let html = '<option value="">- Semua Terapis -</option>';
+            json.data.forEach(t => {
+                if (parseInt(t.is_active) === 1) {
+                    html += `<option value="${t.id_terapis}">${t.nama_terapis} (${t.kode_terapis})</option>`;
+                }
+            });
+            $('#id_terapis').html(html).trigger('change');
+        }
+    } catch(e) {
+        console.error('Gagal memuat opsi terapis:', e);
+    }
+}
 
 async function loadData() {
     const sd = $('#start_date').val();
