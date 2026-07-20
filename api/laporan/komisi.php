@@ -41,7 +41,8 @@ $sql = "
         komisi_terapis.status_pencairan, 
         komisi_terapis.tanggal_pencairan, 
         komisi_terapis.created_at, 
-        pembayaran.kode_pembayaran
+        pembayaran.kode_pembayaran,
+        booking.tarif_ongkir
     FROM
         komisi_terapis
         INNER JOIN
@@ -70,10 +71,14 @@ $result = $stmt->get_result();
 
 $data = [];
 $total_komisi = 0;
+$total_transaksi = 0;
 
 while ($row = $result->fetch_assoc()) {
     $data[] = $row;
-    $total_komisi += $row['nominal_komisi'];
+    if ($row['status_pencairan'] === 'SUDAH_CAIR') {
+        $total_komisi += (float)$row['nominal_komisi'];
+        $total_transaksi++;
+    }
 }
 
 echo json_encode([
@@ -82,7 +87,7 @@ echo json_encode([
         'start_date' => $start_date,
         'end_date' => $end_date,
         'id_terapis' => $id_terapis,
-        'total_transaksi_komisi' => count($data),
+        'total_transaksi_komisi' => $total_transaksi,
         'total_komisi' => $total_komisi
     ],
     'data' => $data

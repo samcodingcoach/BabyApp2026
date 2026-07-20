@@ -69,6 +69,7 @@ while($t = $q->fetch_assoc()){
                         <div class="p-3 bg-light border rounded">
                             <h5 class="font-size-15 mb-1">Total Pencairan Komisi</h5>
                             <h3 class="text-success mb-0" id="summ_komisi">Rp 0</h3>
+                            <small class="text-muted mt-2 d-block">* Nilai Total Pencairan belum termasuk biaya admin</small>
                         </div>
                     </div>
                 </div>
@@ -78,12 +79,10 @@ while($t = $q->fetch_assoc()){
                         <thead>
                             <tr>
                                 <th>No.</th>
-                                <th>Tanggal Dibuat</th>
                                 <th>Kode Pembayaran</th>
                                 <th>Nama Terapis</th>
                                 <th>Status Pencairan</th>
-                                <th>Tgl Pencairan</th>
-                                <th class="text-right">Nominal Komisi (Rp)</th>
+                                <th class="text-right">Komisi (Rp)</th>
                             </tr>
                         </thead>
                         <tbody id="table_body">
@@ -136,27 +135,24 @@ async function loadData() {
             $('#summary_section').show();
             
             json.data.forEach((d, i) => {
-                let createdObj = new Date(d.created_at.replace(' ', 'T'));
-                let createdRapi = createdObj.toLocaleString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace(/\./g, ':').replace(',', '');
-                
-                let cairRapi = '-';
+                let cairRapi = '';
                 if (d.tanggal_pencairan) {
                     let cairObj = new Date(d.tanggal_pencairan.replace(' ', 'T'));
-                    cairRapi = cairObj.toLocaleString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace(/\./g, ':').replace(',', '');
+                    cairRapi = '<br><small class="text-muted"><i class="mdi mdi-clock-outline"></i> ' + cairObj.toLocaleString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace(/\./g, ':').replace(',', '') + '</small>';
                 }
 
                 let badgeStatus = d.status_pencairan === 'SUDAH_CAIR'
-                    ? `<span class="badge badge-success">SUDAH CAIR</span>`
+                    ? `<span class="badge badge-success">SUDAH CAIR</span>${cairRapi}`
                     : `<span class="badge badge-secondary">${d.status_pencairan}</span>`;
+                
+                let komisi = parseFloat(d.nominal_komisi) || 0;
 
                 dtTable.row.add([
                     i + 1,
-                    createdRapi,
                     d.kode_pembayaran || '-',
                     d.nama_terapis || '-',
                     badgeStatus,
-                    cairRapi,
-                    `<div class="text-right font-weight-bold">` + formatRp(d.nominal_komisi) + `</div>`
+                    `<div class="text-right font-weight-bold text-success">` + formatRp(komisi) + `</div>`
                 ]);
             });
             dtTable.draw();
