@@ -82,14 +82,19 @@ if (isset($_FILES['bukti']) && $_FILES['bukti']['error'] === UPLOAD_ERR_OK) {
     exit();
 }
 
+$an_rek = isset($_POST['an_rek']) ? $_POST['an_rek'] : null;
+$no_rek = isset($_POST['no_rek']) ? $_POST['no_rek'] : null;
+
 // Update table pencairan
 $sql = "UPDATE pencairan SET 
             bukti = ?, 
+            an_rek = ?,
+            no_rek = ?,
             isClosed = 1, 
             edit_at = NOW() 
         WHERE kode_pencairan = ?";
 $stmt = $koneksi->prepare($sql);
-$stmt->bind_param("ss", $bukti_url, $kode_pencairan);
+$stmt->bind_param("ssss", $bukti_url, $an_rek, $no_rek, $kode_pencairan);
 
 if ($stmt->execute()) {
     

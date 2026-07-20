@@ -158,6 +158,14 @@ if (empty($kode_pencairan)) {
                                 </div>
                                 <form id="closingForm" onsubmit="submitClosing(event)">
                                     <div class="form-group">
+                                        <label class="font-weight-bold">Rekening Tujuan <span class="text-danger">*</span></label>
+                                        <div id="rekeningContainer" class="row">
+                                            <div class="col-12 text-muted"><em>Menunggu pilihan terapis...</em></div>
+                                        </div>
+                                        <input type="hidden" name="an_rek" id="an_rekClosing">
+                                        <input type="hidden" name="no_rek" id="no_rekClosing">
+                                    </div>
+                                    <div class="form-group">
                                         <label class="font-weight-bold">Upload Bukti Transfer <span class="text-danger">*</span> <small class="text-muted">(JPG, PNG, PDF | Maks 2MB)</small></label>
                                         <input type="file" class="dropify" name="bukti" id="buktiClosing" accept=".jpg,.jpeg,.png,.pdf" data-height="200" required>
                                     </div>
@@ -380,6 +388,13 @@ async function fetchList() {
             document.getElementById('subtotal_komisi').innerText = formatRupiah(total_cair);
             const totalBersih = total_cair - biayaAdmin;
             document.getElementById('total_cair').innerText = formatRupiah(totalBersih);
+            window.currentTotalBersih = totalBersih;
+            
+            if (currentList.length > 0 && !isClosed) {
+                loadRekeningTerapis(currentList[0].kode_terapis);
+            } else if (!isClosed) {
+                $('#rekeningContainer').html('<div class="col-12"><div class="alert alert-warning">-- Data terapis kosong --</div></div>');
+            }
         }
         
         dataTable = $('#datatable').DataTable({
@@ -389,6 +404,43 @@ async function fetchList() {
     } catch (error) {
         console.error(error);
         Swal.fire('Error', 'Terjadi gangguan koneksi ke server.', 'error');
+    }
+}
+
+async function loadRekeningTerapis(kode) {
+    try {
+        const res = await fetch(`../../api/terapis/list.php?kode_terapis=${kode}`);
+        const json = await res.json();
+        let html = '';
+        if (json.status === 'success' && json.data.length > 0) {
+            const t = json.data[0];
+            let options = [];
+            if (t.nor_rek1) options.push({no: t.nor_rek1, an: t.an_rek1, label: 'Rekening Utama'});
+            if (t.no_rek2) options.push({no: t.no_rek2, an: t.an_rek2, label: 'Rekening Alternatif'});
+            
+            if (options.length === 0) {
+                html = '<div class="col-12"><div class="alert alert-warning">Tidak ada data rekening untuk terapis ini.</div></div>';
+            } else {
+                options.forEach((opt, idx) => {
+                    html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="custom-control custom-radio border p-3 rounded shadow-sm bg-light" style="cursor: pointer;" onclick="document.getElementById('rek_${idx}').click()">
+                            <input type="radio" id="rek_${idx}" name="rekening_radio" class="custom-control-input" value="${opt.no}" data-an="${opt.an}">
+                            <label class="custom-control-label font-weight-bold" for="rek_${idx}" style="cursor: pointer; width: 100%;">
+                                ${opt.an}<br>
+                                <span class="text-primary font-size-18">${opt.no}</span>
+                            </label>
+                        </div>
+                    </div>`;
+                });
+            }
+        } else {
+            html = '<div class="col-12"><div class="alert alert-warning">Data terapis tidak ditemukan.</div></div>';
+        }
+        $('#rekeningContainer').html(html);
+    } catch(e) {
+        console.error(e);
+        $('#rekeningContainer').html('<div class="col-12"><div class="alert alert-danger">Gagal mengambil data rekening terapis.</div></div>');
     }
 }
 
@@ -431,7 +483,15 @@ async function setupSelect2Cascade() {
                 }
                 
                 loadMiniTable(idTerapis, $('#sel_booking').val(), tgl);
+                
+                const selectedText = $('#sel_terapis option:selected').text();
+                const match = selectedText.match(/\(([^)]+)\)$/);
+                if (match) {
+                    loadRekeningTerapis(match[1]);
+                }
             } catch(e){}
+        } else {
+            $('#rekeningContainer').html('<div class="col-12"><div class="alert alert-warning">-- Data terapis kosong --</div></div>');
         }
     });
 
@@ -538,6 +598,21 @@ function showForm() {
 
 async function submitClosing(e) {
     e.preventDefault();
+    
+    if (!window.currentTotalBersih || window.currentTotalBersih <= 0) {
+        Swal.fire('Peringatan', 'Total Komisi Cair (Bersih) belum tersedia atau bernilai 0.', 'warning');
+        return;
+    }
+    
+    const selectedRadio = document.querySelector('input[name="rekening_radio"]:checked');
+    if (!selectedRadio) {
+        Swal.fire('Peringatan', 'Silakan pilih Rekening Tujuan terlebih dahulu.', 'warning');
+        return;
+    }
+    
+    document.getElementById('an_rekClosing').value = selectedRadio.getAttribute('data-an');
+    document.getElementById('no_rekClosing').value = selectedRadio.value;
+    
     const form = document.getElementById('closingForm');
     const formData = new FormData(form);
     formData.append('kode_pencairan', KODE_PENCAIRAN);

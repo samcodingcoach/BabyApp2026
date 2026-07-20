@@ -71,6 +71,13 @@ $total_bersih = $subtotal - $biaya_admin;
 function rp($angka) {
     return 'Rp ' . number_format($angka, 0, ',', '.');
 }
+
+// Ambil Info Usaha
+$sql_usaha = "SELECT * FROM profile_usaha LIMIT 1";
+$res_usaha = $koneksi->query($sql_usaha);
+$usaha = $res_usaha->fetch_assoc();
+$alamat_usaha = strip_tags($usaha['alamat'] ?? '');
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -97,17 +104,22 @@ function rp($angka) {
         .header {
             text-align: center;
             border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
         }
         .header h2 {
             margin: 0 0 5px 0;
-            font-size: 16pt;
+            font-size: 18pt;
             text-transform: uppercase;
+            font-weight: bold;
         }
         .header p {
-            margin: 0;
-            font-size: 12pt;
+            margin: 0 0 3px 0;
+            font-size: 11pt;
+        }
+        .header .contact-info {
+            font-size: 10pt;
+            color: #333;
         }
         .info-table {
             width: 100%;
@@ -178,8 +190,13 @@ function rp($angka) {
 <div class="container">
 
     <div class="header">
-        <h2>BUKTI PENCAIRAN KOMISI</h2>
-        <p>Klinik Terapi & Pijat Profesional</p>
+        <h2><?= htmlspecialchars($usaha['nama_usaha'] ?? 'KLINIK TERAPI') ?></h2>
+        <p><?= htmlspecialchars($alamat_usaha) ?></p>
+        <p class="contact-info">
+            <?php if(!empty($usaha['whatsapp1'])): ?>WA: <?= htmlspecialchars($usaha['whatsapp1']) ?> <?php endif; ?>
+            <?php if(!empty($usaha['ig'])): ?> | IG: <?= htmlspecialchars($usaha['ig']) ?> <?php endif; ?>
+        </p>
+        <h3 style="margin-top: 15px; margin-bottom: 0; text-decoration: underline; font-size: 14pt;">BUKTI PENCAIRAN KOMISI</h3>
     </div>
 
     <table class="info-table">
@@ -194,6 +211,12 @@ function rp($angka) {
             <td>: <?= htmlspecialchars($nama_terapis) ?> (<?= htmlspecialchars($kode_terapis) ?>)</td>
             <td><strong>Transfer Dari</strong></td>
             <td>: <?= htmlspecialchars($info['bank']) ?></td>
+        </tr>
+        <tr>
+            <td><strong>Rekening Tujuan</strong></td>
+            <td>: <?= htmlspecialchars($info['no_rek'] ?? '-') ?></td>
+            <td><strong>Atas Nama</strong></td>
+            <td>: <?= htmlspecialchars($info['an_rek'] ?? '-') ?></td>
         </tr>
         <tr>
             <td><strong>Status</strong></td>
