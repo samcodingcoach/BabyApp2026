@@ -47,7 +47,7 @@ while($t = $q->fetch_assoc()){
                         </div>
                         <div class="col-md-4">
                             <label>Terapis (Opsional)</label>
-                            <select id="id_terapis" class="form-control">
+                            <select id="id_terapis" class="form-control select2" style="width: 100%;">
                                 <option value="">- Semua Terapis -</option>
                                 <?= $terapis_options ?>
                             </select>
@@ -107,6 +107,8 @@ $(document).ready(function() {
     dtTable = $('#datatable').DataTable({
         language: { url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json" }
     });
+    
+    $('.select2').select2();
     
     loadData();
 
