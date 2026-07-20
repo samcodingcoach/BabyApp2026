@@ -140,8 +140,11 @@ try {
     $stmtMaster->close();
 
     // Memproses Insert Details
-    $stmtDetail = $koneksi->prepare("INSERT INTO booking_detail (id_booking, kode_booking, id_layanan, id_harga_layanan, keluhan, nominal, diskon, ppn, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmtDetail = $koneksi->prepare("INSERT INTO booking_detail (id_booking, kode_booking, id_layanan, id_harga_layanan, keluhan, nominal, diskon, ppn, total, total_komisi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     
+    // Siapkan statement untuk ambil persentase komisi
+    $stmtKomisi = $koneksi->prepare("SELECT komisi_persentase FROM layanan_harga WHERE id_harga_layanan = ?");
+
     foreach ($details as $d) {
         $id_layanan = $d['id_layanan'] ?? null;
         $id_harga_layanan = isset($d['id_harga_layanan']) && $d['id_harga_layanan'] !== '' ? $d['id_harga_layanan'] : null;
@@ -151,11 +154,26 @@ try {
         $ppn = isset($d['ppn']) ? (double)$d['ppn'] : 0;
         $total = isset($d['total']) ? (double)$d['total'] : 0;
         
-        $stmtDetail->bind_param("isiisdddd", $id_booking, $kode_booking, $id_layanan, $id_harga_layanan, $keluhan, $nominal, $diskon, $ppn, $total);
+        // Ambil komisi persentase dan hitung total_komisi
+        $komisi_persentase = 0;
+        if ($id_harga_layanan) {
+            $stmtKomisi->bind_param("i", $id_harga_layanan);
+            $stmtKomisi->execute();
+            $resKomisi = $stmtKomisi->get_result();
+            if ($rowK = $resKomisi->fetch_assoc()) {
+                $komisi_persentase = (double)$rowK['komisi_persentase'];
+            }
+        }
+        
+        $total_komisi_item = $total * ($komisi_persentase / 100);
+        $total_komisi_item = ceil($total_komisi_item / 100) * 100; // Pembulatan ke 100 atas
+        
+        $stmtDetail->bind_param("isiisddddd", $id_booking, $kode_booking, $id_layanan, $id_harga_layanan, $keluhan, $nominal, $diskon, $ppn, $total, $total_komisi_item);
         if (!$stmtDetail->execute()) {
             throw new Exception("Gagal menyimpan Booking Detail: " . $stmtDetail->error);
         }
     }
+    $stmtKomisi->close();
     $stmtDetail->close();
 
     $koneksi->commit();
