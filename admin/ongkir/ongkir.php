@@ -72,32 +72,48 @@ include '../includes/sidebar.php';
                 <div class="modal-body">
                     <input type="hidden" id="id_ongkir">
                     
-                    <div class="row">
-                        <div class="col-md-6">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#tab-rute" role="tab">
+                                <span class="d-none d-sm-block">Rute</span>    
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-aktif" role="tab">
+                                <span class="d-none d-sm-block">Aktif</span>    
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content p-3 text-muted">
+                        <!-- Tab Rute -->
+                        <div class="tab-pane active" id="tab-rute" role="tabpanel">
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Dari Kecamatan *</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="dari_kecamatan" required placeholder="Contoh: Lowokwaru">
+                                <label class="col-sm-3 col-form-label">Dari Kecamatan *</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control select2-tags" id="dari_kecamatan" required style="width:100%;"></select>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Ke Kecamatan *</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="ke_kecamatan" required placeholder="Contoh: Klojen">
+                                <label class="col-sm-3 col-form-label">Ke Kecamatan *</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control select2-tags" id="ke_kecamatan" required style="width:100%;"></select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Harga (Tarif) *</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Harga (Tarif) *</label>
+                                <div class="col-sm-9">
                                     <input type="text" class="form-control" id="harga_input" required placeholder="Contoh: 15.000" data-toggle="input-mask" data-mask-format="000.000.000" data-reverse="true">
                                     <input type="hidden" id="harga">
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Tab Aktif -->
+                        <div class="tab-pane" id="tab-aktif" role="tabpanel">
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Status Aktif</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Status Aktif</label>
+                                <div class="col-sm-9">
                                     <select class="form-control font-weight-bold select2" id="is_active" style="width: 100%;">
                                         <option value="1">Aktif</option>
                                         <option value="0" class="text-danger">Tidak Aktif</option>
@@ -124,6 +140,11 @@ let dataTable = null;
 window.onload = () => {
     if($().select2) {
         $('.select2').select2({ dropdownParent: $('#formModal') });
+        $('.select2-tags').select2({ 
+            dropdownParent: $('#formModal'),
+            tags: true,
+            placeholder: "Pilih atau ketik rute baru"
+        });
     }
     fetchList();
 };
@@ -149,7 +170,11 @@ async function fetchList() {
         if (result.status === 'success') {
             currentList = result.data;
             
+            const lokasiSet = new Set();
+            
             result.data.forEach((item, index) => {
+                lokasiSet.add(item.dari_kecamatan);
+                lokasiSet.add(item.ke_kecamatan);
                 const tr = document.createElement('tr');
                 
                 const rute = `<strong>${item.dari_kecamatan}</strong> <i class="mdi mdi-arrow-right mx-1 text-primary"></i> <strong>${item.ke_kecamatan}</strong>`;
@@ -170,6 +195,9 @@ async function fetchList() {
                 `;
                 tbody.appendChild(tr);
             });
+            const listLokasi = Array.from(lokasiSet);
+            populateSelectOptions('#dari_kecamatan', listLokasi);
+            populateSelectOptions('#ke_kecamatan', listLokasi);
         } else {
             Swal.fire('Error', result.message, 'error');
         }
@@ -185,6 +213,19 @@ async function fetchList() {
     }
 }
 
+function populateSelectOptions(selector, dataArray) {
+    const sel = $(selector);
+    const currentVal = sel.val();
+    sel.empty();
+    sel.append('<option value="">-- Pilih / Ketik --</option>');
+    dataArray.sort().forEach(item => {
+        if(item) sel.append(new Option(item, item, false, false));
+    });
+    if (currentVal && dataArray.includes(currentVal)) {
+        sel.val(currentVal).trigger('change');
+    }
+}
+
 function showAddForm() {
     document.getElementById('formTitle').innerText = 'Tambah Ongkir Baru';
     document.getElementById('ongkirForm').reset();
@@ -193,6 +234,8 @@ function showAddForm() {
     document.getElementById('harga').value = '';
     
     if($().select2) {
+        $('#dari_kecamatan').val(null).trigger('change');
+        $('#ke_kecamatan').val(null).trigger('change');
         $('#is_active').val('1').trigger('change');
     }
     
@@ -200,12 +243,28 @@ function showAddForm() {
 }
 
 function editData(index) {
+    document.getElementById('formTitle').innerText = 'Edit Ongkir';
     const item = currentList[index];
-    document.getElementById('formTitle').innerText = 'Edit Data Ongkir';
     
     document.getElementById('id_ongkir').value = item.id_ongkir;
-    document.getElementById('dari_kecamatan').value = item.dari_kecamatan;
-    document.getElementById('ke_kecamatan').value = item.ke_kecamatan;
+    
+    // Gunakan fungsi trigger change select2 agar nilai ditampilkan jika cocok, atau select2 menangani custom tags jika valid
+    let $dari = $('#dari_kecamatan');
+    if ($dari.find("option[value='" + item.dari_kecamatan + "']").length) {
+        $dari.val(item.dari_kecamatan).trigger('change');
+    } else { 
+        var newOption = new Option(item.dari_kecamatan, item.dari_kecamatan, true, true);
+        $dari.append(newOption).trigger('change');
+    }
+
+    let $ke = $('#ke_kecamatan');
+    if ($ke.find("option[value='" + item.ke_kecamatan + "']").length) {
+        $ke.val(item.ke_kecamatan).trigger('change');
+    } else { 
+        var newOptionKe = new Option(item.ke_kecamatan, item.ke_kecamatan, true, true);
+        $ke.append(newOptionKe).trigger('change');
+    }
+
     document.getElementById('harga_input').value = item.harga;
     $('#harga_input').trigger('input');
     document.getElementById('is_active').value = item.is_active;
@@ -232,10 +291,10 @@ async function saveData(e) {
     const hargaVal = $('#harga_input').cleanVal() ? $('#harga_input').cleanVal() : $('#harga_input').val().replace(/\D/g,'');
     document.getElementById('harga').value = hargaVal;
     
-    params.append('dari_kecamatan', document.getElementById('dari_kecamatan').value);
-    params.append('ke_kecamatan', document.getElementById('ke_kecamatan').value);
+    params.append('dari_kecamatan', $('#dari_kecamatan').val());
+    params.append('ke_kecamatan', $('#ke_kecamatan').val());
     params.append('harga', document.getElementById('harga').value);
-    params.append('is_active', document.getElementById('is_active').value);
+    params.append('is_active', $('#is_active').val());
     
     const endpoint = isEdit ? '../../api/ongkir/update.php' : '../../api/ongkir/save.php';
     const btn = document.getElementById('btnSubmit');
