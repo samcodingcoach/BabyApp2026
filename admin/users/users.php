@@ -32,7 +32,7 @@ include '../includes/sidebar.php';
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="card-title">Daftar Pengguna Sistem</h4>
                     <div>
-                        <a href="../role/role.php" class="btn btn-info waves-effect waves-light font-weight-bold mr-2"><i class="mdi mdi-shield-account mr-1"></i> Atur Hak Akses (Role)</a>
+                        
                         <button onclick="showFormAdd()" class="btn btn-success waves-effect waves-light font-weight-bold">
                             <i class="mdi mdi-plus mr-1"></i> Tambah User Baru
                         </button>
@@ -79,63 +79,88 @@ include '../includes/sidebar.php';
                 <div class="modal-body">
                     <input type="hidden" name="user_id" id="user_id">
                     
-                    <div class="row">
-                        <div class="col-md-6">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#tab-login" role="tab">
+                                <span class="d-none d-sm-block">Login Info</span>    
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-biodata" role="tab">
+                                <span class="d-none d-sm-block">Biodata</span>    
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-foto" role="tab">
+                                <span class="d-none d-sm-block">Foto</span>    
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content p-3 text-muted">
+                        <!-- Tab Login Info -->
+                        <div class="tab-pane active" id="tab-login" role="tabpanel">
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Username</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Username</label>
+                                <div class="col-sm-9">
                                     <input type="text" class="form-control" name="username" id="username" required>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Full Name</label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="full_name" id="full_name" required>
+                                <label class="col-sm-3 col-form-label">Password</label>
+                                <div class="col-sm-9">
+                                    <input type="password" class="form-control" name="password" id="password">
+                                    <small class="form-text text-muted" id="password_note">Wajib diisi untuk user baru.</small>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Role</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Email</label>
+                                <div class="col-sm-9">
+                                    <input type="email" class="form-control" name="email" id="email">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label">Role</label>
+                                <div class="col-sm-9">
                                     <select class="form-control select2" name="role_id" id="role_id" required style="width: 100%;">
                                         <option value="">-- Loading Roles --</option>
                                     </select>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Tab Biodata -->
+                        <div class="tab-pane" id="tab-biodata" role="tabpanel">
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Password</label>
-                                <div class="col-sm-8">
-                                    <input type="password" class="form-control" name="password" id="password">
-                                    <small class="form-text text-muted" id="password_note">Wajib diisi untuk user baru.</small>
+                                <label class="col-sm-3 col-form-label">Nama Lengkap</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="full_name" id="full_name" required>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Phone</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Phone</label>
+                                <div class="col-sm-9">
                                     <input type="text" class="form-control" name="phone" id="phone">
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Email</label>
-                                <div class="col-sm-8">
-                                    <input type="email" class="form-control" name="email" id="email">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Photo</label>
-                                <div class="col-sm-8">
-                                    <input type="file" class="dropify" name="photo" id="photo" accept="image/jpeg, image/png, image/webp">
-                                    <small class="form-text text-muted">Maksimal 500KB (JPG/PNG/WEBP).</small>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Status</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Status</label>
+                                <div class="col-sm-9">
                                     <select class="form-control font-weight-bold select2" name="is_active" id="is_active" style="width: 100%;">
                                         <option value="1">Aktif</option>
                                         <option value="0" class="text-danger">Nonaktif</option>
                                     </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab Foto -->
+                        <div class="tab-pane" id="tab-foto" role="tabpanel">
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label">Photo</label>
+                                <div class="col-sm-9">
+                                    <input type="file" class="dropify" name="photo" id="photo" accept="image/jpeg, image/png, image/webp">
+                                    <small class="form-text text-muted">Maksimal 500KB (JPG/PNG/WEBP).</small>
                                 </div>
                             </div>
                         </div>

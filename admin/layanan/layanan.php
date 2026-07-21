@@ -94,69 +94,103 @@ include '../includes/sidebar.php';
                     <!-- Digunakan untuk trigger update -->
                     <input type="hidden" name="id_layanan" id="id_layanan">
                     
-                    <div class="row">
-                        <div class="col-md-6">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#tab-layanan" role="tab">
+                                <span class="d-none d-sm-block">Layanan</span>    
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-deskripsi" role="tab">
+                                <span class="d-none d-sm-block">Durasi & Deskripsi</span>    
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-gambar" role="tab">
+                                <span class="d-none d-sm-block">Gambar</span>    
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-video" role="tab">
+                                <span class="d-none d-sm-block">Video</span>    
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content p-3 text-muted">
+                        <!-- Tab Layanan -->
+                        <div class="tab-pane active" id="tab-layanan" role="tabpanel">
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Kategori *</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Kategori *</label>
+                                <div class="col-sm-9">
                                     <select class="form-control select2" name="id_kategori_layanan" id="id_kategori_layanan" required style="width: 100%;"></select>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Kode Layanan *</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Kode Layanan *</label>
+                                <div class="col-sm-9">
                                     <input type="text" class="form-control" name="kode_layanan" id="kode_layanan" placeholder="Misal: LYN-01" required>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Nama Layanan *</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Nama Layanan *</label>
+                                <div class="col-sm-9">
                                     <input type="text" class="form-control" name="nama_layanan" id="nama_layanan" required>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Tab Durasi dan Deskripsi -->
+                        <div class="tab-pane" id="tab-deskripsi" role="tabpanel">
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Durasi (Menit) *</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Durasi (Menit) *</label>
+                                <div class="col-sm-9">
                                     <input type="number" class="form-control" name="durasi_menit" id="durasi_menit" required>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Deskripsi</label>
-                                    <input type="hidden" name="deskripsi" id="deskripsi_hidden">
-                                    <div id="deskripsi_editor" style="height: 100px;"></div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Status</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Status *</label>
+                                <div class="col-sm-9">
                                     <select class="form-control font-weight-bold select2" name="is_active" id="is_active" style="width: 100%;">
                                         <option value="1">Aktif</option>
                                         <option value="0" class="text-danger">Non-Aktif</option>
                                     </select>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="font-weight-bold">Deskripsi</label>
+                                <input type="hidden" name="deskripsi" id="deskripsi_hidden">
+                                <div id="deskripsi_editor" style="height: 150px;"></div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
+
+                        <!-- Tab Gambar -->
+                        <div class="tab-pane" id="tab-gambar" role="tabpanel">
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Gambar 1 (Utama)</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Gambar 1 (Utama)</label>
+                                <div class="col-sm-9">
                                     <input type="file" class="dropify" name="picture1" accept="image/*">
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Gambar 2</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Gambar 2</label>
+                                <div class="col-sm-9">
                                     <input type="file" class="dropify" name="picture2" accept="image/*">
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Gambar 3</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Gambar 3</label>
+                                <div class="col-sm-9">
                                     <input type="file" class="dropify" name="picture3" accept="image/*">
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Tab Video -->
+                        <div class="tab-pane" id="tab-video" role="tabpanel">
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">URL Video 1</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">URL Video 1</label>
+                                <div class="col-sm-9">
                                     <input type="text" class="form-control" name="video1" id="video1" placeholder="https://youtube.com/...">
                                 </div>
                             </div>
