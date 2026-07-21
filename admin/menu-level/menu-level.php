@@ -88,52 +88,71 @@ include '../includes/sidebar.php';
             <form id="menuForm" onsubmit="saveData(event)">
                 <div class="modal-body p-4">
                     <input type="hidden" name="id_levelmenu" id="id_levelmenu">
-                    
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">Role ID *</label>
-                        <select class="form-control custom-select" name="role_id" id="role_id" required>
-                            <option value="">-- Pilih Role --</option>
-                        </select>
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#tab-role" role="tab">
+                                <span class="d-none d-sm-block">Role</span>    
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-konfigurasi" role="tab">
+                                <span class="d-none d-sm-block">Konfigurasi</span>    
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content p-3 text-muted">
+                        <!-- Tab Role -->
+                        <div class="tab-pane active" id="tab-role" role="tabpanel">
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Role ID *</label>
+                                <select class="form-control select2" name="role_id" id="role_id" required style="width: 100%;">
+                                    <option value="">-- Pilih Role --</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Kategori Menu *</label>
+                                <select class="form-control select2" name="kategori_menu" id="kategori_menu" required style="width: 100%;">
+                                    <option value="">-- Pilih Kategori --</option>
+                                    <option value="Menu Utama">Menu Utama</option>
+                                    <option value="Keuangan">Keuangan</option>
+                                    <option value="Master Data">Master Data</option>
+                                    <option value="Pengaturan">Pengaturan</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Nama Menu *</label>
+                                <input type="text" class="form-control" name="nama_menu" id="nama_menu" placeholder="Contoh: Laporan Omset" required>
+                            </div>
+                        </div>
+
+                        <!-- Tab Konfigurasi -->
+                        <div class="tab-pane" id="tab-konfigurasi" role="tabpanel">
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Link (URL) *</label>
+                                <input type="text" class="form-control" name="link" id="link" placeholder="Contoh: admin/laporan/omset-layanan.php" required>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Hak Akses (Izin Buka Halaman)?</label>
+                                <select class="form-control select2" name="akses" id="akses" required style="width: 100%;">
+                                    <option value="1">Ya, Diizinkan</option>
+                                    <option value="0" class="text-danger">Akses Ditolak</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group mb-0">
+                                <label class="font-weight-bold">Visibilitas (Tampil di Sidebar)?</label>
+                                <select class="form-control select2" name="terlihat" id="terlihat" required style="width: 100%;">
+                                    <option value="1">Ya, Tampilkan</option>
+                                    <option value="0" class="text-warning">Sembunyikan</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">Kategori Menu *</label>
-                        <select class="form-control custom-select" name="kategori_menu" id="kategori_menu" required>
-                            <option value="">-- Pilih Kategori --</option>
-                            <option value="Menu Utama">Menu Utama</option>
-                            <option value="Keuangan">Keuangan</option>
-                            <option value="Master Data">Master Data</option>
-                            <option value="Pengaturan">Pengaturan</option>
-                            <option value="Lainnya">Lainnya</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">Nama Menu *</label>
-                        <input type="text" class="form-control" name="nama_menu" id="nama_menu" placeholder="Contoh: Laporan Omset" required>
-                    </div>
-                    
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">Link (URL) *</label>
-                        <input type="text" class="form-control" name="link" id="link" placeholder="Contoh: admin/laporan/omset-layanan.php" required>
-                    </div>
-                    
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">Hak Akses (Izin Buka Halaman)?</label>
-                        <select class="form-control custom-select" name="akses" id="akses" required>
-                            <option value="1">Ya, Diizinkan</option>
-                            <option value="0" class="text-danger">Akses Ditolak</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group mb-0">
-                        <label class="font-weight-bold">Visibilitas (Tampil di Sidebar)?</label>
-                        <select class="form-control custom-select" name="terlihat" id="terlihat" required>
-                            <option value="1">Ya, Tampilkan</option>
-                            <option value="0" class="text-warning">Sembunyikan</option>
-                        </select>
-                    </div>
-                    
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary waves-effect waves-light font-weight-bold" data-dismiss="modal">Batal</button>
@@ -152,6 +171,9 @@ let roleList = {};
 let dataTable = null;
 
 window.onload = async () => {
+    if($().select2) {
+        $('.select2').select2({ dropdownParent: $('#formModal') });
+    }
     await fetchRoles();
     fetchList();
 };
@@ -259,6 +281,15 @@ function showForm() {
     document.getElementById('menuForm').reset();
     document.getElementById('id_levelmenu').value = '';
     document.getElementById('formTitle').innerText = 'Tambah Menu Level Baru';
+    
+    if($().select2) {
+        $('#role_id').val('').trigger('change');
+        $('#kategori_menu').val('').trigger('change');
+        $('#akses').val('1').trigger('change');
+        $('#terlihat').val('1').trigger('change');
+    }
+    
+    $('.nav-tabs a[href="#tab-role"]').tab('show');
     $('#formModal').modal('show');
 }
 
@@ -271,13 +302,23 @@ function editData(index) {
     const item = currentList[index];
     
     document.getElementById('id_levelmenu').value = item.id_levelmenu;
-    document.getElementById('role_id').value = item.role_id;
-    document.getElementById('kategori_menu').value = item.kategori_menu || '';
+    
+    if($().select2) {
+        $('#role_id').val(item.role_id).trigger('change');
+        $('#kategori_menu').val(item.kategori_menu || '').trigger('change');
+        $('#akses').val(item.akses || 0).trigger('change');
+        $('#terlihat').val(item.terlihat).trigger('change');
+    } else {
+        document.getElementById('role_id').value = item.role_id;
+        document.getElementById('kategori_menu').value = item.kategori_menu || '';
+        document.getElementById('akses').value = item.akses || 0;
+        document.getElementById('terlihat').value = item.terlihat;
+    }
+    
     document.getElementById('nama_menu').value = item.nama_menu;
     document.getElementById('link').value = item.link || '';
-    document.getElementById('terlihat').value = item.terlihat;
-    document.getElementById('akses').value = item.akses || 0;
     
+    $('.nav-tabs a[href="#tab-role"]').tab('show');
     $('#formModal').modal('show');
 }
 
