@@ -8,11 +8,6 @@ include '../includes/header.php';
 include '../includes/sidebar.php';
 
 require_once '../../config/koneksi.php';
-$q = $koneksi->query("SELECT id_terapis, nama_terapis FROM terapis WHERE is_active=1");
-$terapis_options = '';
-while($t = $q->fetch_assoc()){
-    $terapis_options .= '<option value="'.$t['id_terapis'].'">'.$t['nama_terapis'].'</option>';
-}
 ?>
 
 <!-- start page title -->
@@ -45,13 +40,7 @@ while($t = $q->fetch_assoc()){
                             <label class="font-weight-bold">Tanggal Akhir</label>
                             <input type="date" id="end_date" class="form-control" value="<?= date('Y-m-t') ?>" required>
                         </div>
-                        <div class="col-md-4">
-                            <label class="font-weight-bold">Terapis (Opsional)</label>
-                            <select id="id_terapis" class="form-control custom-select">
-                                <option value="">- Semua Terapis -</option>
-                                <?= $terapis_options ?>
-                            </select>
-                        </div>
+
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary btn-block font-weight-bold"><i class="mdi mdi-filter"></i> Filter</button>
                         </div>
@@ -83,7 +72,7 @@ while($t = $q->fetch_assoc()){
                                 <th>No.</th>
                                 <th>Tanggal Bayar</th>
                                 <th>Kode Pembayaran</th>
-                                <th>Terapis</th>
+
                                 <th>Metode Bayar</th>
                                 <th>Status</th>
                                 <th class="text-right">Nominal (Rp)</th>
@@ -122,13 +111,12 @@ $(document).ready(function() {
 async function loadData() {
     const sd = $('#start_date').val();
     const ed = $('#end_date').val();
-    const terapis = $('#id_terapis').val();
     
     dtTable.clear().draw();
-    $('#table_body').html('<tr><td colspan="7" class="text-center">Loading...</td></tr>');
+    $('#table_body').html('<tr><td colspan="6" class="text-center">Loading...</td></tr>');
     
     try {
-        const res = await fetch(`../../api/laporan/omset.php?start_date=${sd}&end_date=${ed}&id_terapis=${terapis}`);
+        const res = await fetch(`../../api/laporan/omset.php?start_date=${sd}&end_date=${ed}`);
         const json = await res.json();
         
         if (json.status === 'success') {
@@ -148,10 +136,9 @@ async function loadData() {
                     i + 1,
                     tglRapi,
                     d.kode_pembayaran || '-',
-                    d.nama_terapis || '-',
                     d.metode_pembayaran || '-',
                     badgeStatus,
-                    `<div class="text-right">` + formatRp(d.jumlah_bayar) + `</div>`
+                    `<div class="text-right font-weight-bold text-success">` + formatRp(d.jumlah_omset) + `</div>`
                 ]);
             });
             dtTable.draw();

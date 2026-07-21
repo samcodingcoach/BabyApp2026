@@ -21,15 +21,9 @@ if (!$start_date || !$end_date) {
     http_response_code(400); echo json_encode(['status' => 'error', 'message' => 'start_date dan end_date wajib diisi (YYYY-MM-DD)']); exit();
 }
 
-$where = "DATE(pembayaran.tanggal_bayar) >= ? AND DATE(pembayaran.tanggal_bayar) <= ?";
+$where = "pembayaran.status_pembayaran = 'LUNAS' AND DATE(pembayaran.tanggal_bayar) >= ? AND DATE(pembayaran.tanggal_bayar) <= ?";
 $params = [$start_date, $end_date];
 $types = "ss";
-
-if ($id_terapis) {
-    $where .= " AND booking.id_terapis = ?";
-    $params[] = $id_terapis;
-    $types .= "i";
-}
 
 $sql = "
     SELECT
@@ -37,22 +31,15 @@ $sql = "
         pembayaran.id_booking, 
         pembayaran.tanggal_bayar, 
         pembayaran.kode_pembayaran, 
-        pembayaran.jumlah_bayar, 
-        pembayaran.jumlah_omset,
         pembayaran.metode_pembayaran, 
         pembayaran.status_pembayaran, 
-        booking.id_terapis, 
-        terapis.nama_terapis
+        pembayaran.jumlah_omset
     FROM
         pembayaran
         INNER JOIN
         booking
         ON 
             pembayaran.id_booking = booking.id_booking
-        INNER JOIN
-        terapis
-        ON 
-            booking.id_terapis = terapis.id_terapis
     WHERE $where
     ORDER BY pembayaran.tanggal_bayar DESC
 ";

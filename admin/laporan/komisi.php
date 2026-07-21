@@ -53,15 +53,9 @@ require_once '../../config/koneksi.php';
                 </form>
 
                 <div class="row mb-4" id="summary_section" style="display:none;">
-                    <div class="col-sm-6">
-                        <div class="p-3 bg-light border rounded">
-                            <h5 class="font-size-15 mb-1">Total Transaksi Komisi</h5>
-                            <h3 class="text-primary mb-0" id="summ_transaksi">0</h3>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="p-3 bg-light border rounded">
-                            <h5 class="font-size-15 mb-1">Total Pencairan Komisi</h5>
+                    <div class="col-12">
+                        <div class="p-3 bg-light border rounded text-center">
+                            <h5 class="font-size-15 mb-2" id="title_summ_komisi">Total Pencairan Komisi</h5>
                             <h3 class="text-success mb-0" id="summ_komisi">Rp 0</h3>
                             <small class="text-muted mt-2 d-block">* Nilai Total Pencairan belum termasuk biaya admin</small>
                         </div>
@@ -143,7 +137,8 @@ async function loadData() {
         const json = await res.json();
         
         if (json.status === 'success') {
-            $('#summ_transaksi').text(json.summary.total_transaksi_komisi);
+            const txCount = json.summary.total_transaksi_komisi || 0;
+            $('#title_summ_komisi').text(`Total Pencairan Komisi (${txCount} Transaksi)`);
             $('#summ_komisi').text('Rp ' + formatRp(json.summary.total_komisi));
             $('#summary_section').show();
             
