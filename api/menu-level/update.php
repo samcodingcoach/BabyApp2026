@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama_menu = $_POST['nama_menu'] ?? '';
     $link = $_POST['link'] ?? '';
     $terlihat = $_POST['terlihat'] ?? 0;
+    $akses = $_POST['akses'] ?? 0;
 
     $kategori_menu = $_POST['kategori_menu'] ?? 'Lainnya';
 
@@ -16,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $stmt = $koneksi->prepare("UPDATE menu_level SET role_id = ?, kategori_menu = ?, nama_menu = ?, link = ?, terlihat = ? WHERE id_levelmenu = ?");
-    $stmt->bind_param("isssii", $role_id, $kategori_menu, $nama_menu, $link, $terlihat, $id_levelmenu);
+    $stmt = $koneksi->prepare("UPDATE menu_level SET role_id = ?, kategori_menu = ?, nama_menu = ?, link = ?, terlihat = ?, akses = ? WHERE id_levelmenu = ?");
+    $stmt->bind_param("isssiii", $role_id, $kategori_menu, $nama_menu, $link, $terlihat, $akses, $id_levelmenu);
     
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success', 'message' => 'Menu level berhasil diperbarui']);

@@ -7,6 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama_menu = $_POST['nama_menu'] ?? '';
     $link = $_POST['link'] ?? '';
     $terlihat = $_POST['terlihat'] ?? 0;
+    $akses = $_POST['akses'] ?? 0;
 
     $kategori_menu = $_POST['kategori_menu'] ?? 'Lainnya';
 
@@ -15,8 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $stmt = $koneksi->prepare("INSERT INTO menu_level (role_id, kategori_menu, nama_menu, link, terlihat) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("isssi", $role_id, $kategori_menu, $nama_menu, $link, $terlihat);
+    $stmt = $koneksi->prepare("INSERT INTO menu_level (role_id, kategori_menu, nama_menu, link, terlihat, akses) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("isssii", $role_id, $kategori_menu, $nama_menu, $link, $terlihat, $akses);
     
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success', 'message' => 'Menu level berhasil disimpan']);

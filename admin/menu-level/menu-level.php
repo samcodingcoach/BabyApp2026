@@ -61,6 +61,7 @@ include '../includes/sidebar.php';
                                 <th>Nama Menu</th>
                                 <th>Link URL</th>
                                 <th>Visibilitas</th>
+                                <th>Hak Akses</th>
                                 <th style="width: 15%;">Aksi</th>
                             </tr>
                         </thead>
@@ -117,11 +118,19 @@ include '../includes/sidebar.php';
                         <input type="text" class="form-control" name="link" id="link" placeholder="Contoh: admin/laporan/omset-layanan.php" required>
                     </div>
                     
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold">Hak Akses (Izin Buka Halaman)?</label>
+                        <select class="form-control custom-select" name="akses" id="akses" required>
+                            <option value="1">Ya, Diizinkan</option>
+                            <option value="0" class="text-danger">Akses Ditolak</option>
+                        </select>
+                    </div>
+                    
                     <div class="form-group mb-0">
-                        <label class="font-weight-bold">Terlihat di Sidebar?</label>
+                        <label class="font-weight-bold">Visibilitas (Tampil di Sidebar)?</label>
                         <select class="form-control custom-select" name="terlihat" id="terlihat" required>
                             <option value="1">Ya, Tampilkan</option>
-                            <option value="0" class="text-danger">Sembunyikan</option>
+                            <option value="0" class="text-warning">Sembunyikan</option>
                         </select>
                     </div>
                     
@@ -207,8 +216,12 @@ async function fetchList() {
             
             result.data.forEach((item, index) => {
                 const statusHtml = parseInt(item.terlihat) === 1 
-                    ? '<span class="text-success font-weight-bold"><i class="mdi mdi-eye"></i> Terlihat</span>' 
-                    : '<span class="text-danger font-weight-bold"><i class="mdi mdi-eye-off"></i> Sembunyi</span>';
+                    ? '<span class="text-primary font-weight-bold"><i class="mdi mdi-eye"></i> Tampil</span>' 
+                    : '<span class="text-warning font-weight-bold"><i class="mdi mdi-eye-off"></i> Sembunyi</span>';
+                
+                const aksesHtml = parseInt(item.akses) === 1
+                    ? '<span class="text-success font-weight-bold"><i class="mdi mdi-check-circle"></i> Diizinkan</span>'
+                    : '<span class="text-danger font-weight-bold"><i class="mdi mdi-close-circle"></i> Ditolak</span>';
                 
                 tbody.innerHTML += `
                     <tr>
@@ -218,6 +231,7 @@ async function fetchList() {
                         <td class="align-middle font-weight-bold text-dark">${item.nama_menu}</td>
                         <td class="align-middle"><small class="text-muted">${item.link || '-'}</small></td>
                         <td class="align-middle">${statusHtml}</td>
+                        <td class="align-middle">${aksesHtml}</td>
                         <td class="align-middle">
                             <button onclick="editData(${index})" class="btn btn-sm btn-info waves-effect waves-light mr-1"><i class="mdi mdi-pencil"></i></button>
                             <button onclick="deleteData(${item.id_levelmenu})" class="btn btn-sm btn-danger waves-effect waves-light"><i class="mdi mdi-trash-can"></i></button>
@@ -236,6 +250,7 @@ async function fetchList() {
         });
         
     } catch (error) {
+        console.error("fetchList Error:", error);
         Swal.fire('Error', 'Terjadi gangguan koneksi ke sistem API.', 'error');
     }
 }
@@ -261,6 +276,7 @@ function editData(index) {
     document.getElementById('nama_menu').value = item.nama_menu;
     document.getElementById('link').value = item.link || '';
     document.getElementById('terlihat').value = item.terlihat;
+    document.getElementById('akses').value = item.akses || 0;
     
     $('#formModal').modal('show');
 }

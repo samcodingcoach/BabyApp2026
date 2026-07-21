@@ -61,8 +61,8 @@ if (isset($_SESSION['user_id'])) {
             $api_data = json_decode($response, true);
             if (isset($api_data['status']) && $api_data['status'] === 'success') {
                 foreach ($api_data['data'] as $menu) {
-                    // Hanya izinkan jika terdaftar DAN terlihat = 1 (atau izinkan jika memang secara logis butuh diakses walau sembunyi? User bilang 'sembunyi kok muncul', berarti harus diblokir juga)
-                    if ($menu['link'] === $current_path && isset($menu['terlihat']) && $menu['terlihat'] == 1) {
+                    // Hanya izinkan jika terdaftar DAN akses = 1
+                    if ($menu['link'] === $current_path && isset($menu['akses']) && $menu['akses'] == 1) {
                         $is_allowed = true;
                         break;
                     }

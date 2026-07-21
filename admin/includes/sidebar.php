@@ -20,8 +20,8 @@ if (isset($_SESSION['role_id'])) {
         $api_data = json_decode($response, true);
         if (isset($api_data['status']) && $api_data['status'] === 'success') {
             foreach ($api_data['data'] as $row) {
-                // Hanya ambil yang terlihat = 1
-                if (isset($row['terlihat']) && $row['terlihat'] == 1) {
+                // Hanya ambil yang terlihat = 1 DAN akses = 1
+                if (isset($row['terlihat']) && $row['terlihat'] == 1 && isset($row['akses']) && $row['akses'] == 1) {
                     $kategori = !empty($row['kategori_menu']) ? $row['kategori_menu'] : 'Lainnya';
                     if (!isset($dynamic_menus[$kategori])) {
                         $dynamic_menus[$kategori] = [];
@@ -46,8 +46,9 @@ function getMenuIcon($nama_menu) {
         'Daftar Layanan' => 'feather-list',
         'Kategori Layanan' => 'feather-grid',
         'Ongkos Kirim' => 'feather-map-pin',
+        'Pencairan Terapis'=> 'feather-dollar-sign',
         'Akun Administrator' => 'feather-settings',
-        'Config Midtrans' => 'feather-credit-card',
+        'Atur Midtrans' => 'feather-credit-card',
         'Atur Role' => 'feather-shield',
         'Menu Level' => 'feather-shield'
     ];
