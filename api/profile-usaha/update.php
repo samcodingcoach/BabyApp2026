@@ -24,6 +24,7 @@ $ig = $_POST['ig'] ?? null;
 $jam_buka = $_POST['jam_buka'] ?? null;
 $jam_tutup = $_POST['jam_tutup'] ?? null;
 $website = $_POST['website'] ?? null;
+$email = $_POST['email'] ?? null;
 $sedang_buka = isset($_POST['sedang_buka']) ? (int)$_POST['sedang_buka'] : 1;
 
 // Jika tabel profile_usaha masih kosong, kita insert.
@@ -54,11 +55,24 @@ if (isset($_FILES['foto_usaha']) && $_FILES['foto_usaha']['error'] === UPLOAD_ER
 }
 
 if ($foto_usaha) {
-    $stmt = $koneksi->prepare("UPDATE profile_usaha SET nama_usaha=?, nama_pemilik=?, alamat=?, alamat_gps=?, whatsapp1=?, whatsapp2=?, ig=?, jam_buka=?, jam_tutup=?, website=?, sedang_buka=?, foto_usaha=? WHERE id_usaha=?");
-    $stmt->bind_param("ssssssssssisi", $nama_usaha, $nama_pemilik, $alamat, $alamat_gps, $whatsapp1, $whatsapp2, $ig, $jam_buka, $jam_tutup, $website, $sedang_buka, $foto_usaha, $id_usaha);
+    $stmt = $koneksi->prepare("UPDATE profile_usaha SET nama_usaha=?, nama_pemilik=?, alamat=?, alamat_gps=?, whatsapp1=?, whatsapp2=?, ig=?, jam_buka=?, jam_tutup=?, website=?, email=?, sedang_buka=?, foto_usaha=? WHERE id_usaha=?");
+    $stmt->bind_param("sssssssssssisi", $nama_usaha, $nama_pemilik, $alamat, $alamat_gps, $whatsapp1, $whatsapp2, $ig, $jam_buka, $jam_tutup, $website, $email, $sedang_buka, $foto_usaha, $id_usaha);
 } else {
-    $stmt = $koneksi->prepare("UPDATE profile_usaha SET nama_usaha=?, nama_pemilik=?, alamat=?, alamat_gps=?, whatsapp1=?, whatsapp2=?, ig=?, jam_buka=?, jam_tutup=?, website=?, sedang_buka=? WHERE id_usaha=?");
-    $stmt->bind_param("ssssssssssii", $nama_usaha, $nama_pemilik, $alamat, $alamat_gps, $whatsapp1, $whatsapp2, $ig, $jam_buka, $jam_tutup, $website, $sedang_buka, $id_usaha);
+    $stmt = $koneksi->prepare("UPDATE profile_usaha SET 
+        nama_usaha=?, 
+        nama_pemilik=?, 
+        alamat=?, 
+        alamat_gps=?, 
+        whatsapp1=?, 
+        whatsapp2=?, 
+        ig=?, 
+        jam_buka=?, 
+        jam_tutup=?, 
+        website=?, 
+        email=?, 
+        sedang_buka=? 
+        WHERE id_usaha=?");
+    $stmt->bind_param("sssssssssssii", $nama_usaha, $nama_pemilik, $alamat, $alamat_gps, $whatsapp1, $whatsapp2, $ig, $jam_buka, $jam_tutup, $website, $email, $sedang_buka, $id_usaha);
 }
 
 if ($stmt->execute()) {

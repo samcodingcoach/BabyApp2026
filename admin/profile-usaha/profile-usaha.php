@@ -132,6 +132,18 @@ include '../includes/sidebar.php';
                         </div>
                     </div>
 
+                    <div class="form-group row">
+                        <label class="col-md-3 col-form-label">Email</label>
+                        <div class="col-md-9">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="mdi mdi-email"></i></span>
+                                </div>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="email@perusahaan.com">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mt-4 text-right">
                         <button type="submit" id="btnSubmit" class="btn btn-primary waves-effect waves-light font-weight-bold px-4">
                             <i class="mdi mdi-content-save mr-1"></i> Simpan Perubahan Profil
@@ -204,6 +216,7 @@ async function fetchProfile() {
             document.getElementById('whatsapp2').value = data.whatsapp2 || '';
             document.getElementById('ig').value = data.ig || '';
             document.getElementById('website').value = data.website || '';
+            document.getElementById('email').value = data.email || '';
             
             document.getElementById('sedang_buka').value = data.sedang_buka !== null ? data.sedang_buka : 1;
             if($().select2) $('#sedang_buka').trigger('change');
