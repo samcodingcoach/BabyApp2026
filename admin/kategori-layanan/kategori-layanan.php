@@ -73,37 +73,50 @@ include '../includes/sidebar.php';
                 <div class="modal-body">
                     <input type="hidden" name="id_kategori_layanan" id="id_kategori_layanan">
                     
-                    <div class="row">
-                        <div class="col-md-6">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#tab-kategori" role="tab">
+                                <span class="d-block d-sm-none"><i class="fas fa-home"></i></span>
+                                <span class="d-none d-sm-block">Kategori</span>    
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-deskripsi" role="tab">
+                                <span class="d-block d-sm-none"><i class="far fa-user"></i></span>
+                                <span class="d-none d-sm-block">Deskripsi</span>    
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content p-3 text-muted">
+                        <div class="tab-pane active" id="tab-kategori" role="tabpanel">
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Kode Kategori</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Kode Kategori</label>
+                                <div class="col-sm-9">
                                     <input type="text" class="form-control" name="kode_kategori" id="kode_kategori" required>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Nama Kategori</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Nama Kategori</label>
+                                <div class="col-sm-9">
                                     <input type="text" class="form-control" name="nama_kategori" id="nama_kategori" required>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
                             <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Deskripsi</label>
-                                <div class="col-sm-8">
-                                    <input type="hidden" name="deskripsi" id="deskripsi_hidden">
-                                    <div id="deskripsi_editor" style="height: 100px;"></div>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-4 col-form-label">Status</label>
-                                <div class="col-sm-8">
+                                <label class="col-sm-3 col-form-label">Status</label>
+                                <div class="col-sm-9">
                                     <select class="form-control font-weight-bold select2" name="is_active" id="is_active" style="width: 100%;">
                                         <option value="1">Aktif</option>
                                         <option value="0" class="text-danger">Nonaktif</option>
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab-deskripsi" role="tabpanel">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Deskripsi</label>
+                                <input type="hidden" name="deskripsi" id="deskripsi_hidden">
+                                <div id="deskripsi_editor" style="height: 150px;"></div>
                             </div>
                         </div>
                     </div>
