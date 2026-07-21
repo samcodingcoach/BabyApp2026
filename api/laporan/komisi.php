@@ -42,7 +42,8 @@ $sql = "
         komisi_terapis.tanggal_pencairan, 
         komisi_terapis.created_at, 
         pembayaran.kode_pembayaran,
-        booking.tarif_ongkir
+        booking.tarif_ongkir,
+        komisi_terapis.kode_pencairan
     FROM
         komisi_terapis
         INNER JOIN
