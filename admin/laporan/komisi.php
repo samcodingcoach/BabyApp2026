@@ -71,12 +71,30 @@ require_once '../../config/koneksi.php';
                                 <th>Nama Terapis</th>
                                 <th>Status Pencairan</th>
                                 <th class="text-right">Komisi (Rp)</th>
+                                <th class="text-center">Detail</th>
                             </tr>
                         </thead>
                         <tbody id="table_body">
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail Pencairan -->
+<div class="modal fade" id="modalDetailPencairan" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Pencairan Komisi</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="iframeDetailPencairan" src="" style="width:100%; height:70vh; border:none;"></iframe>
             </div>
         </div>
     </div>
@@ -155,20 +173,31 @@ async function loadData() {
                 
                 let komisi = parseFloat(d.nominal_komisi) || 0;
 
+                let btnDetail = '-';
+                if (d.kode_pencairan) {
+                    btnDetail = `<button class="btn btn-sm btn-info" onclick="showDetailPencairan('${d.kode_pencairan}')"><i class="mdi mdi-printer"></i> Struk</button>`;
+                }
+
                 dtTable.row.add([
                     i + 1,
                     d.kode_pembayaran || '-',
                     d.nama_terapis || '-',
                     badgeStatus,
-                    `<div class="text-right font-weight-bold text-success">` + formatRp(komisi) + `</div>`
+                    `<div class="text-right font-weight-bold text-success">` + formatRp(komisi) + `</div>`,
+                    `<div class="text-center">` + btnDetail + `</div>`
                 ]);
             });
             dtTable.draw();
         } else {
-            Swal.fire('Error', json.message, 'error');
+            console.error('API Error:', json.message);
         }
     } catch(e) {
-        Swal.fire('Error', 'Gagal memuat data komisi.', 'error');
+        console.error('Fetch Error:', e);
     }
+}
+
+function showDetailPencairan(kode) {
+    $('#iframeDetailPencairan').attr('src', `../pencairan-komisi/print.php?kode=${kode}`);
+    $('#modalDetailPencairan').modal('show');
 }
 </script>
