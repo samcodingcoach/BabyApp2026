@@ -163,7 +163,7 @@ include '../includes/sidebar.php';
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Kecamatan</label>
-                                        <input type="text" class="form-control" name="kecamatan" id="kecamatan" placeholder="Cth: Lowokwaru">
+                                        <select class="form-control select2-tags" name="kecamatan" id="kecamatan" style="width: 100%;"></select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -274,11 +274,40 @@ let quillKeterangan;
 window.onload = () => {
     if($().select2) {
         $('.select2').select2({ dropdownParent: $('#formModal') });
+        $('.select2-tags').select2({ 
+            dropdownParent: $('#formModal'),
+            tags: true,
+            placeholder: "Pilih atau ketik kecamatan baru"
+        });
     }
     $('.dropify').dropify();
     quillKeterangan = new Quill('#keterangan_editor', { theme: 'snow' });
     fetchList();
+    fetchOngkirKecamatan();
 };
+
+async function fetchOngkirKecamatan() {
+    try {
+        const response = await fetch('../../api/ongkir/list.php');
+        const result = await response.json();
+        if (result.status === 'success') {
+            const lokasiSet = new Set();
+            result.data.forEach(item => {
+                lokasiSet.add(item.dari_kecamatan);
+                lokasiSet.add(item.ke_kecamatan);
+            });
+            const listLokasi = Array.from(lokasiSet).sort();
+            const sel = $('#kecamatan');
+            sel.empty();
+            sel.append('<option value="">-- Pilih / Ketik --</option>');
+            listLokasi.forEach(item => {
+                if(item) sel.append(new Option(item, item, false, false));
+            });
+        }
+    } catch (e) {
+        console.error("Gagal memuat kecamatan:", e);
+    }
+}
 
 function applyFilter() {
     clearTimeout(filterTimer);
@@ -392,7 +421,15 @@ function editData(index) {
     document.getElementById('agama').value = item.agama || '1';
     
     document.getElementById('alamat').value = item.alamat || '';
-    document.getElementById('kecamatan').value = item.kecamatan || '';
+    
+    let $kec = $('#kecamatan');
+    if ($kec.find("option[value='" + item.kecamatan + "']").length) {
+        $kec.val(item.kecamatan).trigger('change');
+    } else { 
+        var newOption = new Option(item.kecamatan, item.kecamatan, true, true);
+        $kec.append(newOption).trigger('change');
+    }
+    
     document.getElementById('alamat_gps').value = item.alamat_gps || '';
     
     document.getElementById('no_rek1').value = item.nor_rek1 || '';
