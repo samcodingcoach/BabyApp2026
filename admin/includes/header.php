@@ -34,8 +34,7 @@ if (isset($_SESSION['user_id'])) {
 
     // Daftar halaman yang selalu boleh diakses tanpa cek menu_level (Whitelist)
     $whitelist = [
-        'admin/index.php', 
-        'admin/profile-usaha/profile-usaha.php',
+        'admin/index.php'
     ];
 
     // Superadmin (role 1) selalu bisa akses Manajemen Menu Level
